@@ -6,7 +6,7 @@ import ImageWMS from 'ol/source/ImageWMS';
 import TileWMS from 'ol/source/TileWMS';
 import OSM from 'ol/source/OSM';
 import { createStringXY } from 'ol/coordinate';
-import { OverviewMap, defaults as defaultControls } from 'ol/control';
+import { ScaleLine, OverviewMap, defaults as defaultControls } from 'ol/control';
 import { fromLonLat, useGeographic } from 'ol/proj';
 
 //useGeographic();
@@ -49,13 +49,14 @@ const layers = [ osmLayer, wmsLayer ];
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
   center: mapCenter,
+  pixelRatio: 1,
   zoom: 14,
 });
 
-//mousePositionControl, 
+//
 
 const map = new Map({
-  controls: defaultControls().extend([overviewMapControl]),
+  controls: defaultControls().extend([mousePositionControl, overviewMapControl, new ScaleLine( )]),
   target: 'map',
   layers: layers,
   view: view,
@@ -79,7 +80,7 @@ map.on('singleclick', function (evt) {
     'EPSG:32647',
     { 'INFO_FORMAT': 'text/html' }
   );
-  console.log(viewResolution);
+  console.log(viewResolution + '   ' + url);
   if (url) {
     fetch(url)
       .then((response) => response.text())
