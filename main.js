@@ -7,9 +7,10 @@ import TileWMS from 'ol/source/TileWMS';
 import OSM from 'ol/source/OSM';
 import { createStringXY } from 'ol/coordinate';
 import { OverviewMap, defaults as defaultControls } from 'ol/control';
-import { useGeographic } from 'ol/proj';
+import { fromLonLat, useGeographic } from 'ol/proj';
 
 //useGeographic();
+const mapCenter = fromLonLat([98.1969, 4.2667]);
 
 const source = new OSM();
 const overviewMapControl = new OverviewMap({
@@ -47,7 +48,7 @@ const layers = [ osmLayer, wmsLayer ];
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
-  center: [10931624.821320383, 475651.46884284815],
+  center: mapCenter,
   zoom: 14,
 });
 
