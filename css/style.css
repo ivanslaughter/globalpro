@@ -1,0 +1,140 @@
+@import "../node_modules/ol/ol.css";
+@import "font-jagotani.min.css";
+
+@font-face {
+  font-family: 'SFCompactRounded';
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Regular.eot');
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Regular.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Regular.woff2') format('woff2'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Regular.woff') format('woff'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Regular.ttf') format('truetype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Regular.svg#SFCompactRounded-Regular') format('svg');
+  font-weight: 400;
+}
+@font-face {
+  font-family: "SFCompactRounded";
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Medium.eot');
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Medium.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Medium.woff2') format('woff2'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Medium.woff') format('woff'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Medium.ttf') format('truetype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Medium.svg#SFCompactRounded-Medium') format('svg');
+  font-weight: 500;
+}
+@font-face {
+  font-family: "SFCompactRounded";
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Light.eot');
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Light.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Light.woff2') format('woff2'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Light.woff') format('woff'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Light.ttf') format('truetype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Light.svg#SFCompactRounded-Light') format('svg');
+  font-weight: 300;
+}
+@font-face {
+  font-family: "SFCompactRounded";
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Semibold.eot');
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Semibold.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Semibold.woff2') format('woff2'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Semibold.woff') format('woff'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Semibold.ttf') format('truetype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Semibold.svg#SFCompactRounded-Semibold') format('svg');
+  font-weight: 600;
+}
+@font-face {
+  font-family: "SFCompactRounded";
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Bold.eot');
+  src: url('../fonts/SFCompactRounded/SFCompactRounded-Bold.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Bold.woff2') format('woff2'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Bold.woff') format('woff'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Bold.ttf') format('truetype'),
+      url('../fonts/SFCompactRounded/SFCompactRounded-Bold.svg#SFCompactRounded-Bold') format('svg');
+  font-weight: 700;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: 'SFCompactRounded', Helvetica, sans-serif;
+}
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+#map-info{
+  position: absolute;
+  right: 0.54rem;
+  top: 4.23rem;
+  z-index: 1;
+  font-size: 0.9rem;
+  /* color: white; */
+  background-color: rgba(250,250,250,0.72);
+  padding: 0.27rem 0.36rem;
+}
+
+#map-info tr > th:nth-child(1),
+#map-info tr > td:nth-child(2) {
+    display: none;
+}
+
+#map-info table.table{
+  margin-bottom: 0;
+  caption-side: top;
+}
+
+#mouse-position {
+  position: absolute;
+  left: 0.5em;
+  bottom: 3.2em;
+  z-index: 1;
+  font-size: 0.72rem;
+  color: white;
+  background-color: rgba(0,60,136,0.5);
+  padding: 0.18rem 0.27rem;
+}
+#menu-toggle{
+  position:absolute;
+  z-index: 1;
+  top: 0.54rem; left: 0.54rem;
+}
+#menu-toggle:focus{
+  box-shadow: none !important;
+}
+.ol-zoom {
+    top: 0.5em;
+    left: unset;
+    right: 0.5em;
+}
+.ol-overviewmap {
+    left: 0.5em;
+    bottom: 4.1em;
+}
+.ol-scale-line {
+    left: 0.5em;
+    bottom: 0.5em;
+}
+
+/* offcanvas custom */
+.offcanvas{
+  box-shadow: inset -9px 0px 0px #2196f3;
+}
+.offcanvas-header:before {
+    position: absolute;
+    content: "";
+    width: 43.2px;
+    height: 32.4px;
+    background-color: #2196f3;
+    right: 0;
+    border-radius: 0.36rem 0 0 0.36rem;
+}
+
+.offcanvas-header .btn-close {
+  z-index: 1;
+}
+.offcanvas-header .btn-close:focus {
+    outline: 0;
+    box-shadow: none;
+    z-index: 0;
+}

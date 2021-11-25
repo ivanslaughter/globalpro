@@ -8,14 +8,104 @@
     <script src="https://unpkg.com/elm-pep"></script>
     <script src="https://cdn.polyfill.io/v3/polyfill.min.js?features=fetch,requestAnimationFrame,Element.prototype.classList,URL,TextDecoder,Number.isInteger"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <div id="map"></div>
-    <div id="mouse-position"></div>
+    <!-- <div id="mouse-position"></div> -->
     <div id="map-info"></div>
+    <a id="menu-toggle" class="btn btn-primary" data-bs-toggle="offcanvas" href="#gp-dashboard-menu" role="button" aria-controls="gp-dashboard-menu">
+      <i class="jt-menu"></i> <span class="mx-2"><span class="fw-bolder">GlobalPro</span> Dashboard</span>
+    </a>
 
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="gp-dashboard-menu" aria-labelledby="gp-dashboard-menuLabel">
+      <div class="offcanvas-header">
+        <h4 class="offcanvas-title" id="gp-dashboard-menuLabel"><span class="fw-bolder">GlobalPro</span> Dashboard</h4>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <h5 class="offcanvas-title lh-1 mb-3 border-bottom pb-2"><small class="fw-light">Perkebunan Kelapa Sawit</small><br><span class="text-uppercase">Damar Condong</span><br><small class="fw-light">Langkat, Sumatera Utara</small></h5>
+        <div class="border-bottom lh-1 py-1">
+          <small class="fw-light">Area</small>
+          <div class="fw-bolder">1173.1 ha</div>
+        </div>
+        <div class="border-bottom lh-1 py-1">
+          <small class="fw-light">Afdeling</small>
+          <div class="fw-bolder">3</div>
+        </div>
+        <div class="border-bottom lh-1 py-1">
+          <small class="fw-light">Block</small>
+          <div class="fw-bolder">50</div>
+        </div>
+        <div class="border-bottom lh-1 py-1">
+          <small class="fw-light">Pohon</small>
+          <div class="fw-bolder">126.439</div>
+        </div>
+        <div class="border-bottom lh-1 py-1">
+          <small class="fw-light">Densitas (Avg)</small>
+          <div class="fw-bolder">108.97</div>
+        </div>
+        
+        <div class="dropdown mt-3">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+            Blok
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <li><a class="dropdown-item" href="#">Blok 1</a></li>
+            <li><a class="dropdown-item" href="#">Blok 2</a></li>
+            <li><a class="dropdown-item" href="#">Blok 3</a></li>
+            <li><a class="dropdown-item" href="#">Blok 4</a></li>
+            <li><a class="dropdown-item" href="#">Blok 5</a></li>
+            <li><a class="dropdown-item" href="#">Blok 6</a></li>
+            <li><a class="dropdown-item" href="#">Blok 7</a></li>
+            <li><a class="dropdown-item" href="#">Blok 8</a></li>
+            <li><a class="dropdown-item" href="#">Blok 9</a></li>
+            <li><a class="dropdown-item" href="#">Blok 10</a></li>
+            <li><a class="dropdown-item" href="#">Blok 11</a></li>
+            <li><a class="dropdown-item" href="#">Blok 12</a></li>
+            <li><a class="dropdown-item" href="#">Blok 13</a></li>
+            <li><a class="dropdown-item" href="#">Blok 14</a></li>
+            <li><a class="dropdown-item" href="#">Blok 15</a></li>
+            <li><a class="dropdown-item" href="#">Blok 16</a></li>
+            <li><a class="dropdown-item" href="#">Blok 17</a></li>
+            <li><a class="dropdown-item" href="#">Blok 18</a></li>
+            <li><a class="dropdown-item" href="#">Blok 19</a></li>
+            <li><a class="dropdown-item" href="#">Blok 20</a></li>
+            <li><a class="dropdown-item" href="#">Blok 21</a></li>
+            <li><a class="dropdown-item" href="#">Blok 22</a></li>
+            <li><a class="dropdown-item" href="#">Blok 23</a></li>
+            <li><a class="dropdown-item" href="#">Blok 24</a></li>
+            <li><a class="dropdown-item" href="#">Blok 25</a></li>
+            <li><a class="dropdown-item" href="#">Blok 26</a></li>
+            <li><a class="dropdown-item" href="#">Blok 27</a></li>
+            <li><a class="dropdown-item" href="#">Blok 28</a></li>
+            <li><a class="dropdown-item" href="#">Blok 29</a></li>
+            <li><a class="dropdown-item" href="#">Blok 30</a></li>
+            <li><a class="dropdown-item" href="#">Blok 31</a></li>
+            <li><a class="dropdown-item" href="#">Blok 32</a></li>
+            <li><a class="dropdown-item" href="#">Blok 33</a></li>
+            <li><a class="dropdown-item" href="#">Blok 34</a></li>
+            <li><a class="dropdown-item" href="#">Blok 35</a></li>
+            <li><a class="dropdown-item" href="#">Blok 36</a></li>
+            <li><a class="dropdown-item" href="#">Blok 37</a></li>
+            <li><a class="dropdown-item" href="#">Blok 38</a></li>
+            <li><a class="dropdown-item" href="#">Blok 39</a></li>
+            <li><a class="dropdown-item" href="#">Blok 40</a></li>
+            <li><a class="dropdown-item" href="#">Blok 41</a></li>
+            <li><a class="dropdown-item" href="#">Blok 42</a></li>
+            <li><a class="dropdown-item" href="#">Blok 43</a></li>
+            <li><a class="dropdown-item" href="#">Blok 44</a></li>
+            <li><a class="dropdown-item" href="#">Blok 45</a></li>
+            <li><a class="dropdown-item" href="#">Blok 46</a></li>
+            <li><a class="dropdown-item" href="#">Blok 47</a></li>
+            <li><a class="dropdown-item" href="#">Blok 48</a></li>
+            <li><a class="dropdown-item" href="#">Blok 49</a></li>
+            <li><a class="dropdown-item" href="#">Blok 50</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <script type="module" src="./main.js"></script>
   </body>
 </html>
