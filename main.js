@@ -109,8 +109,8 @@ map.on('singleclick', function (evt) {
           var text = $(this).text();
           text = text.replace("SS_Digitasi_Batas_", "");
           text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
-          text = text.replace("SS_Digitasi_Jembatan_", "");
-          text = text.replace("SS_Digitasi_Bangunan_", "");
+          text = text.replace("SS_Digitasi_Jembatan", "Jembatan");
+          text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
           $(this).text(text);
         });
         $("#map-info th").each(function () {
@@ -122,6 +122,7 @@ map.on('singleclick', function (evt) {
           var text = $(this).text();
           text = text.replace("SS_Digitasi_Batas_", "");
           text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
+          text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
           $(this).text(text);
         });
       });
