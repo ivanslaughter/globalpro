@@ -1,21 +1,64 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/style.css';
 import {Map, View, Overlay} from 'ol';
 import MousePosition from 'ol/control/MousePosition';
-import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer';
+import { Image as ImageLayer, Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import ImageWMS from 'ol/source/ImageWMS';
 import TileWMS from 'ol/source/TileWMS';
+import GeoJSON from 'ol/format/GeoJSON';
+import VectorSource from 'ol/source/Vector'
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import OSM from 'ol/source/OSM';
 import { createStringXY } from 'ol/coordinate';
 import { ScaleLine, OverviewMap, defaults as defaultControls } from 'ol/control';
 import { fromLonLat, useGeographic, Projection } from 'ol/proj';
+import { Modal, Offcanvas } from 'bootstrap';
 
 //useGeographic();
+
+/* const { JSDOM } = require("jsdom");
+const { window } = new JSDOM("");
+const $ = jQuery = require("jquery")(window); */
+
+var mapInfo = new Modal(document.getElementById('mapInfo'));
+
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 const projection = new Projection({
   code: 'EPSG:4326',
   units: 'm',
 });
 const mapExtent = [];
+
+const afdelingSource = new VectorSource({
+  url: 'http://localhost:8080/geoserver/Mopoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Mopoli%3ASS_Digitasi_Batas_Afdeling&maxFeatures=50&outputFormat=application%2Fjson',
+  format: new GeoJSON(),
+  overlaps: true
+});
+
+const afdelingStyle = new Style({
+  fill: new Fill({
+    color: 'rgba(255, 255, 255, 0.18)',
+  }),
+  stroke: new Stroke({
+    color: '#319FD3',
+    width: 1,
+  }),
+  image: new CircleStyle({
+    radius: 5,
+    fill: new Fill({
+      color: 'rgba(255, 255, 255, 0.6)',
+    }),
+    stroke: new Stroke({
+      color: '#319FD3',
+      width: 1,
+    }),
+  }),
+});
+
+const vectorLayer = new VectorLayer({
+  source: afdelingSource,
+  style: afdelingStyle,
+});
 
 const source = new OSM();
 const overviewMapControl = new OverviewMap({
@@ -37,12 +80,12 @@ const mousePositionControl = new MousePosition({
 
 const wmsSource = new ImageWMS({
   url: 'http://localhost:8080/geoserver/Mopoli/wms',
-  params: { 'LAYERS': 'Mopoli:Mopoli_Group', 'TILED': true },
+  params: { 'LAYERS': 'Mopoli:Mopoli_Group' },
   serverType: 'geoserver',
 });
 
 const osmLayer = new TileLayer({
-  source: new OSM(),
+  source: new OSM()
 });
 
 const wmsLayer = new ImageLayer({
@@ -50,7 +93,7 @@ const wmsLayer = new ImageLayer({
   source: wmsSource,
 });
 
-const layers = [ osmLayer, wmsLayer ];
+const layers = [ osmLayer, wmsLayer, vectorLayer ];
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
@@ -81,7 +124,7 @@ $('.ol-rotate-reset, .ol-attribution button[title]').tooltip({
  */
 
 map.on('singleclick', function (evt) {
-  document.getElementById('map-info').innerHTML = '';
+  document.getElementById('mapinfo').innerHTML = '';
   const viewResolution = /** @type {number} */ (view.getResolution());
   const coord = evt.coordinate;
   const coord1 = fromLonLat([coord[0], coord[1]]);
@@ -103,9 +146,11 @@ map.on('singleclick', function (evt) {
     fetch(url)
       .then((response) => response.text())
       .then((html) => {
-        document.getElementById('map-info').innerHTML = html;
-        $('#map-info table').removeClass("featureInfo").addClass("table table-sm");
-        $("#map-info td").each(function () {
+        //document.getElementById('map-info').innerHTML = html;
+        
+        document.getElementById('mapinfo').innerHTML = html;
+        $('#mapinfo table').removeClass("featureInfo").addClass("table table-sm").wrap("<div class='table-responsive-sm'></div>");
+        $("#mapinfo td").each(function () {
           var text = $(this).text();
           text = text.replace("SS_Digitasi_Batas_", "");
           text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
@@ -113,21 +158,29 @@ map.on('singleclick', function (evt) {
           text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
           $(this).text(text);
         });
-        $("#map-info th").each(function () {
+        $("#mapinfo th").each(function () {
           var text = $(this).text();
           text = text.replace("Block", "Blok");
           $(this).text(text);
         });
-        $("#map-info table caption").each(function () {
+        $("#mapinfo table caption").each(function () {
           var text = $(this).text();
           text = text.replace("SS_Digitasi_Batas_", "");
           text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
           text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
           $(this).text(text);
         });
+        console.log(html.includes('class'));
+        if (html.includes('class')){
+          mapInfo.show();
+        }
+       
+        /* console.log(html);
+        const layerjson = JSON.parse(html);
+        console.log(layerjson.density); */
       });
   }
-  console.log(url + ' – ' + coord1 );
+  //console.log(url + ' – ' + coord1 );
 });
 
 map.on('pointermove', function (evt) {
@@ -145,3 +198,11 @@ map.on('pointermove', function (evt) {
   console.log("ready!");
   $('#map-info table').removeClass("featureInfo").addClass("table table-sm");
 }); */
+
+vectorLayer.getSource().on('featuresloadend', function () {
+
+  const feature = afdelingSource.getFeatures()[0];
+  const polygon = feature.getGeometry();
+  //view.fit(polygon);
+
+});

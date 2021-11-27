@@ -63,24 +63,19 @@ html, body {
   bottom: 0;
   width: 100%;
 }
-#map-info{
-  position: absolute;
-  right: 0.54rem;
-  top: 4.23rem;
-  z-index: 1;
-  font-size: 0.9rem;
-  background-color: rgba(250,250,250,0.72);
-  padding: 0.45rem 0.54rem;
-}
 
-#map-info tr > th:nth-child(1),
-#map-info tr > td:nth-child(2) {
+#mapinfo tr > th:nth-child(1),
+#mapinfo tr > td:nth-child(2) {
     display: none;
 }
 
-#map-info table.table{
+#map-info table.table, #mapinfo table.table{
   margin-bottom: 0;
   caption-side: top;
+}
+#mapinfo table caption{
+  font-weight: bolder;
+  color: var(--bs-dark);
 }
 
 #mouse-position {
@@ -136,4 +131,29 @@ html, body {
     outline: 0;
     box-shadow: none;
     z-index: 0;
+}
+.offcanvas-body {
+    padding: 1rem 1.53rem 1rem 1rem;
+}
+
+#map-filter {
+    padding: 0.63rem 0.72rem;
+    border-radius: 0.45rem;
+    background: aliceblue;
+    box-shadow: inset 0.27px 0.45px lightskyblue,  inset -0.27px -0.45px lightskyblue;
+}
+#map-filter .form-switch .form-check-input {
+  width: 1.8em;
+  margin-left: -2.16em;
+}
+#map-filter .form-switch .form-check-label {
+  font-size: 0.81rem;
+  margin-right: 0.36em;
+}
+
+#block-filter {
+    padding: 0.63rem 0.72rem;
+    border-radius: 0.45rem;
+    background: aliceblue;
+    box-shadow: inset 0.27px 0.45px lightskyblue,  inset -0.27px -0.45px lightskyblue;
 }
