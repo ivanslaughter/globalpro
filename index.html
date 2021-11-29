@@ -19,30 +19,30 @@
       <i class="jt-menu fs-4 lh-1"></i> <span class="mx-2"><span class="fw-bolder">GlobalPro</span> Dashboard</span>
     </a>
 
-    <div class="offcanvas offcanvas-start fade" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="gp-dashboard-menu" aria-labelledby="gp-dashboard-menuLabel">
+    <div class="offcanvas offcanvas-start fade text-light" data-bs-scroll="true" data-bs-backdrop="true" tabindex="-1" id="gp-dashboard-menu" aria-labelledby="gp-dashboard-menuLabel">
       <div class="offcanvas-header">
         <h4 class="offcanvas-title" id="gp-dashboard-menuLabel"><span class="fw-bolder">GlobalPro</span> Dashboard</h4>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <button type="button" id="gp-dashboard-close" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body show">
-        <h5 class="offcanvas-title lh-1 mb-3 border-bottom pb-2"><small class="fw-light">Perkebunan Kelapa Sawit</small><br><span class="text-uppercase">Damar Condong</span><br><small class="fw-light">Langkat, Sumatera Utara</small></h5>
-        <div class="border-bottom lh-1 py-1">
+        <h5 class="offcanvas-title lh-1 mb-3 border-bottom-blue pb-2"><small class="fw-light">Perkebunan Kelapa Sawit</small><br><span class="text-uppercase">Damar Condong</span><br><small class="fw-light">Langkat, Sumatera Utara</small></h5>
+        <div class="border-bottom-blue lh-1 py-1">
           <small class="fw-light">Area</small>
           <div class="fw-bolder">1173.1 ha</div>
         </div>
-        <div class="border-bottom lh-1 py-1">
+        <div class="border-bottom-blue lh-1 py-1">
           <small class="fw-light">Afdeling</small>
           <div class="fw-bolder">3</div>
         </div>
-        <div class="border-bottom lh-1 py-1">
+        <div class="border-bottom-blue lh-1 py-1">
           <small class="fw-light">Block</small>
           <div class="fw-bolder">50</div>
         </div>
-        <div class="border-bottom lh-1 py-1">
+        <div class="border-bottom-blue lh-1 py-1">
           <small class="fw-light">Pohon</small>
           <div class="fw-bolder">126.439</div>
         </div>
-        <div class="border-bottom lh-1 py-1">
+        <div class="border-bottom-blue lh-1 py-1">
           <small class="fw-light">Densitas (Avg)</small>
           <div class="fw-bolder">108.97</div>
         </div>
@@ -51,81 +51,40 @@
           <div class="mb-1"><i class="jt-layers"></i>  <span class="fw-bolder">Map Filter</span></div>
           <div class="d-flex">
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkAfdeling" checked>
-              <label class="form-check-label" for="checkAfdeling">Afdeling</label>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkAfdelingBlock" checked>
+              <label class="form-check-label" for="checkAfdelingBlock">Afdeling/Block</label>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkBlock" checked>
-              <label class="form-check-label" for="checkBlock">Block</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkRoad" checked>
-              <label class="form-check-label" for="checkRoad">Road</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkBuilding" checked>
-              <label class="form-check-label" for="checkBuilding">Building</label>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkRoadBuilding">
+              <label class="form-check-label" for="checkRoadBuilding">Road, Building etc.</label>
             </div>
           </div>
           
         </div>
         <div id="block-filter" class="dropdown my-4">
           <div class="mb-1"><i class="jt-grid"></i> <span class="fw-bolder">Block Filter</span></div>
-          <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
-            Blok
-          </button>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <li><a class="dropdown-item" href="#">Blok 1</a></li>
-            <li><a class="dropdown-item" href="#">Blok 2</a></li>
-            <li><a class="dropdown-item" href="#">Blok 3</a></li>
-            <li><a class="dropdown-item" href="#">Blok 4</a></li>
-            <li><a class="dropdown-item" href="#">Blok 5</a></li>
-            <li><a class="dropdown-item" href="#">Blok 6</a></li>
-            <li><a class="dropdown-item" href="#">Blok 7</a></li>
-            <li><a class="dropdown-item" href="#">Blok 8</a></li>
-            <li><a class="dropdown-item" href="#">Blok 9</a></li>
-            <li><a class="dropdown-item" href="#">Blok 10</a></li>
-            <li><a class="dropdown-item" href="#">Blok 11</a></li>
-            <li><a class="dropdown-item" href="#">Blok 12</a></li>
-            <li><a class="dropdown-item" href="#">Blok 13</a></li>
-            <li><a class="dropdown-item" href="#">Blok 14</a></li>
-            <li><a class="dropdown-item" href="#">Blok 15</a></li>
-            <li><a class="dropdown-item" href="#">Blok 16</a></li>
-            <li><a class="dropdown-item" href="#">Blok 17</a></li>
-            <li><a class="dropdown-item" href="#">Blok 18</a></li>
-            <li><a class="dropdown-item" href="#">Blok 19</a></li>
-            <li><a class="dropdown-item" href="#">Blok 20</a></li>
-            <li><a class="dropdown-item" href="#">Blok 21</a></li>
-            <li><a class="dropdown-item" href="#">Blok 22</a></li>
-            <li><a class="dropdown-item" href="#">Blok 23</a></li>
-            <li><a class="dropdown-item" href="#">Blok 24</a></li>
-            <li><a class="dropdown-item" href="#">Blok 25</a></li>
-            <li><a class="dropdown-item" href="#">Blok 26</a></li>
-            <li><a class="dropdown-item" href="#">Blok 27</a></li>
-            <li><a class="dropdown-item" href="#">Blok 28</a></li>
-            <li><a class="dropdown-item" href="#">Blok 29</a></li>
-            <li><a class="dropdown-item" href="#">Blok 30</a></li>
-            <li><a class="dropdown-item" href="#">Blok 31</a></li>
-            <li><a class="dropdown-item" href="#">Blok 32</a></li>
-            <li><a class="dropdown-item" href="#">Blok 33</a></li>
-            <li><a class="dropdown-item" href="#">Blok 34</a></li>
-            <li><a class="dropdown-item" href="#">Blok 35</a></li>
-            <li><a class="dropdown-item" href="#">Blok 36</a></li>
-            <li><a class="dropdown-item" href="#">Blok 37</a></li>
-            <li><a class="dropdown-item" href="#">Blok 38</a></li>
-            <li><a class="dropdown-item" href="#">Blok 39</a></li>
-            <li><a class="dropdown-item" href="#">Blok 40</a></li>
-            <li><a class="dropdown-item" href="#">Blok 41</a></li>
-            <li><a class="dropdown-item" href="#">Blok 42</a></li>
-            <li><a class="dropdown-item" href="#">Blok 43</a></li>
-            <li><a class="dropdown-item" href="#">Blok 44</a></li>
-            <li><a class="dropdown-item" href="#">Blok 45</a></li>
-            <li><a class="dropdown-item" href="#">Blok 46</a></li>
-            <li><a class="dropdown-item" href="#">Blok 47</a></li>
-            <li><a class="dropdown-item" href="#">Blok 48</a></li>
-            <li><a class="dropdown-item" href="#">Blok 49</a></li>
-            <li><a class="dropdown-item" href="#">Blok 50</a></li>
-          </ul>
+
+          <input type="checkbox" class="btn-check" id="btn-check-01" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-01">Block 01</label>
+          <input type="checkbox" class="btn-check" id="btn-check-02" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-02">Block 02</label>
+          <input type="checkbox" class="btn-check" id="btn-check-03" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-03">Block 03</label>
+          <input type="checkbox" class="btn-check" id="btn-check-04" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-04">Block 04</label>
+          <input type="checkbox" class="btn-check" id="btn-check-05" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-05">Block 05</label>
+          <input type="checkbox" class="btn-check" id="btn-check-06" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-06">Block 06</label>
+          <input type="checkbox" class="btn-check" id="btn-check-07" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-07">Block 07</label>
+          <input type="checkbox" class="btn-check" id="btn-check-08" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-08">Block 08</label>
+          <input type="checkbox" class="btn-check" id="btn-check-09" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-09">Block 09</label>
+          <input type="checkbox" class="btn-check" id="btn-check-10" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-10">Block 10</label>
+
+          <input type="checkbox" class="btn-check" id="btn-check-11" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-11">Block 11</label>
+          <input type="checkbox" class="btn-check" id="btn-check-12" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-12">Block 12</label>
+          <input type="checkbox" class="btn-check" id="btn-check-13" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-13">Block 13</label>
+          <input type="checkbox" class="btn-check" id="btn-check-14" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-14">Block 14</label>
+          <input type="checkbox" class="btn-check" id="btn-check-15" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-15">Block 15</label>
+          <input type="checkbox" class="btn-check" id="btn-check-16" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-16">Block 16</label>
+          <input type="checkbox" class="btn-check" id="btn-check-17" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-17">Block 17</label>
+          <input type="checkbox" class="btn-check" id="btn-check-!8" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-18">Block 18</label>
+          <input type="checkbox" class="btn-check" id="btn-check-19" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-19">Block 19</label>
+          <input type="checkbox" class="btn-check" id="btn-check-20" autocomplete="off"><label class="btn btn-outline-light btn-sm" for="btn-check-20">Block 20</label>
         </div>
       </div>
     </div>

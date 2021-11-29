@@ -68,6 +68,17 @@ html, body {
 #mapinfo tr > td:nth-child(2) {
     display: none;
 }
+#mapinfo .table th, #mapinfo .table td {
+    font-size: 0.9rem;
+}
+
+#mapinfo .table>:not(:first-child) {
+    border-top: 1px solid #dedede;
+}
+
+#mapinfo .table th {
+    border-bottom: 2px solid #dedede;
+}
 
 #map-info table.table, #mapinfo table.table{
   margin-bottom: 0;
@@ -75,7 +86,12 @@ html, body {
 }
 #mapinfo table caption{
   font-weight: bolder;
-  color: var(--bs-dark);
+  color: var(--bs-gray-600);
+}
+
+#mapInfo .btn-close{
+  float: right;
+  margin-bottom: -1rem;
 }
 
 #mouse-position {
@@ -88,14 +104,20 @@ html, body {
   background-color: rgba(0,60,136,0.5);
   padding: 0.18rem 0.27rem;
 }
+
 #menu-toggle{
   position:absolute;
   z-index: 1;
   top: 0.54rem; left: 0.54rem;
+  background-color: #004572;
+  border-color: #004572;
 }
 #menu-toggle:focus{
   box-shadow: none !important;
+  background-color: #022846;
+  border-color: #022846;
 }
+
 .ol-zoom {
     top: 0.5em;
     left: unset;
@@ -112,14 +134,15 @@ html, body {
 
 /* offcanvas custom */
 .offcanvas{
-  box-shadow: inset -9px 0px 0px #2196f3;
+  background: linear-gradient(180deg, #004572 10%, #004572ed);
+  box-shadow: inset -4.5px 0px 0px #ffc106;
 }
 .offcanvas-header:before {
     position: absolute;
     content: "";
     width: 43.2px;
     height: 32.4px;
-    background-color: #2196f3;
+    background-color: #ffc106;
     right: 0;
     border-radius: 0.36rem 0 0 0.36rem;
 }
@@ -133,14 +156,17 @@ html, body {
     z-index: 0;
 }
 .offcanvas-body {
-    padding: 1rem 1.53rem 1rem 1rem;
+    padding: 1rem 1.45rem 1rem 1rem;
+}
+.offcanvas-body small{
+  opacity: 0.63;
 }
 
 #map-filter {
     padding: 0.63rem 0.72rem;
     border-radius: 0.45rem;
-    background: aliceblue;
-    box-shadow: inset 0.27px 0.45px lightskyblue,  inset -0.27px -0.45px lightskyblue;
+    background: #063b63c0;
+    box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846;
 }
 #map-filter .form-switch .form-check-input {
   width: 1.8em;
@@ -152,8 +178,22 @@ html, body {
 }
 
 #block-filter {
-    padding: 0.63rem 0.72rem;
-    border-radius: 0.45rem;
-    background: aliceblue;
-    box-shadow: inset 0.27px 0.45px lightskyblue,  inset -0.27px -0.45px lightskyblue;
+  padding: 0.63rem 0.72rem;
+  border-radius: 0.45rem;
+  background: #063b63c0;
+  box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846;
+}
+
+#block-filter label {
+  width: 3.8rem;
+  margin: 0 0.18rem 0.36rem 0;
+  font-size: 0.63rem;
+  border-color: #f8f9fa80;
+}
+#block-filter label:focus {
+  box-shadow: 0 0 0 0.09rem rgb(248 249 250 / 50%);
+}
+
+.border-bottom-blue{
+  border-bottom: 0.54px solid #407496;
 }

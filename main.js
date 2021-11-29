@@ -84,6 +84,12 @@ const wmsSource = new ImageWMS({
   serverType: 'geoserver',
 });
 
+const wmsSource1 = new ImageWMS({
+  url: 'http://localhost:8080/geoserver/Mopoli/wms',
+  params: { 'LAYERS': 'Mopoli:Mopoli_Group_01' },
+  serverType: 'geoserver',
+});
+
 const osmLayer = new TileLayer({
   source: new OSM()
 });
@@ -92,8 +98,12 @@ const wmsLayer = new ImageLayer({
   //extent: [408380,467955,414599,475177],
   source: wmsSource,
 });
+const wmsLayer1 = new ImageLayer({
+  //extent: [408380,467955,414599,475177],
+  source: wmsSource1,
+});
 
-const layers = [ osmLayer, wmsLayer, vectorLayer ];
+const layers = [ osmLayer, wmsLayer, wmsLayer1 ];
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
@@ -154,8 +164,10 @@ map.on('singleclick', function (evt) {
           var text = $(this).text();
           text = text.replace("SS_Digitasi_Batas_", "");
           text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
+          text = text.replace("SS_Digitasi_Jalan_Utama", "Jalan Utama");
           text = text.replace("SS_Digitasi_Jembatan", "Jembatan");
           text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
+          text = text.replace("SS_Digitasi_Sungai", "Sungai");
           $(this).text(text);
         });
         $("#mapinfo th").each(function () {
@@ -167,7 +179,10 @@ map.on('singleclick', function (evt) {
           var text = $(this).text();
           text = text.replace("SS_Digitasi_Batas_", "");
           text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
+          text = text.replace("SS_Digitasi_Jalan_Utama", "Jalan Utama");
           text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
+          text = text.replace("SS_Digitasi_Jembatan", "Jembatan");
+          text = text.replace("SS_Digitasi_Sungai", "Sungai");
           $(this).text(text);
         });
         console.log(html.includes('class'));
@@ -205,4 +220,28 @@ vectorLayer.getSource().on('featuresloadend', function () {
   const polygon = feature.getGeometry();
   //view.fit(polygon);
 
+});
+
+
+
+const gpDashboardClose = document.getElementById('gp-dashboard-close');
+const checkAfdelingBlock = document.getElementById('checkAfdelingBlock');
+const checkRoadBuilding = document.getElementById('checkRoadBuilding');
+
+checkAfdelingBlock.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    map.addLayer(wmsLayer);
+  } else {
+    map.removeLayer(wmsLayer);
+  }
+  gpDashboardClose.click();
+});
+
+checkRoadBuilding.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    map.addLayer(wmsLayer1);
+  } else {
+    map.removeLayer(wmsLayer1);
+  }
+  gpDashboardClose.click();
 });
