@@ -105,17 +105,18 @@ html, body {
   padding: 0.18rem 0.27rem;
 }
 
+
 #menu-toggle{
   position:absolute;
   z-index: 1;
   top: 0.54rem; left: 0.54rem;
-  background-color: #004572;
-  border-color: #004572;
+  background-color: transparent;
+  border-color: transparent;
 }
 #menu-toggle:focus{
   box-shadow: none !important;
-  background-color: #022846;
-  border-color: #022846;
+  background-color:transparent;
+  border-color:transparent;
 }
 
 .ol-zoom {
