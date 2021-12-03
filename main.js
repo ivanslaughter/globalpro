@@ -1,6 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/style.css';
-import {Map, View, Overlay} from 'ol';
+import { Map, View, Overlay } from 'ol';
 import MousePosition from 'ol/control/MousePosition';
 import { Image as ImageLayer, Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import ImageWMS from 'ol/source/ImageWMS';
@@ -40,8 +40,12 @@ numeral.register('locale', 'id', {
 // switch between locales
 numeral.locale('id');
 
+let modalEdit = new Modal(document.getElementById('modalEdit'));
+let formFeature = [];
+let indexFeature = 0;
 var mapInfo = new Modal(document.getElementById('mapInfo'));
 var blockJSON;
+let workSpace = 'Mopoli';
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 const projection = new Projection({
@@ -51,7 +55,7 @@ const projection = new Projection({
 const mapExtent = fromLonLat([98.1764, 4.2992, 98.2307, 4.2329]);
 
 const afdelingSource = new VectorSource({
-  url: 'http://localhost:8080/geoserver/Mopoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Mopoli%3ASS_Digitasi_Batas_Afdeling&maxFeatures=10&outputFormat=application%2Fjson&srsname=EPSG:4326',
+  url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=10&outputFormat=application%2Fjson&srsname=EPSG:4326',
   format: new GeoJSON(),
   overlaps: true
 });
@@ -68,7 +72,7 @@ const afdelingStyle = new Style({
 });
 
 const blockSource = new VectorSource({
-  url: 'http://localhost:8080/geoserver/Mopoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Mopoli%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326',
+  url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326',
   format: new GeoJSON(),
 });
 
@@ -79,7 +83,7 @@ const blockStyle = new Style({
   stroke: new Stroke({
     color: '#c90000',
     width: 0.18,
-    lineDash: [4.5,1.8]
+    lineDash: [4.5, 1.8]
   })
 });
 
@@ -113,14 +117,14 @@ const mousePositionControl = new MousePosition({
 });
 
 const wmsSource = new ImageWMS({
-  url: 'http://localhost:8080/geoserver/Mopoli/wms',
-  params: { 'LAYERS': 'Mopoli:Mopoli_Group' },
+  url: 'http://localhost:8080/geoserver/' + workSpace + '/wms',
+  params: { 'LAYERS': workSpace + ':Mopoli_Group' },
   serverType: 'geoserver',
 });
 
 const wmsSource1 = new ImageWMS({
-  url: 'http://localhost:8080/geoserver/Mopoli/wms',
-  params: { 'LAYERS': 'Mopoli:Mopoli_Group_01' },
+  url: 'http://localhost:8080/geoserver/' + workSpace + '/wms',
+  params: { 'LAYERS': workSpace + ':Mopoli_Group_01' },
   serverType: 'geoserver',
 });
 
@@ -139,7 +143,8 @@ const wmsLayer1 = new ImageLayer({
   source: wmsSource1,
 });
 
-const layers = [ osmLayer, wmsLayer, wmsLayer1, afdelingLayer, blockLayer ];
+// const layers = [osmLayer, wmsLayer, wmsLayer1, afdelingLayer, blockLayer];
+const layers = [osmLayer, wmsLayer];
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
@@ -180,22 +185,23 @@ map.on('singleclick', function (evt) {
     viewResolution,
     'EPSG:3857',
     {
-      'exceptions':'application/vnd.ogc.se_inimage',
+      'exceptions': 'application/vnd.ogc.se_inimage',
       //'INFO_FORMAT': 'text/html',
       'INFO_FORMAT': 'application/json',
       'FEATURE_COUNT': '100',
-      'X':'50',
-      'Y':'50',
+      'X': '50',
+      'Y': '50',
       //'SRS':'EPSG:32647',
     }
   );
-  
+
   if (url) {
     fetch(url)
       .then((response) => response.text())
       .then((json) => {
+        // console.log(json);
         //document.getElementById('map-info').innerHTML = html;
-        
+
         /* document.getElementById('mapinfo').innerHTML = html;
         $('#mapinfo table').removeClass("featureInfo").addClass("table table-sm").wrap("<div class='table-responsive-sm'></div>");
         $("#mapinfo td").each(function () {
@@ -227,23 +233,28 @@ map.on('singleclick', function (evt) {
         if (html.includes('class')){
           mapInfo.show();
         } */
-       
+
         const layerJson = JSON.parse(json);
+        // console.log(layerJson);
 
         //console.log(layerJson.features.length);
 
-        if (layerJson.features.length !== 0){
+        if (layerJson.features.length !== 0) {
           const layerId = layerJson.features[0].id
-          const blockId = layerId ? layerId.split('.')[1] : '';
+          const blockId = layerId ? layerId.split('.')[0] : '';
           const layerProperties = layerJson.features[0].properties;
 
-          console.log(blockId);
+          // console.log(blockId);
 
-          selectBlock(blockId);
+          // selectBlock(blockId);
 
-          setMapInfo(layerProperties);
+          // setMapInfo(layerProperties);
+
+
+          setMapInfos(layerJson);
+          selectMap(layerJson);
+          // editFeature(layerId, layerProperties);
         }
-
 
       });
   }
@@ -302,7 +313,7 @@ map.on('pointermove', function (evt) {
 
 const gpDashboardClose = document.getElementById('gp-dashboard-close');
 const checkAfdelingBlock = document.getElementById('checkAfdelingBlock');
-const checkRoadBuilding = document.getElementById('checkRoadBuilding');
+// const checkRoadBuilding = document.getElementById('checkRoadBuilding');
 const blockFilter = document.getElementById('block-filter');
 
 checkAfdelingBlock.addEventListener('change', (event) => {
@@ -316,25 +327,26 @@ checkAfdelingBlock.addEventListener('change', (event) => {
   //gpDashboardClose.click();
 });
 
-checkRoadBuilding.addEventListener('change', (event) => {
-  if (event.currentTarget.checked) {
-    map.addLayer(wmsLayer1);
-  } else {
-    map.removeLayer(wmsLayer1);
-  }
-  //gpDashboardClose.click();
-});
+// checkRoadBuilding.addEventListener('change', (event) => {
+//   if (event.currentTarget.checked) {
+//     map.addLayer(wmsLayer1);
+//   } else {
+//     map.removeLayer(wmsLayer1);
+//   }
+//   //gpDashboardClose.click();
+// });
 
 //const block = '26';
 var prevAfdeling;
 var prevBlock;
+let prevSelected = [];
 
 
 function selectAfdeling(afdelingid) {
   //console.log(afdeling);
 
   const afdelingSource1 = new VectorSource({
-    url: 'http://localhost:8080/geoserver/Mopoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Mopoli%3ASS_Digitasi_Batas_Afdeling&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Afdeling.' + afdelingid,
+    url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Afdeling.' + afdelingid,
     format: new GeoJSON(),
   });
 
@@ -372,7 +384,7 @@ function selectBlock(blockid){
   //console.log(block);
 
   const blockSource1 = new VectorSource({
-    url: 'http://localhost:8080/geoserver/Mopoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Mopoli%3ASS_Digitasi_Batas_Blok&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Blok.' + blockid,
+    url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Blok.' + blockid,
     format: new GeoJSON(),
   });
 
@@ -388,7 +400,7 @@ function selectBlock(blockid){
     style: blockStyle1,
   });
 
-  if (prevBlock){
+  if (prevBlock) {
     map.removeLayer(prevBlock);
   }
 
@@ -428,11 +440,11 @@ blockSelect.onchange = function () {
 
   selectBlock(value);
 
-  //console.log(value);
+  // console.log(value);
 }
 
-function setMapInfo(data){
-  console.log(data);
+function setMapInfo(data) {
+  // console.log(data);
 
   const infoDiv = document.body.querySelector('#info');
   const detailBlock = document.querySelector('#detail-block .value');
@@ -444,7 +456,7 @@ function setMapInfo(data){
   detailTree.innerHTML = numeral(data.Jml_Sawit).format(',0');
   detailArea.innerHTML = numeral(data.Luas).format('0.00');
   detailDensity.innerHTML = numeral(data.Density).format('0.00');
-  
+
   const infoToggle = document.body.querySelector('#info-toggled');
   if (infoToggle) {
     // Uncomment Below to persist sidebar toggle between refreshes
@@ -458,12 +470,11 @@ function setMapInfo(data){
     });
   }
   infoDiv.classList.add('show');
-
 }
 
-function getBlockData(){
+function getBlockData() {
   const blocksJson = [];
-  const blocksUrl = 'http://localhost:8080/geoserver/Mopoli/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=Mopoli%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:32647';
+  const blocksUrl = 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:32647';
 
   //var blockSelectData = [];
 
@@ -472,13 +483,13 @@ function getBlockData(){
     .then((json) => {
       //console.log(JSON.parse(json).features.length);
       let blocksJson = JSON.parse(json).features;
-      if (blocksJson.length > 0){
+      if (blocksJson.length > 0) {
         //console.log(blocksJson);
         let sa = 0;
         let sb = 0;
         let st = 0;
         let sd = 0;
-        blocksJson.forEach(function(element){
+        blocksJson.forEach(function (element) {
           sa += (element.properties.Luas);
           sb++;
           st += (element.properties.Jml_Sawit);
@@ -492,16 +503,194 @@ function getBlockData(){
         document.getElementById('stats-area').innerHTML = numeral(sa).format(',0.00');
         document.getElementById('stats-block').innerHTML = sb;
         document.getElementById('stats-tree').innerHTML = numeral(st).format(',0');
-        document.getElementById('stats-density').innerHTML = numeral((sd/sb)).format('0.00');
+        document.getElementById('stats-density').innerHTML = numeral((sd / sb)).format('0.00');
       }
 
     });
-    
+
 
   //console.log(blockSelectData);
 
 
   //console.log(blockSource.getFeatures());
+}
+
+//EDIT SEPRI
+
+
+
+function setMapInfos(layerJson) {
+  const selectedLayers = layerJson.features;
+  let content = `<div class="justify-content-between"><span class="fs-4">Detail Info</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
+  let prevLayer = "";
+  formFeature = [];
+  const featureNames = ['Afdeling', 'Blok', 'Jalan', 'Bangunan', 'Sungai', 'Jembatan'];
+  let featureName;
+  selectedLayers.forEach(function (element, i) {
+    if (prevLayer !== element.id.split('.')[0]) {
+      const arrCol = Object.keys(element.properties);
+      let featureTitle = '';
+      featureName = element.id.split('.')[0].split('_');
+      featureNames.forEach(function(element){
+        if (featureName.includes(element)){
+          featureTitle = element;
+        }
+      })
+      content += `<div class="row g-0 align-items-center justify-content-start my-2 p-2 feature-box">
+      <div class="col"><span class="fw-bolder fs-5">${featureTitle}</span></div>`
+      arrCol.forEach(element_ => {
+        if(element_ != 'Id'){
+          content += `<div id="${element_}" class="col d-flex flex-column">
+          <span class="text-muted me-2">${element_}</span>
+          <span class="value fs-4">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</span>
+          </div>`;
+        }
+      });
+      content += `<button id="edit-feature" data-index="${i}" type="button" class="btn btn-warning btn-sm col" data-toggle="modal" data-target="#modalEdit">Edit</button>`;
+      content += '</div>';
+      prevLayer = element.id.split('.')[0];
+      editFeature(i, element.id, element.properties);
+    }
+  });
+  $('#detail-info').html(content);
+
+  const infoDiv = document.body.querySelector('#info');
+  const infoToggle = document.body.querySelector('#info-toggled');
+  if (infoToggle) {
+    infoToggle.addEventListener('click', event => {
+      event.preventDefault();
+      document.body.classList.toggle('info-toggled');
+    });
+  }
+  infoDiv.classList.add('show');
+}
+
+function selectMap(layerJson) {
+  let selectSource = [];
+  let selectLayer = [];
+
+  const selectStyle = new Style({
+    stroke: new Stroke({
+      color: '#c90000',
+      width: 1.44,
+    })
+  });
+
+  layerJson.features.forEach(element => {
+    const source = new VectorSource({
+      url: `http://localhost:8080/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
+      format: new GeoJSON(),
+    });
+
+    selectSource.push(source);
+
+    selectLayer.push(
+      new VectorLayer({
+        source: source,
+        style: selectStyle,
+      })
+    )
+  });
+
+  if (prevSelected.length > 0) {
+    prevSelected.forEach(element => {
+      map.removeLayer(element);
+    });
+  }
+
+  selectLayer.forEach(element => {
+    map.addLayer(element);
+  });
+  prevSelected = selectLayer;
+
+  selectLayer[1].getSource().on('featuresloadend', function () {
+    const feature = selectSource[1].getFeatures()[0];
+    const blockPolygon = feature.getGeometry();
+    view.fit(blockPolygon);
+    //console.log(feature);
+    //console.log(layers);
+  });
+}
+
+function editFeature(i, layerId, layerProperties) {
+  let content = `<div class="modal-body">`;
+
+  const arrCol = Object.keys(layerProperties);
+  arrCol.forEach(element => {
+    content += `<label for="${layerId.split('.')[0] + "-" + element}">${element}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
+  });
+
+  content += '</div>';
+
+  let footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+  <button id="save-feature" data-index="${i}" type="button" class="btn btn-success">Save</button>`;
+
+  formFeature.push({
+    layerId, content, arrCol, footer
+  });
+
+  $('#detail-info').on('click', '#edit-feature', function () {
+    indexFeature = $(this).data('index');
+    $('#formBody').html(formFeature[$(this).data('index')].content);
+    $('#formFooter').html(formFeature[$(this).data('index')].footer);
+    modalEdit.show();
+  });
+
+  $('#formFooter').on('click', '#save-feature', function () {
+    indexFeature = $(this).data('index');
+    saveFeature();
+  });
+}
+
+function saveFeature() {
+  let arrData = [];
+  formFeature[indexFeature].arrCol.forEach(element => {
+    arrData.push($(`#${formFeature[indexFeature].layerId.split('.')[0] + "-" + element}`).val());
+  });
+
+  var url = 'http://localhost:8080/geoserver/wfs';
+  var postData =
+    '<wfs:Transaction service="WFS" version="1.3.0"\n' +
+    'xmlns:ogc="http://www.opengis.net/ogc"\n' +
+    'xmlns:wfs="http://www.opengis.net/wfs"\n' +
+    'xmlns:gml="http://www.opengis.net/gml"\n' +
+    'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
+    'xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/WFS-transaction.xsd">\n' +
+    `<wfs:Update typeName="`+ workSpace +`:${formFeature[indexFeature].layerId.split('.')[0]}">\n`;
+
+  formFeature[indexFeature].arrCol.forEach(function (element, i) {
+    postData += '<wfs:Property>\n' +
+      `<wfs:Name>${element}</wfs:Name>\n` +
+      '<wfs:Value>\n' +
+      arrData[i] + '\n' +
+      '</wfs:Value>\n' +
+      '</wfs:Property>\n';
+  });
+
+  postData += '<ogc:Filter>\n' +
+    '<ogc:FeatureId fid="' + formFeature[indexFeature].layerId + '"/>\n' +
+    '</ogc:Filter>\n' +
+    '</wfs:Update>\n' +
+    '</wfs:Transaction>\n';
+
+  // console.log(postData);
+
+  $.ajax({
+    url: url,
+    type: "POST",
+    data: postData,
+    contentType: "text/xml",
+    success: function (response) {
+      // console.log(response);
+      // alert('Berhasil menyimpan data');
+      // modalEdit.hide();
+      location.reload();
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      console.log(textStatus, errorThrown);
+      alert('Gagal menyimpan data');
+    }
+  });
 }
 
 window.addEventListener('DOMContentLoaded', event => {

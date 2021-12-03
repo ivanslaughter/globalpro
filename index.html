@@ -45,7 +45,7 @@
             </div>
           </div>
 
-          <div id="map-filter" class="mt-4">
+          <!-- <div id="map-filter" class="mt-4">
             <div class="mb-1"><i class="jt-layers"></i> <span class="fw-bolder">Map Filter</span></div>
             <div class="d-flex">
               <div class="form-check form-switch">
@@ -57,16 +57,31 @@
                 <label class="form-check-label" for="checkRoadBuilding">Road, Building etc.</label>
               </div>
             </div>
-
-          </div>
+          </div> -->
 
         </div>
       </div>
+
       <div id="content" class="g-0">
         <div id="map"></div>
+
+        <div id="map-filter" class="text-light">
+          <div class="mb-1"><i class="jt-layers"></i> <span class="fw-bolder">Map Filter</span></div>
+          <div class="d-flex flex-column">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkAfdelingBlock" checked>
+              <label class="form-check-label" for="checkAfdelingBlock">Afdeling/Block</label>
+            </div>
+            <!-- <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkRoadBuilding" checked>
+              <label class="form-check-label" for="checkRoadBuilding">Road, Building etc.</label>
+            </div> -->
+          </div>
+        </div>
       </div>
+
       <div id="info" class="collapse">
-        <div id="block-info" class="text-light lh-1 m-2">
+        <!-- <div id="block-info" class="text-light lh-1 m-2">
           <div class="row g-0 align-items-center">
             <div class="col"><span class="fw-bolder fs-5">Block Detail</span></div>
             <div id="detail-block" class="col">
@@ -85,8 +100,12 @@
               <span class="text-muted me-2">Densitas (%)</span>
               <span class="value fs-5"></span>
             </div>
+            <button id="edit-feature" type="button" class="btn btn-warning btn-sm col mx-3" data-toggle="modal" data-target="#modalEdit">Edit</button>
             <button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button>
           </div>
+        </div> -->
+
+        <div id="detail-info" class="text-light lh-1 m-3">
         </div>
       </div>
 
@@ -130,6 +149,24 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary">Send message</button>
           </div> -->
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+           <div class="modal-header">
+            <h5 class="modal-title" id="modatEditTitle">Edit Feature</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div id="formBody"></div>
+
+          <div id="formFooter" class="modal-footer">
+            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button id="save-feature" type="button" class="btn btn-success">Save</button> -->
+          </div>
         </div>
       </div>
     </div>
