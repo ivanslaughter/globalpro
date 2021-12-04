@@ -109,7 +109,7 @@ html, body {
 #menu-toggle{
   position:absolute;
   z-index: 1;
-  top: 0.54rem; left: 0.54rem;
+  top: 0.54rem; left: 3.5rem;
   background-color: transparent;
   border-color: transparent;
 }

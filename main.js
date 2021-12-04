@@ -128,6 +128,12 @@ const wmsSource1 = new ImageWMS({
   serverType: 'geoserver',
 });
 
+const wmsSource2 = new ImageWMS({
+  url: 'http://localhost:8080/geoserver/' + workSpace + '/wms',
+  params: { 'LAYERS': 'Mopoli:SS_Digitasi_Titik_Pokok_Sawit' },
+  serverType: 'geoserver',
+});
+
 const osmLayer = new TileLayer({
   source: new OSM()
 });
@@ -143,8 +149,14 @@ const wmsLayer1 = new ImageLayer({
   source: wmsSource1,
 });
 
+const wmsLayer2 = new ImageLayer({
+  //extent: [408380,467955,414599,475177],
+  name: 'layer3',
+  source: wmsSource2,
+});
+
 // const layers = [osmLayer, wmsLayer, wmsLayer1, afdelingLayer, blockLayer];
-const layers = [osmLayer, wmsLayer];
+const layers = [osmLayer, wmsLayer2, wmsLayer];
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
@@ -312,16 +324,40 @@ map.on('pointermove', function (evt) {
 }); */
 
 const gpDashboardClose = document.getElementById('gp-dashboard-close');
+const checkMap = document.getElementById('checkMap');
 const checkAfdelingBlock = document.getElementById('checkAfdelingBlock');
+const checkPokok = document.getElementById('checkPokok');
 // const checkRoadBuilding = document.getElementById('checkRoadBuilding');
 const blockFilter = document.getElementById('block-filter');
 
-checkAfdelingBlock.addEventListener('change', (event) => {
+checkMap.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
-    map.addLayer(wmsLayer);
+    osmLayer.setVisible(true);
     blockFilter.style.display = "";
   } else {
-    map.removeLayer(wmsLayer);
+    osmLayer.setVisible(false);
+    blockFilter.style.display = "none";
+  }
+  //gpDashboardClose.click();
+});
+
+checkAfdelingBlock.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    wmsLayer.setVisible(true);
+    blockFilter.style.display = "";
+  } else {
+    wmsLayer.setVisible(false);
+    blockFilter.style.display = "none";
+  }
+  //gpDashboardClose.click();
+});
+
+checkPokok.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    wmsLayer2.setVisible(true);
+    blockFilter.style.display = "";
+  } else {
+    wmsLayer2.setVisible(false);
     blockFilter.style.display = "none";
   }
   //gpDashboardClose.click();
@@ -380,7 +416,7 @@ function selectAfdeling(afdelingid) {
   });
 }
 
-function selectBlock(blockid){
+function selectBlock(blockid) {
   //console.log(block);
 
   const blockSource1 = new VectorSource({
@@ -417,9 +453,6 @@ function selectBlock(blockid){
     //console.log(layers);
   });
 }
-
-
-
 
 var afdelingSelect = document.getElementById('select-afdeling');
 
@@ -517,8 +550,6 @@ function getBlockData() {
 
 //EDIT SEPRI
 
-
-
 function setMapInfos(layerJson) {
   const selectedLayers = layerJson.features;
   let content = `<div class="justify-content-between"><span class="fs-4">Detail Info</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
@@ -531,15 +562,15 @@ function setMapInfos(layerJson) {
       const arrCol = Object.keys(element.properties);
       let featureTitle = '';
       featureName = element.id.split('.')[0].split('_');
-      featureNames.forEach(function(element){
-        if (featureName.includes(element)){
+      featureNames.forEach(function (element) {
+        if (featureName.includes(element)) {
           featureTitle = element;
         }
       })
       content += `<div class="row g-0 align-items-center justify-content-start my-2 p-2 feature-box">
       <div class="col"><span class="fw-bolder fs-5">${featureTitle}</span></div>`
       arrCol.forEach(element_ => {
-        if(element_ != 'Id'){
+        if (element_ != 'Id') {
           content += `<div id="${element_}" class="col d-flex flex-column">
           <span class="text-muted me-2">${element_}</span>
           <span class="value fs-4">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</span>
@@ -606,7 +637,7 @@ function selectMap(layerJson) {
   selectLayer[1].getSource().on('featuresloadend', function () {
     const feature = selectSource[1].getFeatures()[0];
     const blockPolygon = feature.getGeometry();
-    view.fit(blockPolygon);
+    view.fit(blockPolygon, { padding: [0, 0, 200, 0] });
     //console.log(feature);
     //console.log(layers);
   });
@@ -656,7 +687,7 @@ function saveFeature() {
     'xmlns:gml="http://www.opengis.net/gml"\n' +
     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
     'xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/WFS-transaction.xsd">\n' +
-    `<wfs:Update typeName="`+ workSpace +`:${formFeature[indexFeature].layerId.split('.')[0]}">\n`;
+    `<wfs:Update typeName="` + workSpace + `:${formFeature[indexFeature].layerId.split('.')[0]}">\n`;
 
   formFeature[indexFeature].arrCol.forEach(function (element, i) {
     postData += '<wfs:Property>\n' +

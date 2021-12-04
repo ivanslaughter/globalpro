@@ -13,8 +13,8 @@
   </head>
   <body>
     <div id="wrapper" class="g-0">
-      <div id="sidebar" class="collapse show pt-2 g-0">
-        <div class="text-light mx-3 mt-5 mb-4">
+      <div id="sidebar" class="collapse show g-0">
+        <div class="text-light mx-3 mt-5 mb-2 pt-2">
           <div id="title">
             <div class="lh-1 my-4 fs-4 text-center">
               <small class="fw-light">Perkebunan Kelapa Sawit</small><br>
@@ -23,23 +23,23 @@
             </div>
           </div>
           <div id="stats">
-            <div class="stats-box lh-1 py-4">
+            <div class="stats-box lh-1 py-3">
               <div class="fw-light">Luas Area (Ha)</div>
               <div id="stats-area" class="fw-500"></div>
             </div>
-            <div class="stats-box lh-1 py-4">
+            <div class="stats-box lh-1 py-3">
               <div class="fw-light">Jumlah Afdeling</div>
               <div id="stats-afdeling" class="fw-500">3</div>
             </div>
-            <div class="stats-box lh-1 py-4">
+            <div class="stats-box lh-1 py-3">
               <div class="fw-light">Jumlah Blok</div>
               <div id="stats-block" class="fw-500"></div>
             </div>
-            <div class="stats-box lh-1 py-4">
+            <div class="stats-box lh-1 py-3">
               <div class="fw-light">Pokok Sawit</div>
               <div id="stats-tree" class="fw-500"></div>
             </div>
-            <div class="stats-box lh-1 py-4">
+            <div class="stats-box lh-1 py-3">
               <div class="fw-light">Densitas (Avg)</div>
               <div id="stats-density" class="fw-500"></div>
             </div>
@@ -61,16 +61,24 @@
 
         </div>
       </div>
-
+      
       <div id="content" class="g-0">
         <div id="map"></div>
 
-        <div id="map-filter" class="text-light">
+        <div id="map-filter">
           <div class="mb-1"><i class="jt-layers"></i> <span class="fw-bolder">Map Filter</span></div>
           <div class="d-flex flex-column">
             <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkMap" checked>
+              <label class="form-check-label" for="checkMap">Map</label>
+            </div>
+            <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="checkAfdelingBlock" checked>
               <label class="form-check-label" for="checkAfdelingBlock">Afdeling/Block</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkPokok" checked>
+              <label class="form-check-label" for="checkPokok">Pokok Sawit</label>
             </div>
             <!-- <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="checkRoadBuilding" checked>
@@ -84,35 +92,35 @@
         <!-- <div id="block-info" class="text-light lh-1 m-2">
           <div class="row g-0 align-items-center">
             <div class="col"><span class="fw-bolder fs-5">Block Detail</span></div>
-            <div id="detail-block" class="col">
+            <div id="detail-block" class="col d-flex flex-column">
               <span class="text-muted me-2">Nama Blok</span>
-              <span class="value fs-5"></span>
+              <span class="value fs-3"></span>
             </div>
-            <div id="detail-tree" class="col">
+            <div id="detail-tree" class="col d-flex flex-column">
               <span class="text-muted me-2">Jumlah Pohon</span>
-              <span class="value fs-5"></span>
+              <span class="value fs-3"></span>
             </div>
-            <div id="detail-area" class="col">
+            <div id="detail-area" class="col d-flex flex-column">
               <span class="text-muted me-2">Luas Blok (Ha)</span>
-              <span class="value fs-5"></span>
+              <span class="value fs-3"></span>
             </div>
-            <div id="detail-density" class="col">
+            <div id="detail-density" class="col d-flex flex-column">
               <span class="text-muted me-2">Densitas (%)</span>
-              <span class="value fs-5"></span>
+              <span class="value fs-3"></span>
             </div>
             <button id="edit-feature" type="button" class="btn btn-warning btn-sm col mx-3" data-toggle="modal" data-target="#modalEdit">Edit</button>
             <button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button>
           </div>
         </div> -->
 
-        <div id="detail-info" class="text-light lh-1 m-3">
+        <div id="detail-info" class="text-light lh-1 m-2">
         </div>
       </div>
 
     </div>
     <!-- <div id="mouse-position"></div> -->
     <!-- <div id="map-info"></div> -->
-    <a id="menu-toggle" class="btn btn-primary d-flex" data-bs-toggle="collapse" href="#info" role="button" aria-controls="info">
+    <a id="menu-toggle" class="btn btn-primary d-flex mt-2" data-bs-toggle="collapse" href="#info" role="button" aria-controls="info">
       <img src="images/logo_white.svg" width="27px" />
       <!-- <i class="jt-menu fs-4 lh-1"></i> -->
       <span class="mx-2"><span class="fw-bolder">GlobalPro</span> Dashboard</span>
@@ -160,7 +168,7 @@
             <h5 class="modal-title" id="modatEditTitle">Edit Feature</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-
+          
           <div id="formBody"></div>
 
           <div id="formFooter" class="modal-footer">
