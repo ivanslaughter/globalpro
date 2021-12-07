@@ -45,6 +45,8 @@ let formFeature = [];
 let indexFeature = 0;
 var mapInfo = new Modal(document.getElementById('mapInfo'));
 var blockJSON;
+let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
+//let gsHost = 'http://localhost:8080';
 let workSpace = 'Mopoli';
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
@@ -55,7 +57,7 @@ const projection = new Projection({
 const mapExtent = fromLonLat([98.1764, 4.2992, 98.2307, 4.2329]);
 
 const afdelingSource = new VectorSource({
-  url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=10&outputFormat=application%2Fjson&srsname=EPSG:4326',
+  url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=10&outputFormat=application%2Fjson&srsname=EPSG:4326',
   format: new GeoJSON(),
   overlaps: true
 });
@@ -72,7 +74,7 @@ const afdelingStyle = new Style({
 });
 
 const blockSource = new VectorSource({
-  url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326',
+  url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326',
   format: new GeoJSON(),
 });
 
@@ -117,19 +119,19 @@ const mousePositionControl = new MousePosition({
 });
 
 const wmsSource = new ImageWMS({
-  url: 'http://localhost:8080/geoserver/' + workSpace + '/wms',
+  url: gsHost + '/geoserver/' + workSpace + '/wms',
   params: { 'LAYERS': workSpace + ':Mopoli_Group' },
   serverType: 'geoserver',
 });
 
 const wmsSource1 = new ImageWMS({
-  url: 'http://localhost:8080/geoserver/' + workSpace + '/wms',
+  url: gsHost + '/geoserver/' + workSpace + '/wms',
   params: { 'LAYERS': workSpace + ':Mopoli_Group_01' },
   serverType: 'geoserver',
 });
 
 const wmsSource2 = new ImageWMS({
-  url: 'http://localhost:8080/geoserver/' + workSpace + '/wms',
+  url: gsHost + '/geoserver/' + workSpace + '/wms',
   params: { 'LAYERS': 'Mopoli:SS_Digitasi_Titik_Pokok_Sawit' },
   serverType: 'geoserver',
 });
@@ -382,7 +384,7 @@ function selectAfdeling(afdelingid) {
   //console.log(afdeling);
 
   const afdelingSource1 = new VectorSource({
-    url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Afdeling.' + afdelingid,
+    url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Afdeling.' + afdelingid,
     format: new GeoJSON(),
   });
 
@@ -420,7 +422,7 @@ function selectBlock(blockid) {
   //console.log(block);
 
   const blockSource1 = new VectorSource({
-    url: 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Blok.' + blockid,
+    url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Blok.' + blockid,
     format: new GeoJSON(),
   });
 
@@ -507,7 +509,7 @@ function setMapInfo(data) {
 
 function getBlockData() {
   const blocksJson = [];
-  const blocksUrl = 'http://localhost:8080/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:32647';
+  const blocksUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:32647';
 
   //var blockSelectData = [];
 
@@ -568,7 +570,7 @@ function setMapInfos(layerJson) {
         }
       })
       content += `<div class="row g-0 align-items-center justify-content-start my-2 p-2 feature-box">
-      <div class="col"><span class="fw-bolder fs-5">${featureTitle}</span></div>`
+      <div class="col feature-title"><span class="fw-bolder fs-5">${featureTitle}</span></div>`;
       arrCol.forEach(element_ => {
         if (element_ != 'Id') {
           content += `<div id="${element_}" class="col d-flex flex-column">
@@ -609,7 +611,7 @@ function selectMap(layerJson) {
 
   layerJson.features.forEach(element => {
     const source = new VectorSource({
-      url: `http://localhost:8080/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
+      url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
       format: new GeoJSON(),
     });
 
@@ -648,13 +650,13 @@ function editFeature(i, layerId, layerProperties) {
 
   const arrCol = Object.keys(layerProperties);
   arrCol.forEach(element => {
-    content += `<label for="${layerId.split('.')[0] + "-" + element}">${element}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
+    content += `<div class="mb-2"><label for="${layerId.split('.')[0] + "-" + element}">${element}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'></div>`;
   });
 
   content += '</div>';
 
-  let footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-  <button id="save-feature" data-index="${i}" type="button" class="btn btn-success">Save</button>`;
+  let footer = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+  <button id="save-feature" data-index="${i}" type="button" class="btn btn-success btn-sm">Save</button>`;
 
   formFeature.push({
     layerId, content, arrCol, footer
@@ -679,7 +681,7 @@ function saveFeature() {
     arrData.push($(`#${formFeature[indexFeature].layerId.split('.')[0] + "-" + element}`).val());
   });
 
-  var url = 'http://localhost:8080/geoserver/wfs';
+  var url = gsHost + '/geoserver/wfs';
   var postData =
     '<wfs:Transaction service="WFS" version="1.3.0"\n' +
     'xmlns:ogc="http://www.opengis.net/ogc"\n' +
