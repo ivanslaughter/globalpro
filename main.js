@@ -14,6 +14,7 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection } from 'ol/proj';
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
+import CloudTablesApi from 'cloudtables-api';
 
 //useGeographic();
 
@@ -47,11 +48,15 @@ let indexFeature = 0;
 var mapInfo = new Modal(document.getElementById('mapInfo'));
 var blockJSON;
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
-//let gsHost = 'http://ec2-52-221-242-95.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://localhost:8080';
+let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
+//let gsHost = 'http://localhost:8080';
 let workSpace = 'Mopoli';
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
+let mapPadding = [50, 50, 216, 247.68];
+if(isMobile){
+  mapPadding = [50, 30, 90, 90];
+}
 const projection = new Projection({
   code: 'EPSG:4326',
   units: 'm',
@@ -167,7 +172,7 @@ const view = new View({
   //projection: projection,
   center: mapCenter,
   pixelRatio: 1,
-  padding: [99, 90, 99, 234],
+  padding: mapPadding,
   zoom: 14,
 });
 
@@ -728,32 +733,34 @@ function saveFeature() {
   });
 }
 
-/* const ctapi = new CloudTablesApi('mj1826e6oh', 'J1YyYzyXPIxUsrY2Kxn0FXcN', {
-  clientId: 'global_pro',
-  clientName: 'Global Pro'
-});
 
 async function getCloudData(){
-  let token = await ctapi.token();
+  const api = new CloudTablesApi('mj1826e6oh', 'J1YyYzyXPIxUsrY2Kxn0FXcN', {
+    clientId: 'global_pro',
+    clientName: 'Global Pro'
+  });
+  let token = await api.token();
   let script = `
     <script
-      src="https://mj1826e6oh.cloudtables.io/loader/Velocity/table/d"
+      src="https://mj1826e6oh.cloudtables.io/loader/7fc96372-5291-11ec-92a9-236c4a7dfb18/table/d"
       data-token="${token}"
     ></script>
     `;
-  
-  let result = ctapi.dataset('Velocity').row(0).data();
-  console.log(result);
+  document.querySelector('body').append(script);
+  //let result = api.dataset('7fc96372-5291-11ec-92a9-236c4a7dfb18').row(0).data();
+  console.log(api);
 }
- */
+
 
 window.addEventListener('DOMContentLoaded', event => {
   if (isMobile) {
     document.querySelector("body").classList.add('mobile');
+    document.getElementById('filters').classList.remove('show');
   }
-  //getCloudData();
+  getCloudData();
   getBlockData();
 });
+window.onresize = function () { location.reload(); };
 
 const menuToggle = document.getElementById('menu-toggle');
 menuToggle.addEventListener('click', event => {
