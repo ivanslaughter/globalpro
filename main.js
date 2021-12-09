@@ -14,6 +14,7 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection } from 'ol/proj';
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
+import CloudTablesApi from 'cloudtables-api';
 
 
 //useGeographic();
@@ -45,7 +46,8 @@ let formFeature = [];
 let indexFeature = 0;
 var mapInfo = new Modal(document.getElementById('mapInfo'));
 var blockJSON;
-let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
+//let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
+let gsHost = 'http://ec2-52-221-242-95.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://localhost:8080';
 let workSpace = 'Mopoli';
 
@@ -726,6 +728,25 @@ function saveFeature() {
   });
 }
 
+const ctapi = new CloudTablesApi('mj1826e6oh', 'J1YyYzyXPIxUsrY2Kxn0FXcN', {
+  clientId: 'global_pro',
+  clientName: 'Global Pro'
+});
+
+async function getCloudData(){
+  let token = await ctapi.token();
+  let script = `
+    <script
+      src="https://mj1826e6oh.cloudtables.io/loader/Velocity/table/d"
+      data-token="${token}"
+    ></script>
+    `;
+  
+  let result = ctapi.dataset('Velocity').row(0).data();
+  console.log(result);
+}
+
 window.addEventListener('DOMContentLoaded', event => {
+  getCloudData();
   getBlockData();
 });
