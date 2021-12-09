@@ -13,35 +13,34 @@
   </head>
   <body>
     <div id="wrapper" class="g-0">
-      <div id="sidebar" class="collapse show g-0">
-        <div class="text-light mx-3 mt-5 mb-2 pt-2">
+      <div id="map"></div>
+
+      <div id="sidebar" class="text-light">
           <div id="title">
-            <div class="lh-1 my-4 fs-4 text-center">
-              <small class="fw-light">Perkebunan Kelapa Sawit</small><br>
-              <span class="text-uppercase fw-bolder">H. Sulaiman Saleh</span><br>
-              <small class="fw-light">Data Tahun 2021</small>
-            </div>
+            <small class="fw-light">Kebun Sawit</small><br>
+            <span class="text-uppercase fw-bolder">Damar Condong</span><br>
+            <small class="fw-light">Tahun 2021</small>
           </div>
           <div id="stats">
-            <div class="stats-box lh-1 py-3">
-              <div class="fw-light">Luas Area (Ha)</div>
-              <div id="stats-area" class="fw-500"></div>
+            <div class="stats-box">
+              <div class="stats-label">Luas Area (Ha)</div>
+              <div id="stats-area" class="stats-value"></div>
             </div>
-            <div class="stats-box lh-1 py-3">
-              <div class="fw-light">Jumlah Afdeling</div>
-              <div id="stats-afdeling" class="fw-500">3</div>
+            <div class="stats-box">
+              <div class="stats-label">Jumlah Afdeling</div>
+              <div id="stats-afdeling" class="stats-value">3</div>
             </div>
-            <div class="stats-box lh-1 py-3">
-              <div class="fw-light">Jumlah Blok</div>
-              <div id="stats-block" class="fw-500"></div>
+            <div class="stats-box">
+              <div class="stats-label">Jumlah Blok</div>
+              <div id="stats-block" class="stats-value"></div>
             </div>
-            <div class="stats-box lh-1 py-3">
-              <div class="fw-light">Pokok Sawit</div>
-              <div id="stats-tree" class="fw-500"></div>
+            <div class="stats-box">
+              <div class="stats-label">Pokok Sawit</div>
+              <div id="stats-tree" class="stats-value"></div>
             </div>
-            <div class="stats-box lh-1 py-3">
-              <div class="fw-light">Densitas (Avg)</div>
-              <div id="stats-density" class="fw-500"></div>
+            <div class="stats-box">
+              <div class="stats-label">Densitas (Avg)</div>
+              <div id="stats-density" class="stats-value"></div>
             </div>
           </div>
 
@@ -59,14 +58,11 @@
             </div>
           </div> -->
 
-        </div>
-      </div>
-      
-      <div id="content" class="g-0">
-        <div id="map"></div>
+      </div>      
 
-        <div id="map-filter" class="text-light">
-          <div class="mb-1"><i class="jt-layers"></i> <span class="fw-bolder">Map Filter</span></div>
+      <div id="map-filter" class="text-light">
+        <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Map Filter</span></div>
+        <div id="filters" class="collapse show">
           <div class="d-flex flex-column">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="checkMap" checked>
@@ -120,10 +116,10 @@
     </div>
     <!-- <div id="mouse-position"></div> -->
     <!-- <div id="map-info"></div> -->
-    <a id="menu-toggle" class="btn btn-primary d-flex mt-2" data-bs-toggle="collapse" href="#info" role="button" aria-controls="info">
-      <img src="images/logo_white.svg" width="27px" />
+    <a id="menu-toggle" class="btn btn-primary d-flex mt-2" role="button">
+      <img id="menu-logo" src="images/logo_white.svg" width="27px" />
       <!-- <i class="jt-menu fs-4 lh-1"></i> -->
-      <span class="mx-2"><span class="fw-bolder">GlobalPro</span> Dashboard</span>
+      <span id="menu-title"><span class="fw-bolder">GlobalPro</span> Dashboard</span>
     </a>
     
     <div id="afdeling-filter" class="dropdown collapse my-4">

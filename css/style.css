@@ -109,7 +109,7 @@ html, body {
 #menu-toggle{
   position:absolute;
   z-index: 1;
-  top: 0.54rem; left: 3.5rem;
+  top: 0.54rem; left: 0.54rem;
   background-color: transparent;
   border-color: transparent;
 }
@@ -118,18 +118,21 @@ html, body {
   background-color:transparent;
   border-color:transparent;
 }
+#menu-toggle #menu-title{
+  margin: 0 0.54rem;
+}
 
 .ol-zoom {
-    top: 0.5em;
-    left: 0.5em;
+    top: 0.54em;
+    left: 15.48em;
 }
 .ol-overviewmap {
-    left: 0.5em;
-    bottom: 4.1em;
+    left: 15.48em;
+    bottom: 2.52em;
 }
 .ol-scale-line {
-    left: 0.5em;
-    bottom: 0.5em;
+    left: 15.48em;
+    bottom: 0.54em;
 }
 
 /* offcanvas custom */
@@ -162,10 +165,15 @@ html, body {
   opacity: 0.63;
 }
 
+a#filter-toggle {
+  color: #ffffff;
+  text-decoration: none;
+  /* margin: 0; */
+}
 #map-filter {
   position: absolute;
-  top: 0.5em;
-  right: 0.8em;
+  top: 0.54em;
+  right: 0.54em;
   padding: 0.63rem 0.72rem;
   border-radius: 0.45rem;
   background: #063b63c0;
@@ -207,16 +215,18 @@ html, body {
   height: 100vh;
 }
 
-#wrapper > div {
-  border: 0.1px solid transparent;
-}
-
 #sidebar{
-  background: #004572;
-  min-height: 100%;
-  width: 324px;
-  order: -1;
-  flex: 0 0 auto;
+  background: #004572de;
+  height: calc(100% - 1.08rem);
+  width: 14.4rem;
+  position: absolute;
+  top: 0.54rem;
+  left: 0.54rem;
+  z-index: 1;
+  border-radius: 0.45rem;
+  overflow-y: auto;
+  scrollbar-width: 0.54rem;
+  padding: 2.7rem 0.54rem 0.54rem;
 }
 
 #content{
@@ -224,9 +234,13 @@ html, body {
   position: relative;
   flex: 1 1 auto;
 }
-#info{
+#info {
   background: #002d4b;
-  width: calc(100% - 324px);
+  width: calc(100% - 16.02rem);
+  z-index: 1;
+  position: absolute;
+  bottom: 0.54rem;
+  left: 15.48rem;
 }
 
 #info button#edit-feature {
@@ -244,17 +258,21 @@ html, body {
   margin-right: 1rem;
 }
 
-#title{
+#title {
+  line-height: 1;
+  text-align: center;
   background-color: #063b63;
   margin: 0.54rem 0;
   border-radius: 0.45rem;
   border: 0.27px solid #02284600;
   box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846;
+  padding: 0.9rem 0;
 }
 
 #stats{
   display: flex;
   flex-direction: column;
+  font-size: 1rem;
 }
 
 #stats .stats-box {
@@ -266,6 +284,8 @@ html, body {
   justify-content: center;
   align-items: center;
   min-height: 4.5rem;
+  line-height: 1;
+  text-align: center;
   background-color: #efefef09;
   margin: 0.54rem 0;
   border-radius: 0.45rem;
@@ -281,10 +301,63 @@ html, body {
   background: radial-gradient(circle at center, #ffffff27, transparent);
 }
 
-.stats-box [id*="stats"]{
+.stats-box .stats-label{
+  font-size: 0.8em;
+  font-weight: 300;
+}
+.stats-box .stats-value{
   position: relative;
-  font-size: 2.07rem;
+  font-size: 1.8em;
   margin-top: 0.54rem;
+  font-weight: 500;
+}
+
+/* Mobile Style */
+
+body.mobile #sidebar{
+  width: 4.5rem;
+}
+
+body.mobile #menu-logo {
+    margin-inline-start: 0.63rem;
+}
+body.mobile #menu-title{
+  visibility: hidden;
+}
+
+body.mobile #stats .stats-box {
+  min-height: 3.42rem;
+  padding: 0 0.36rem;
+}
+
+body.mobile #stats .stats-box:before {
+  display: none;
+}
+
+body.mobile .stats-box .stats-label{
+  font-size: 0.63em;
+}
+body.mobile .stats-box .stats-value{
+  margin-top: 0;
+  font-size: 0.9em;
+}
+body.mobile .ol-zoom {
+    top: 0.54rem;
+    left: 5.58rem;
+}
+body.mobile .ol-overviewmap {
+    left: 5.58rem;
+    bottom: 2.52rem;
+}
+body.mobile .ol-scale-line {
+    left: 5.58em;
+    bottom: 0.54rem;
+}
+
+body.mobile #info {
+  width: calc(100% - 6.12rem);
+  bottom: 0.54rem;
+  left: 5.58rem;
 }
 
 @media (min-width:320px)  {

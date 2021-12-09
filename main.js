@@ -14,8 +14,6 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection } from 'ol/proj';
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
-import CloudTablesApi from 'cloudtables-api';
-
 
 //useGeographic();
 
@@ -41,14 +39,16 @@ numeral.register('locale', 'id', {
 // switch between locales
 numeral.locale('id');
 
+const isMobile = navigator.userAgentData.mobile;
+
 let modalEdit = new Modal(document.getElementById('modalEdit'));
 let formFeature = [];
 let indexFeature = 0;
 var mapInfo = new Modal(document.getElementById('mapInfo'));
 var blockJSON;
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://ec2-52-221-242-95.ap-southeast-1.compute.amazonaws.com:8080';
-//let gsHost = 'http://localhost:8080';
+//let gsHost = 'http://ec2-52-221-242-95.ap-southeast-1.compute.amazonaws.com:8080';
+let gsHost = 'http://localhost:8080';
 let workSpace = 'Mopoli';
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
@@ -167,7 +167,7 @@ const view = new View({
   //projection: projection,
   center: mapCenter,
   pixelRatio: 1,
-  padding: [99, 90, 99, 90],
+  padding: [99, 90, 99, 234],
   zoom: 14,
 });
 
@@ -556,7 +556,7 @@ function getBlockData() {
 
 function setMapInfos(layerJson) {
   const selectedLayers = layerJson.features;
-  let content = `<div class="justify-content-between"><span class="fs-4">Detail Info</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
+  let content = `<div class="justify-content-between"><span class="detail-info-title">Detail Info</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
   let prevLayer = "";
   formFeature = [];
   const featureNames = ['Afdeling', 'Blok', 'Jalan', 'Bangunan', 'Sungai', 'Jembatan'];
@@ -572,12 +572,12 @@ function setMapInfos(layerJson) {
         }
       })
       content += `<div class="row g-0 align-items-center justify-content-start my-2 p-2 feature-box">
-      <div class="col feature-title"><span class="fw-bolder fs-5">${featureTitle}</span></div>`;
+      <div class="col feature-title"><span class="fw-bolder">${featureTitle}</span></div>`;
       arrCol.forEach(element_ => {
         if (element_ != 'Id') {
           content += `<div id="${element_}" class="col d-flex flex-column">
-          <span class="text-muted me-2">${element_}</span>
-          <span class="value fs-4">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</span>
+          <span class="label text-muted me-2">${element_}</span>
+          <span class="value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</span>
           </div>`;
         }
       });
@@ -728,7 +728,7 @@ function saveFeature() {
   });
 }
 
-const ctapi = new CloudTablesApi('mj1826e6oh', 'J1YyYzyXPIxUsrY2Kxn0FXcN', {
+/* const ctapi = new CloudTablesApi('mj1826e6oh', 'J1YyYzyXPIxUsrY2Kxn0FXcN', {
   clientId: 'global_pro',
   clientName: 'Global Pro'
 });
@@ -745,8 +745,19 @@ async function getCloudData(){
   let result = ctapi.dataset('Velocity').row(0).data();
   console.log(result);
 }
+ */
 
 window.addEventListener('DOMContentLoaded', event => {
-  getCloudData();
+  if (isMobile) {
+    document.querySelector("body").classList.add('mobile');
+  }
+  //getCloudData();
   getBlockData();
 });
+
+const menuToggle = document.getElementById('menu-toggle');
+menuToggle.addEventListener('click', event => {
+  if(!isMobile){
+    document.querySelector('body').classList.add('mobile');
+  }
+})
