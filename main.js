@@ -47,7 +47,7 @@ const firestoreModule = {
     }
   },
   getPupuks: async function (layerId) {
-    const q = query(collection(db, "companies/KhkpYLQ1U4PMDZoio9lc/kebuns/7aKWb6Wm0SiO4b3WobUR/pupuks"), where("layer_id", "==", 'SS_Digitasi_Batas_Blok.01', orderBy("tanggal", "asc")));
+    const q = query(collection(db, "companies/KhkpYLQ1U4PMDZoio9lc/kebuns/7aKWb6Wm0SiO4b3WobUR/pupuks"), where("layer_id", "==", layerId, orderBy("tanggal", "asc")));
     const querySnapshot = await getDocs(q);
     let pupuks = [];
     querySnapshot.forEach((doc) => {
@@ -96,18 +96,10 @@ let layerTree = 'SS_Digitasi_Titik_Pokok_Sawit'; //from db
 let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cda7b9c3e/tiles.json?key=uwjhDiDfCigiaSx8FPMr', 'https://api.maptiler.com/tiles/01bf2a1a-ad43-4953-8347-2c1c7b23b09b/tiles.json?key=uwjhDiDfCigiaSx8FPMr'];
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
-//let gsHost = 'http://localhost:8080';
+// let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
+let gsHost = 'http://localhost:8080';
 
-const popup = document.getElementById('popup');
-const popupContent = document.getElementById('popup-content');
-const overlay = new Overlay({
-  element: popup,
-  autoPan: true,
-  autoPanAnimation: {
-    duration: 250,
-  },
-});
+const subStats = document.getElementById('sub-stats');
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 const source = new OSM();
@@ -128,21 +120,6 @@ const mousePositionControl = new MousePosition({
   target: document.getElementById('mouse-position'),
 });
 
-const tlRaster = [];
-layerRaster.forEach(element => {
-  const sourceRaster = new TileJSON({
-    url: element,
-    tileSize: 256,
-    crossOrigin: 'anonymous'
-  });
-
-  tlRaster.push(new TileLayer({
-    //extent: [408380,467955,414599,475177],
-    name: 'layer-raster',
-    source: sourceRaster,
-  }));
-});
-
 const wmsSourceGroup = new ImageWMS({
   url: gsHost + '/geoserver/' + workSpace + '/wms',
   params: { 'LAYERS': workSpace + `:${layerGroup}` },
@@ -159,21 +136,37 @@ const osmLayer = new TileLayer({
   source: new OSM()
 });
 
-const wsmGroup = new ImageLayer({
-  //extent: [408380,467955,414599,475177],
-  name: 'layer1',
-  source: wmsSourceGroup,
-});
-
 const wmsTree = new ImageLayer({
   //extent: [408380,467955,414599,475177],
   name: 'layer3',
   source: wmsSourceTree,
 });
 
-const layers = [osmLayer].concat(tlRaster);
-layers.push(wsmGroup);
+const wsmGroup = new ImageLayer({
+  //extent: [408380,467955,414599,475177],
+  name: 'layer1',
+  source: wmsSourceGroup,
+});
+
+const tlRaster = [];
+// layerRaster.forEach(element => {
+//   const sourceRaster = new TileJSON({
+//     url: element,
+//     tileSize: 256,
+//     crossOrigin: 'anonymous'
+//   });
+
+//   tlRaster.push(new TileLayer({
+//     //extent: [408380,467955,414599,475177],
+//     name: 'layer-raster',
+//     source: sourceRaster,
+//   }));
+// });
+
+// .concat(tlRaster)
+const layers = [osmLayer];
 layers.push(wmsTree);
+layers.push(wsmGroup);
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
@@ -189,13 +182,11 @@ const map = new Map({
   target: 'map',
   layers: layers,
   view: view,
-  overlays: [overlay],
 });
 
 map.on('singleclick', function (evt) {
   if (!editMode) {
     const viewResolution = /** @type {number} */ (view.getResolution());
-    const coord = evt.coordinate;
     const url = wmsSourceGroup.getFeatureInfoUrl(
       evt.coordinate,
       viewResolution,
@@ -217,10 +208,9 @@ map.on('singleclick', function (evt) {
         .then((json) => {
           const layerJson = JSON.parse(json);
           if (layerJson.features.length !== 0) {
-            setMapInfos(layerJson, coord);
+            setMapInfos(layerJson);
             selectMap(layerJson);
           }
-
         });
     }
   }
@@ -349,35 +339,29 @@ function getBlockData() {
 
 $('#selectAfdeling').on('change', (event) => {
   selectedFilter = "afdeling";
-  resetSelectFilter.init('selectAfdeling');
+  reset.selectFilter('selectAfdeling');
 });
 $('#selectBlock').on('change', (event) => {
   selectedFilter = "blok";
-  resetSelectFilter.init('selectBlock');
+  reset.selectFilter('selectBlock');
 });
 $('#selectRoad').on('change', (event) => {
   selectedFilter = "jalan";
-  resetSelectFilter.init('selectRoad');
+  reset.selectFilter('selectRoad');
 });
 $('#selectBuilding').on('change', (event) => {
   selectedFilter = "bangunan";
-  resetSelectFilter.init('selectBuilding');
+  reset.selectFilter('selectBuilding');
 });
 $('#selectRiver').on('change', (event) => {
   selectedFilter = "sungai";
-  resetSelectFilter.init('selectRiver');
+  reset.selectFilter('selectRiver');
 });
 
-const resetSelectFilter = {
-  init: function (id) {
+const reset = {
+  selectFilter: function (id) {
     if (selectedLayer) {
-      map.removeLayer(selectedLayer);
-      selectedSource = null;
-      selectedLayer = null;
-      editMode = false;
-      ModifyLayer.setActive(false);
-      popupContent.innerHTML = '';
-      overlay.setPosition(undefined);
+      this.mapView();
     }
     const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver'];
     ids.forEach(element => {
@@ -388,6 +372,17 @@ const resetSelectFilter = {
         $(`#${element}`).attr("disabled", true);
       }
     });
+  },
+  mapView: function () {
+    map.removeLayer(selectedLayer);
+    selectedSource = null;
+    selectedLayer = null;
+    editMode = false;
+    ModifyLayer.setActive(false);
+    subStats.innerHTML = '';
+    const infoDiv = document.body.querySelector('#info');
+    infoDiv.classList.remove('show');
+    map.getView().setZoom(14); 
   }
 }
 
@@ -418,8 +413,7 @@ const ModifyLayer = {
   },
 };
 
-
-function setMapInfos(layerJson, coord) {
+function setMapInfos(layerJson) {
   const selectedLayers = layerJson.features;
   let content = '';
   let prevLayer = "";
@@ -432,17 +426,19 @@ function setMapInfos(layerJson, coord) {
       let featureName = element.id.split('.')[0].split('_');
       featureName.forEach(function (title) {
         if (selectedFilter.includes(title.toLowerCase())) {
-          content += `<div class="justify-content-between"><span>Informasi ${title}</span></div>
-          <div class="d-flex flex-column p-2">`
+          content += `<div class="d-flex align-items-center mb-1 mt-2"><button id="back-stats" class="btn btn-warning"><i class="fa fa-home"></i></button>
+          <div class="text-uppercase fw-bolder">Informasi ${title}</div></div>
+          <div class="d-flex flex-column">`;
           arrCol.forEach(element_ => {
             if (element_ != 'Id') {
-              content += `<div id="${element_}" class="col d-flex flex-column">
-          <span class="text-muted me-2">${element_}</span>
-          <span class="value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</span>
-          </div>`;
+              content += `
+              <div id="${element_}" class="stats-box">
+              <div class="stats-label">${element_}</div>
+              <div id="stats-density" class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
+            </div>`;
             }
           });
-          content += `<button id="edit-feature" data-index="${i}" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalEdit">Edit</button>`;
+          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalEdit">Edit</button>`;
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
@@ -456,11 +452,22 @@ function setMapInfos(layerJson, coord) {
 
   if (nullLayer) {
     //popup
-    popupContent.innerHTML = content;
-    overlay.setPosition(coord);
+    $('#main-stats').slideUp();
+    subStats.innerHTML = content;
+    $('#sub-stats').on('click', '#back-stats', function () {
+      $('#main-stats').show();
+      reset.mapView();
+    });
 
     if (selectedFilter === 'blok') {
       firestoreModule.getPupuks(layerId).then(function (data) {
+        if (data.length === 0) {
+          const infoDiv = document.body.querySelector('#info');
+          infoDiv.classList.remove('show');
+
+          return;
+        }
+
         let content = `<div class="justify-content-between"><span>Informasi tambahan</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
         let titleTable = "";
         let tableBody = "";
@@ -509,7 +516,7 @@ function selectMap(layerJson) {
   let nullLayer = false;
   const selectStyle = new Style({
     fill: new Fill({
-      color: 'rgba(255,255,255,0.3)',
+      color: 'rgba(255,255,255,0.1)',
     }),
     stroke: new Stroke({
       color: '#FF0000',
@@ -551,11 +558,10 @@ function selectMap(layerJson) {
     selectedLayer.getSource().on('featuresloadend', function () {
       const feature = selectedSource.getFeatures()[0];
       const blockPolygon = feature.getGeometry();
-      view.fit(blockPolygon, { padding: [120, 120, 180, 120] });
+      // , { padding: [0, 0, 0, 0] }
+      view.fit(blockPolygon);
       editMode = true;
       ModifyLayer.init();
-      //console.log(feature);
-      //console.log(layers);
     });
   }
 }
@@ -571,13 +577,13 @@ function editFeature(i, layerId, layerProperties) {
   content += '</div>';
 
   let footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-  <button id="save-feature" data-index="${i}" type="button" class="btn btn-success">Save</button>`;
+  <button id="save-feature" type="button" class="btn btn-success">Save</button>`;
 
   formFeature = {
     layerId, content, arrCol, footer
   };
 
-  $('#popup-content').on('click', '#edit-feature', function () {
+  $('#sub-stats').on('click', '#edit-feature', function () {
     $('#formBody').html(formFeature.content);
     $('#formFooter').html(formFeature.footer);
     modalEdit.show();
