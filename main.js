@@ -487,7 +487,7 @@ function setMapInfos(layerJson) {
         });
 
         content += `
-          <table class="table">
+          <table class="table table-sm">
               <thead>
                   <tr>${titleTable}</tr>
               </thead>
@@ -531,7 +531,7 @@ function selectMap(layerJson) {
       if (selectedFilter.includes(element_.toLowerCase())) {
         const source = new VectorSource({
           // &featureId=${element.id}
-          url: `http://localhost:8080/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
+          url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
           format: new GeoJSON(),
         });
 
@@ -610,7 +610,7 @@ function saveFeature() {
     featureProjection: 'urn:ogc:def:crs:EPSG::3857',
   });
 
-  var url = 'http://localhost:8080/geoserver/wfs';
+  var url = gsHost + '/geoserver/wfs';
   var postData =
     '<wfs:Transaction service="WFS" version="1.1.0"\n' +
     'xmlns:ogc="http://www.opengis.net/ogc"\n' +
@@ -665,6 +665,7 @@ window.addEventListener('DOMContentLoaded', event => {
   if (isMobile) {
     document.querySelector("body").classList.add('mobile');
     document.getElementById('filters').classList.remove('show');
+    document.getElementById('select-filters').classList.remove('show');
   }
   getBlockData();
 });
