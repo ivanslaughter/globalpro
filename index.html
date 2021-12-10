@@ -17,14 +17,14 @@
 
       <div class="sidebar-title collapse">
         <small class="fw-light">Kebun Sawit</small><br>
-        <span class="text-uppercase fw-bolder">Damar Condong</span><br>
+        <span class="text-uppercase fw-bolder">Contoh Kebun</span><br>
         <small class="fw-light">Tahun 2021</small>
       </div>
 
       <div id="sidebar" class="text-light">
           <div id="title">
             <small class="fw-light">Kebun Sawit</small><br>
-            <span class="text-uppercase fw-bolder">Damar Condong</span><br>
+            <span class="text-uppercase fw-bolder">Contoh Kebun</span><br>
             <small class="fw-light">Tahun 2021</small>
           </div>
           <div id="stats">
@@ -49,21 +49,6 @@
               <div id="stats-density" class="stats-value"></div>
             </div>
           </div>
-
-          <!-- <div id="map-filter" class="mt-4">
-            <div class="mb-1"><i class="jt-layers"></i> <span class="fw-bolder">Map Filter</span></div>
-            <div class="d-flex">
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="checkAfdelingBlock" checked>
-                <label class="form-check-label" for="checkAfdelingBlock">Afdeling/Block</label>
-              </div>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="checkRoadBuilding" checked>
-                <label class="form-check-label" for="checkRoadBuilding">Road, Building etc.</label>
-              </div>
-            </div>
-          </div> -->
-
       </div>      
 
       <div id="map-filter" class="text-light">
@@ -75,46 +60,55 @@
               <label class="form-check-label" for="checkMap">Map</label>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkAfdelingBlock" checked>
-              <label class="form-check-label" for="checkAfdelingBlock">Afdeling/Block</label>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkRaster" checked>
+              <label class="form-check-label" for="checkRaster">Foto Udara</label>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkPokok" checked>
-              <label class="form-check-label" for="checkPokok">Pokok Sawit</label>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" checked>
+              <label class="form-check-label" for="checkGroup">Afdeling,Blok<br>Jalan,dll..</label>
             </div>
-            <!-- <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkRoadBuilding" checked>
-              <label class="form-check-label" for="checkRoadBuilding">Road, Building etc.</label>
-            </div> -->
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkTree" checked>
+              <label class="form-check-label" for="checkTree">Pokok Sawit</label>
+            </div>
           </div>
         </div>
       </div>
 
-      <div id="info" class="collapse">
-        <!-- <div id="block-info" class="text-light lh-1 m-2">
-          <div class="row g-0 align-items-center">
-            <div class="col"><span class="fw-bolder fs-5">Block Detail</span></div>
-            <div id="detail-block" class="col d-flex flex-column">
-              <span class="text-muted me-2">Nama Blok</span>
-              <span class="value fs-3"></span>
+      <div id="select-filter" class="text-light">
+        <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#select-filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Select Filter</span></div>
+        <div id="select-filters" class="collapse show">
+          <div class="d-flex flex-column">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="selectAfdeling">
+              <label class="form-check-label" for="selectAfdeling">Afdeling</label>
             </div>
-            <div id="detail-tree" class="col d-flex flex-column">
-              <span class="text-muted me-2">Jumlah Pohon</span>
-              <span class="value fs-3"></span>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="selectBlock" checked>
+              <label class="form-check-label" for="selectBlock">Blok</label>
             </div>
-            <div id="detail-area" class="col d-flex flex-column">
-              <span class="text-muted me-2">Luas Blok (Ha)</span>
-              <span class="value fs-3"></span>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="selectRoad">
+              <label class="form-check-label" for="selectRoad">Jalan</label>
             </div>
-            <div id="detail-density" class="col d-flex flex-column">
-              <span class="text-muted me-2">Densitas (%)</span>
-              <span class="value fs-3"></span>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="selectBuilding">
+              <label class="form-check-label" for="selectBuilding">Bangunan</label>
             </div>
-            <button id="edit-feature" type="button" class="btn btn-warning btn-sm col mx-3" data-toggle="modal" data-target="#modalEdit">Edit</button>
-            <button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="selectRiver">
+              <label class="form-check-label" for="selectRiver">Sungai</label>
+            </div>
           </div>
-        </div> -->
+        </div>
+      </div>
 
+      <div id="popup" class="ol-popup">
+        <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+        <div id="popup-content"></div>
+      </div>
+
+      <div id="info" class="collapse">
         <div id="detail-info" class="text-light lh-1 m-2">
         </div>
       </div>

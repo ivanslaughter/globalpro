@@ -1,11 +1,14 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/style.css';
 import { Map, View, Overlay } from 'ol';
+import { Draw, Modify, Select, Snap } from 'ol/interaction';
 import MousePosition from 'ol/control/MousePosition';
 import { Image as ImageLayer, Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import ImageWMS from 'ol/source/ImageWMS';
 import TileWMS from 'ol/source/TileWMS';
+import TileJSON from 'ol/source/TileJSON'
 import GeoJSON from 'ol/format/GeoJSON';
+import GML from 'ol/format/GML';
 import VectorSource from 'ol/source/Vector'
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import OSM from 'ol/source/OSM';
@@ -14,10 +17,48 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection } from 'ol/proj';
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
-import CloudTablesApi from 'cloudtables-api';
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, doc, addDoc, getDoc, getDocs, setDoc, query, where, orderBy, Timestamp } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCYng2dI6yeBkrJfm7ygBn61KHyHw0tf1M",
+  authDomain: "globalpro-22be2.firebaseapp.com",
+  projectId: "globalpro-22be2",
+  storageBucket: "globalpro-22be2.appspot.com",
+  messagingSenderId: "147221436849",
+  appId: "1:147221436849:web:c7ed3b46a288af6974c590",
+  measurementId: "${config.measurementId}"
+};
+
+// Initialize Firebase
+initializeApp(firebaseConfig);
+const db = getFirestore();
+
+const firestoreModule = {
+  getOnce: async function () {
+    const docRef = doc(db, "companies", "KhkpYLQ1U4PMDZoio9lc");
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+    } else {
+      // doc.data() will be undefined in this case
+      console.log("No such document!");
+    }
+  },
+  getPupuks: async function (layerId) {
+    const q = query(collection(db, "companies/KhkpYLQ1U4PMDZoio9lc/kebuns/7aKWb6Wm0SiO4b3WobUR/pupuks"), where("layer_id", "==", 'SS_Digitasi_Batas_Blok.01', orderBy("tanggal", "asc")));
+    const querySnapshot = await getDocs(q);
+    let pupuks = [];
+    querySnapshot.forEach((doc) => {
+      pupuks.push(doc.data());
+      // console.log(doc.id, " => ", doc.data());
+    });
+    return pupuks;
+  }
+}
 
 //useGeographic();
-
 numeral.register('locale', 'id', {
   delimiters: {
     thousands: '.',
@@ -42,71 +83,33 @@ numeral.locale('id');
 
 const isMobile = navigator.userAgentData.mobile;
 
+let editMode = false;
 let modalEdit = new Modal(document.getElementById('modalEdit'));
-let formFeature = [];
-let indexFeature = 0;
-var mapInfo = new Modal(document.getElementById('mapInfo'));
-var blockJSON;
+let formFeature = {};
+let selectedSource = null;
+let selectedLayer = null;
+let selectedFilter = "blok";
+let prevSelected = null;
+let workSpace = 'Mopoli'; //from db
+let layerGroup = 'Mopoli_Group'; //from db
+let layerTree = 'SS_Digitasi_Titik_Pokok_Sawit'; //from db
+let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cda7b9c3e/tiles.json?key=uwjhDiDfCigiaSx8FPMr', 'https://api.maptiler.com/tiles/01bf2a1a-ad43-4953-8347-2c1c7b23b09b/tiles.json?key=uwjhDiDfCigiaSx8FPMr'];
+
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://localhost:8080';
-let workSpace = 'Mopoli';
+
+const popup = document.getElementById('popup');
+const popupContent = document.getElementById('popup-content');
+const overlay = new Overlay({
+  element: popup,
+  autoPan: true,
+  autoPanAnimation: {
+    duration: 250,
+  },
+});
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
-let mapPadding = [50, 50, 216, 247.68];
-if(isMobile){
-  mapPadding = [50, 30, 90, 90];
-}
-const projection = new Projection({
-  code: 'EPSG:4326',
-  units: 'm',
-});
-const mapExtent = fromLonLat([98.1764, 4.2992, 98.2307, 4.2329]);
-
-const afdelingSource = new VectorSource({
-  url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=10&outputFormat=application%2Fjson&srsname=EPSG:4326',
-  format: new GeoJSON(),
-  overlaps: true
-});
-
-const afdelingStyle = new Style({
-  fill: new Fill({
-    color: 'rgba(255,255,255,0.01)',
-  }),
-  stroke: new Stroke({
-    color: '#c90000',
-    width: 0.18,
-    lineDash: [4.5, 1.8]
-  })
-});
-
-const blockSource = new VectorSource({
-  url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326',
-  format: new GeoJSON(),
-});
-
-const blockStyle = new Style({
-  fill: new Fill({
-    color: 'rgba(255,255,255,0.01)',
-  }),
-  stroke: new Stroke({
-    color: '#c90000',
-    width: 0.18,
-    lineDash: [4.5, 1.8]
-  })
-});
-
-const blockLayer = new VectorLayer({
-  source: blockSource,
-  style: blockStyle,
-});
-
-
-const afdelingLayer = new VectorLayer({
-  source: afdelingSource,
-  style: afdelingStyle,
-});
-
 const source = new OSM();
 const overviewMapControl = new OverviewMap({
   layers: [
@@ -125,21 +128,30 @@ const mousePositionControl = new MousePosition({
   target: document.getElementById('mouse-position'),
 });
 
-const wmsSource = new ImageWMS({
+const tlRaster = [];
+layerRaster.forEach(element => {
+  const sourceRaster = new TileJSON({
+    url: element,
+    tileSize: 256,
+    crossOrigin: 'anonymous'
+  });
+
+  tlRaster.push(new TileLayer({
+    //extent: [408380,467955,414599,475177],
+    name: 'layer-raster',
+    source: sourceRaster,
+  }));
+});
+
+const wmsSourceGroup = new ImageWMS({
   url: gsHost + '/geoserver/' + workSpace + '/wms',
-  params: { 'LAYERS': workSpace + ':Mopoli_Group' },
+  params: { 'LAYERS': workSpace + `:${layerGroup}` },
   serverType: 'geoserver',
 });
 
-const wmsSource1 = new ImageWMS({
+const wmsSourceTree = new ImageWMS({
   url: gsHost + '/geoserver/' + workSpace + '/wms',
-  params: { 'LAYERS': workSpace + ':Mopoli_Group_01' },
-  serverType: 'geoserver',
-});
-
-const wmsSource2 = new ImageWMS({
-  url: gsHost + '/geoserver/' + workSpace + '/wms',
-  params: { 'LAYERS': 'Mopoli:SS_Digitasi_Titik_Pokok_Sawit' },
+  params: { 'LAYERS': workSpace + `:${layerTree}` },
   serverType: 'geoserver',
 });
 
@@ -147,197 +159,108 @@ const osmLayer = new TileLayer({
   source: new OSM()
 });
 
-const wmsLayer = new ImageLayer({
+const wsmGroup = new ImageLayer({
   //extent: [408380,467955,414599,475177],
   name: 'layer1',
-  source: wmsSource,
-});
-const wmsLayer1 = new ImageLayer({
-  //extent: [408380,467955,414599,475177],
-  name: 'layer2',
-  source: wmsSource1,
+  source: wmsSourceGroup,
 });
 
-const wmsLayer2 = new ImageLayer({
+const wmsTree = new ImageLayer({
   //extent: [408380,467955,414599,475177],
   name: 'layer3',
-  source: wmsSource2,
+  source: wmsSourceTree,
 });
 
-// const layers = [osmLayer, wmsLayer, wmsLayer1, afdelingLayer, blockLayer];
-const layers = [osmLayer, wmsLayer2, wmsLayer];
+const layers = [osmLayer].concat(tlRaster);
+layers.push(wsmGroup);
+layers.push(wmsTree);
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
   //projection: projection,
   center: mapCenter,
   pixelRatio: 1,
-  padding: mapPadding,
+  padding: [99, 90, 99, 90],
   zoom: 14,
 });
-
-//
 
 const map = new Map({
   controls: defaultControls().extend([mousePositionControl, overviewMapControl, new ScaleLine()]),
   target: 'map',
   layers: layers,
   view: view,
+  overlays: [overlay],
 });
-
-/* 
-$('.ol-zoom-in, .ol-zoom-out').tooltip({
-  placement: 'left',
-  container: '#map',
-});
-$('.ol-rotate-reset, .ol-attribution button[title]').tooltip({
-  placement: 'left',
-  container: '#map',
-});
- */
 
 map.on('singleclick', function (evt) {
-  //document.getElementById('mapinfo').innerHTML = '';
-  const viewResolution = /** @type {number} */ (view.getResolution());
-  const coord = evt.coordinate;
-  const coord1 = fromLonLat([coord[0], coord[1]]);
-  const url = wmsSource.getFeatureInfoUrl(
-    evt.coordinate,
-    viewResolution,
-    'EPSG:3857',
-    {
-      'exceptions': 'application/vnd.ogc.se_inimage',
-      //'INFO_FORMAT': 'text/html',
-      'INFO_FORMAT': 'application/json',
-      'FEATURE_COUNT': '100',
-      'X': '50',
-      'Y': '50',
-      //'SRS':'EPSG:32647',
+  if (!editMode) {
+    const viewResolution = /** @type {number} */ (view.getResolution());
+    const coord = evt.coordinate;
+    const url = wmsSourceGroup.getFeatureInfoUrl(
+      evt.coordinate,
+      viewResolution,
+      'EPSG:3857',
+      {
+        'exceptions': 'application/vnd.ogc.se_inimage',
+        //'INFO_FORMAT': 'text/html',
+        'INFO_FORMAT': 'application/json',
+        'FEATURE_COUNT': '100',
+        'X': '50',
+        'Y': '50',
+        //'SRS':'EPSG:32647',
+      }
+    );
+
+    if (url) {
+      fetch(url)
+        .then((response) => response.text())
+        .then((json) => {
+          const layerJson = JSON.parse(json);
+          if (layerJson.features.length !== 0) {
+            setMapInfos(layerJson, coord);
+            selectMap(layerJson);
+          }
+
+        });
     }
-  );
-
-  if (url) {
-    fetch(url)
-      .then((response) => response.text())
-      .then((json) => {
-        // console.log(json);
-        //document.getElementById('map-info').innerHTML = html;
-
-        /* document.getElementById('mapinfo').innerHTML = html;
-        $('#mapinfo table').removeClass("featureInfo").addClass("table table-sm").wrap("<div class='table-responsive-sm'></div>");
-        $("#mapinfo td").each(function () {
-          var text = $(this).text();
-          text = text.replace("SS_Digitasi_Batas_", "");
-          text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
-          text = text.replace("SS_Digitasi_Jalan_Utama", "Jalan Utama");
-          text = text.replace("SS_Digitasi_Jembatan", "Jembatan");
-          text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
-          text = text.replace("SS_Digitasi_Sungai", "Sungai");
-          $(this).text(text);
-        });
-        $("#mapinfo th").each(function () {
-          var text = $(this).text();
-          text = text.replace("Block", "Blok");
-          $(this).text(text);
-        });
-        $("#mapinfo table caption").each(function () {
-          var text = $(this).text();
-          text = text.replace("SS_Digitasi_Batas_", "");
-          text = text.replace("SS_Digitasi_Jalan_Atribut", "Jalan");
-          text = text.replace("SS_Digitasi_Jalan_Utama", "Jalan Utama");
-          text = text.replace("SS_Digitasi_Bangunan", "Bangunan");
-          text = text.replace("SS_Digitasi_Jembatan", "Jembatan");
-          text = text.replace("SS_Digitasi_Sungai", "Sungai");
-          $(this).text(text);
-        }); */
-        /* console.log(html.includes('class'));
-        if (html.includes('class')){
-          mapInfo.show();
-        } */
-
-        const layerJson = JSON.parse(json);
-        // console.log(layerJson);
-
-        //console.log(layerJson.features.length);
-
-        if (layerJson.features.length !== 0) {
-          const layerId = layerJson.features[0].id
-          const blockId = layerId ? layerId.split('.')[0] : '';
-          const layerProperties = layerJson.features[0].properties;
-
-          // console.log(blockId);
-
-          // selectBlock(blockId);
-
-          // setMapInfo(layerProperties);
-
-
-          setMapInfos(layerJson);
-          selectMap(layerJson);
-          // editFeature(layerId, layerProperties);
-        }
-
-      });
   }
-  //console.log(url + ' – ' + coord1 );
 });
 
-/* afdelingLayer.getSource().on('featuresloadend', function () {
+// let selected = null;
+// const highlightStyle = new Style({
+//   fill: new Fill({
+//     color: 'rgba(255,255,255,0.3)',
+//   }),
+//   stroke: new Stroke({
+//     color: '#0000FF',
+//     width: 3,
+//     lineDash: [4.5, 1.8]
+//   }),
+// });
 
-  const feature = afdelingSource.getFeatures()[0];
-
-  const polygon = feature.getGeometry();
-  view.fit(polygon);
-  console.log(feature);
-  console.log('loaded');
-}); */
-
-const highlightStyle = new Style({
-  fill: new Fill({
-    color: 'rgba(255,255,255,0.09)',
-  }),
-  stroke: new Stroke({
-    color: '#9c0000',
-    width: 0.9,
-    lineDash: [4.5, 1.8]
-  }),
-});
-
-let selected = null;
-
-map.on('pointermove', function (evt) {
-  if (evt.dragging) {
-    return;
-  }
-  const pixel = evt.map.getEventPixel(evt.originalEvent);
-  /* const hit = evt.map.forEachLayerAtPixel(pixel, function(feature){
-    return feature.getLayersArray();
-  }); */
-  //console.log(hit);
-  if (selected !== null) {
-    selected.setStyle(undefined);
-    selected = null;
-  }
-  const hit = map.forEachFeatureAtPixel(evt.pixel, function (f) {
-    selected = f;
-    f.setStyle(highlightStyle);
-    return true;
-  });
-  //console.log(hit);
-  map.getTargetElement().style.cursor = hit ? 'pointer' : '';
-});
-
-/* $(document).ready(function () {
-  console.log("ready!");
-  $('#map-info table').removeClass("featureInfo").addClass("table table-sm");
-}); */
+// map.on('pointermove', function (evt) {
+//   if (evt.dragging) {
+//     return;
+//   }
+//   if (selected !== null) {
+//     selected.setStyle(undefined);
+//     selected = null;
+//   }
+//   const hit = map.forEachFeatureAtPixel(evt.pixel, function (f) {
+//     selected = f;
+//     f.setStyle(highlightStyle);
+//     return true;
+//   });
+//   // console.log(hit);
+//   map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+// });
 
 const gpDashboardClose = document.getElementById('gp-dashboard-close');
-const checkMap = document.getElementById('checkMap');
-const checkAfdelingBlock = document.getElementById('checkAfdelingBlock');
-const checkPokok = document.getElementById('checkPokok');
-// const checkRoadBuilding = document.getElementById('checkRoadBuilding');
 const blockFilter = document.getElementById('block-filter');
+const checkMap = document.getElementById('checkMap');
+const checkRaster = document.getElementById('checkRaster');
+const checkGroup = document.getElementById('checkGroup');
+const checkTree = document.getElementById('checkTree');
 
 checkMap.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
@@ -350,180 +273,49 @@ checkMap.addEventListener('change', (event) => {
   //gpDashboardClose.click();
 });
 
-checkAfdelingBlock.addEventListener('change', (event) => {
+checkRaster.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
-    wmsLayer.setVisible(true);
-    blockFilter.style.display = "";
-  } else {
-    wmsLayer.setVisible(false);
-    blockFilter.style.display = "none";
-  }
-  //gpDashboardClose.click();
-});
-
-checkPokok.addEventListener('change', (event) => {
-  if (event.currentTarget.checked) {
-    wmsLayer2.setVisible(true);
-    blockFilter.style.display = "";
-  } else {
-    wmsLayer2.setVisible(false);
-    blockFilter.style.display = "none";
-  }
-  //gpDashboardClose.click();
-});
-
-// checkRoadBuilding.addEventListener('change', (event) => {
-//   if (event.currentTarget.checked) {
-//     map.addLayer(wmsLayer1);
-//   } else {
-//     map.removeLayer(wmsLayer1);
-//   }
-//   //gpDashboardClose.click();
-// });
-
-//const block = '26';
-var prevAfdeling;
-var prevBlock;
-let prevSelected = [];
-
-
-function selectAfdeling(afdelingid) {
-  //console.log(afdeling);
-
-  const afdelingSource1 = new VectorSource({
-    url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Afdeling&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Afdeling.' + afdelingid,
-    format: new GeoJSON(),
-  });
-
-  const afdelingStyle1 = new Style({
-    stroke: new Stroke({
-      color: '#c90000',
-      width: 1.44,
-    })
-  });
-
-  const afdelingLayer1 = new VectorLayer({
-    source: afdelingSource1,
-    style: afdelingStyle1,
-  });
-
-  if (prevAfdeling) {
-    map.removeLayer(prevAfdeling);
-  }
-
-  map.addLayer(afdelingLayer1);
-  prevAfdeling = afdelingLayer1;
-
-  afdelingLayer1.getSource().on('featuresloadend', function () {
-
-    const feature = afdelingSource1.getFeatures()[0];
-
-    const afdelingPolygon = feature.getGeometry();
-    view.fit(afdelingPolygon);
-    //console.log(feature);
-    //console.log(layers);
-  });
-}
-
-function selectBlock(blockid) {
-  //console.log(block);
-
-  const blockSource1 = new VectorSource({
-    url: gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=SS_Digitasi_Batas_Blok.' + blockid,
-    format: new GeoJSON(),
-  });
-
-  const blockStyle1 = new Style({
-    stroke: new Stroke({
-      color: '#c90000',
-      width: 1.44,
-    })
-  });
-
-  const blockLayer1 = new VectorLayer({
-    source: blockSource1,
-    style: blockStyle1,
-  });
-
-  if (prevBlock) {
-    map.removeLayer(prevBlock);
-  }
-
-  map.addLayer(blockLayer1);
-  prevBlock = blockLayer1;
-
-  blockLayer1.getSource().on('featuresloadend', function () {
-
-    const feature = blockSource1.getFeatures()[0];
-
-    const blockPolygon = feature.getGeometry();
-    view.fit(blockPolygon);
-    //console.log(feature);
-    //console.log(layers);
-  });
-}
-
-var afdelingSelect = document.getElementById('select-afdeling');
-
-afdelingSelect.onchange = function () {
-  var elem = (typeof this.selectedIndex === "undefined" ? window.event.srcElement : this);
-  var value = elem.value || elem.options[elem.selectedIndex].value;
-
-  selectAfdeling(value);
-
-  //console.log(value);
-}
-
-var blockSelect = document.getElementById('select-block');
-
-blockSelect.onchange = function () {
-  var elem = (typeof this.selectedIndex === "undefined" ? window.event.srcElement : this);
-  var value = elem.value || elem.options[elem.selectedIndex].value;
-
-  selectBlock(value);
-
-  // console.log(value);
-}
-
-function setMapInfo(data) {
-  // console.log(data);
-
-  const infoDiv = document.body.querySelector('#info');
-  const detailBlock = document.querySelector('#detail-block .value');
-  const detailTree = document.querySelector('#detail-tree .value');
-  const detailArea = document.querySelector('#detail-area .value');
-  const detailDensity = document.querySelector('#detail-density .value');
-
-  detailBlock.innerHTML = data.Block;
-  detailTree.innerHTML = numeral(data.Jml_Sawit).format(',0');
-  detailArea.innerHTML = numeral(data.Luas).format('0.00');
-  detailDensity.innerHTML = numeral(data.Density).format('0.00');
-
-  const infoToggle = document.body.querySelector('#info-toggled');
-  if (infoToggle) {
-    // Uncomment Below to persist sidebar toggle between refreshes
-    // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-    //     document.body.classList.toggle('sb-sidenav-toggled');
-    // }
-    infoToggle.addEventListener('click', event => {
-      event.preventDefault();
-      document.body.classList.toggle('info-toggled');
-      //localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
+    tlRaster.forEach(element => {
+      element.setVisible(true);
     });
+    blockFilter.style.display = "";
+  } else {
+    tlRaster.forEach(element => {
+      element.setVisible(false);
+    });
+    blockFilter.style.display = "none";
   }
-  infoDiv.classList.add('show');
-}
+  //gpDashboardClose.click();
+});
+
+checkGroup.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    wsmGroup.setVisible(true);
+    blockFilter.style.display = "";
+  } else {
+    wsmGroup.setVisible(false);
+    blockFilter.style.display = "none";
+  }
+  //gpDashboardClose.click();
+});
+
+checkTree.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    wmsTree.setVisible(true);
+    blockFilter.style.display = "";
+  } else {
+    wmsTree.setVisible(false);
+    blockFilter.style.display = "none";
+  }
+  //gpDashboardClose.click();
+});
 
 function getBlockData() {
-  const blocksJson = [];
-  const blocksUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&maxFeatures=100&outputFormat=application%2Fjson&srsname=EPSG:32647';
-
-  //var blockSelectData = [];
-
+  const blocksUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&outputFormat=application%2Fjson&srsname=EPSG:32647';
   fetch(blocksUrl)
     .then((response) => response.text())
     .then((json) => {
-      //console.log(JSON.parse(json).features.length);
+      // console.log(JSON.parse(json));
       let blocksJson = JSON.parse(json).features;
       if (blocksJson.length > 0) {
         //console.log(blocksJson);
@@ -549,107 +341,223 @@ function getBlockData() {
       }
 
     });
-
-
   //console.log(blockSelectData);
-
-
   //console.log(blockSource.getFeatures());
 }
 
 //EDIT SEPRI
 
-function setMapInfos(layerJson) {
+$('#selectAfdeling').on('change', (event) => {
+  selectedFilter = "afdeling";
+  resetSelectFilter.init('selectAfdeling');
+});
+$('#selectBlock').on('change', (event) => {
+  selectedFilter = "blok";
+  resetSelectFilter.init('selectBlock');
+});
+$('#selectRoad').on('change', (event) => {
+  selectedFilter = "jalan";
+  resetSelectFilter.init('selectRoad');
+});
+$('#selectBuilding').on('change', (event) => {
+  selectedFilter = "bangunan";
+  resetSelectFilter.init('selectBuilding');
+});
+$('#selectRiver').on('change', (event) => {
+  selectedFilter = "sungai";
+  resetSelectFilter.init('selectRiver');
+});
+
+const resetSelectFilter = {
+  init: function (id) {
+    if (selectedLayer) {
+      map.removeLayer(selectedLayer);
+      selectedSource = null;
+      selectedLayer = null;
+      editMode = false;
+      ModifyLayer.setActive(false);
+      popupContent.innerHTML = '';
+      overlay.setPosition(undefined);
+    }
+    const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver'];
+    ids.forEach(element => {
+      if (element !== id) {
+        $(`#${element}`).prop('checked', false);
+        $(`#${element}`).removeAttr("disabled");
+      } else {
+        $(`#${element}`).attr("disabled", true);
+      }
+    });
+  }
+}
+
+const ModifyLayer = {
+  init: function () {
+    this.select = new Select();
+    map.addInteraction(this.select);
+
+    this.modify = new Modify({
+      features: this.select.getFeatures(),
+    });
+
+    map.addInteraction(this.modify);
+
+    this.setEvents();
+  },
+  setEvents: function () {
+    const selectedFeatures = this.select.getFeatures();
+    this.select.on('change:active', function () {
+      selectedFeatures.forEach(function (each) {
+        selectedFeatures.remove(each);
+      });
+    });
+  },
+  setActive: function (active) {
+    this.select.setActive(active);
+    this.modify.setActive(active);
+  },
+};
+
+
+function setMapInfos(layerJson, coord) {
   const selectedLayers = layerJson.features;
-  let content = `<div class="justify-content-between"><span class="detail-info-title">Detail Info</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
+  let content = '';
   let prevLayer = "";
-  formFeature = [];
-  const featureNames = ['Afdeling', 'Blok', 'Jalan', 'Bangunan', 'Sungai', 'Jembatan'];
-  let featureName;
+  let nullLayer = false;
+  let layerId = "";
   selectedLayers.forEach(function (element, i) {
     if (prevLayer !== element.id.split('.')[0]) {
       const arrCol = Object.keys(element.properties);
-      let featureTitle = '';
-      featureName = element.id.split('.')[0].split('_');
-      featureNames.forEach(function (element) {
-        if (featureName.includes(element)) {
-          featureTitle = element;
-        }
-      })
-      content += `<div class="row g-0 align-items-center justify-content-start my-2 p-2 feature-box">
-      <div class="col feature-title"><span class="fw-bolder">${featureTitle}</span></div>`;
-      arrCol.forEach(element_ => {
-        if (element_ != 'Id') {
-          content += `<div id="${element_}" class="col d-flex flex-column">
-          <span class="label text-muted me-2">${element_}</span>
+
+      let featureName = element.id.split('.')[0].split('_');
+      featureName.forEach(function (title) {
+        if (selectedFilter.includes(title.toLowerCase())) {
+          content += `<div class="justify-content-between"><span>Informasi ${title}</span></div>
+          <div class="d-flex flex-column p-2">`
+          arrCol.forEach(element_ => {
+            if (element_ != 'Id') {
+              content += `<div id="${element_}" class="col d-flex flex-column">
+          <span class="text-muted me-2">${element_}</span>
           <span class="value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</span>
           </div>`;
+            }
+          });
+          content += `<button id="edit-feature" data-index="${i}" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalEdit">Edit</button>`;
+          content += '</div>';
+          prevLayer = element.id.split('.')[0];
+          layerId = element.id;
+          nullLayer = true;
+          editFeature(i, element.id, element.properties);
         }
-      });
-      content += `<button id="edit-feature" data-index="${i}" type="button" class="btn btn-warning btn-sm col" data-toggle="modal" data-target="#modalEdit">Edit</button>`;
-      content += '</div>';
-      prevLayer = element.id.split('.')[0];
-      editFeature(i, element.id, element.properties);
+      })
+
     }
   });
-  $('#detail-info').html(content);
 
-  const infoDiv = document.body.querySelector('#info');
-  const infoToggle = document.body.querySelector('#info-toggled');
-  if (infoToggle) {
-    infoToggle.addEventListener('click', event => {
-      event.preventDefault();
-      document.body.classList.toggle('info-toggled');
-    });
+  if (nullLayer) {
+    //popup
+    popupContent.innerHTML = content;
+    overlay.setPosition(coord);
+
+    if (selectedFilter === 'blok') {
+      firestoreModule.getPupuks(layerId).then(function (data) {
+        let content = `<div class="justify-content-between"><span>Informasi tambahan</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
+        let titleTable = "";
+        let tableBody = "";
+        let th = false;
+        const titleArr = Object.keys(data[0]);
+        data.forEach(element => {
+          titleArr.forEach(element_ => {
+            if (element_ !== 'layer_id') {
+              const title = element_.replace('_', ' ');
+              if (!th)
+                titleTable = titleTable + `<th>${title[0].toUpperCase()}${title.slice(1)}</th>`;
+              tableBody = tableBody + `<td>${element_ === 'tanggal' ? element[element_].toDate().toLocaleString('id-ID').split(' ')[0] : element[element_]}</td>`;
+            }
+          });
+          th = true;
+          tableBody = tableBody + "<tr>";
+        });
+
+        content += `
+          <table class="table">
+              <thead>
+                  <tr>${titleTable}</tr>
+              </thead>
+              <tbody>
+                  <tr>${tableBody}</tr>
+              </tbody>
+          </table>
+        `;
+
+        $('#detail-info').html(content);
+        const infoDiv = document.body.querySelector('#info');
+        const infoToggle = document.body.querySelector('#info-toggled');
+        if (infoToggle) {
+          infoToggle.addEventListener('click', event => {
+            event.preventDefault();
+            document.body.classList.toggle('info-toggled');
+          });
+        }
+        infoDiv.classList.add('show');
+      });
+    }
   }
-  infoDiv.classList.add('show');
 }
 
 function selectMap(layerJson) {
-  let selectSource = [];
-  let selectLayer = [];
-
+  let nullLayer = false;
   const selectStyle = new Style({
+    fill: new Fill({
+      color: 'rgba(255,255,255,0.3)',
+    }),
     stroke: new Stroke({
-      color: '#c90000',
-      width: 1.44,
-    })
+      color: '#FF0000',
+      width: 3,
+      lineDash: [4.5, 1.8]
+    }),
   });
 
   layerJson.features.forEach(element => {
-    const source = new VectorSource({
-      url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&maxFeatures=50&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
-      format: new GeoJSON(),
-    });
+    let layerNames = element.id.split('.')[0].split('_');
+    layerNames.forEach(function (element_) {
+      if (selectedFilter.includes(element_.toLowerCase())) {
+        const source = new VectorSource({
+          // &featureId=${element.id}
+          url: `http://localhost:8080/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
+          format: new GeoJSON(),
+        });
 
-    selectSource.push(source);
+        selectedSource = source;
 
-    selectLayer.push(
-      new VectorLayer({
-        source: source,
-        style: selectStyle,
-      })
-    )
+        selectedLayer = new VectorLayer({
+          source: source,
+          style: selectStyle,
+        })
+
+        nullLayer = true;
+      }
+    })
   });
 
-  if (prevSelected.length > 0) {
-    prevSelected.forEach(element => {
-      map.removeLayer(element);
+  if (nullLayer) {
+    if (prevSelected) {
+      map.removeLayer(prevSelected);
+    }
+
+    map.addLayer(selectedLayer);
+    prevSelected = selectedLayer;
+
+    selectedLayer.getSource().on('featuresloadend', function () {
+      const feature = selectedSource.getFeatures()[0];
+      const blockPolygon = feature.getGeometry();
+      view.fit(blockPolygon, { padding: [120, 120, 180, 120] });
+      editMode = true;
+      ModifyLayer.init();
+      //console.log(feature);
+      //console.log(layers);
     });
   }
-
-  selectLayer.forEach(element => {
-    map.addLayer(element);
-  });
-  prevSelected = selectLayer;
-
-  selectLayer[1].getSource().on('featuresloadend', function () {
-    const feature = selectSource[1].getFeatures()[0];
-    const blockPolygon = feature.getGeometry();
-    view.fit(blockPolygon, { padding: [0, 0, 200, 0] });
-    //console.log(feature);
-    //console.log(layers);
-  });
 }
 
 function editFeature(i, layerId, layerProperties) {
@@ -657,48 +565,62 @@ function editFeature(i, layerId, layerProperties) {
 
   const arrCol = Object.keys(layerProperties);
   arrCol.forEach(element => {
-    content += `<div class="mb-2"><label for="${layerId.split('.')[0] + "-" + element}">${element}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'></div>`;
+    content += `<label for="${layerId.split('.')[0] + "-" + element}">${element}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
   });
 
   content += '</div>';
 
-  let footer = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-  <button id="save-feature" data-index="${i}" type="button" class="btn btn-success btn-sm">Save</button>`;
+  let footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+  <button id="save-feature" data-index="${i}" type="button" class="btn btn-success">Save</button>`;
 
-  formFeature.push({
+  formFeature = {
     layerId, content, arrCol, footer
-  });
+  };
 
-  $('#detail-info').on('click', '#edit-feature', function () {
-    indexFeature = $(this).data('index');
-    $('#formBody').html(formFeature[$(this).data('index')].content);
-    $('#formFooter').html(formFeature[$(this).data('index')].footer);
+  $('#popup-content').on('click', '#edit-feature', function () {
+    $('#formBody').html(formFeature.content);
+    $('#formFooter').html(formFeature.footer);
     modalEdit.show();
   });
 
   $('#formFooter').on('click', '#save-feature', function () {
-    indexFeature = $(this).data('index');
     saveFeature();
   });
 }
 
 function saveFeature() {
   let arrData = [];
-  formFeature[indexFeature].arrCol.forEach(element => {
-    arrData.push($(`#${formFeature[indexFeature].layerId.split('.')[0] + "-" + element}`).val());
+  formFeature.arrCol.forEach(element => {
+    arrData.push($(`#${formFeature.layerId.split('.')[0] + "-" + element}`).val());
   });
 
-  var url = gsHost + '/geoserver/wfs';
+  var feat_mod = selectedLayer.getSource().getFeatures();
+  var coords = feat_mod[0].getGeometry();
+  var format = new GML({
+    //4326
+    srsName: 'urn:ogc:def:crs:EPSG::3857'
+  });
+  var gml3 = format.writeGeometry(coords, {
+    featureProjection: 'urn:ogc:def:crs:EPSG::3857',
+  });
+
+  var url = 'http://localhost:8080/geoserver/wfs';
   var postData =
-    '<wfs:Transaction service="WFS" version="1.3.0"\n' +
+    '<wfs:Transaction service="WFS" version="1.1.0"\n' +
     'xmlns:ogc="http://www.opengis.net/ogc"\n' +
     'xmlns:wfs="http://www.opengis.net/wfs"\n' +
     'xmlns:gml="http://www.opengis.net/gml"\n' +
     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n' +
     'xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.1.0/WFS-transaction.xsd">\n' +
-    `<wfs:Update typeName="` + workSpace + `:${formFeature[indexFeature].layerId.split('.')[0]}">\n`;
+    `<wfs:Update typeName="` + workSpace + `:${formFeature.layerId.split('.')[0]}">\n` +
+    '<wfs:Property>\n' +
+    '<wfs:Name>the_geom</wfs:Name>\n' +
+    '<wfs:Value>\n' +
+    gml3 + '\n' +
+    '</wfs:Value>\n' +
+    '</wfs:Property>\n';
 
-  formFeature[indexFeature].arrCol.forEach(function (element, i) {
+  formFeature.arrCol.forEach(function (element, i) {
     postData += '<wfs:Property>\n' +
       `<wfs:Name>${element}</wfs:Name>\n` +
       '<wfs:Value>\n' +
@@ -708,12 +630,12 @@ function saveFeature() {
   });
 
   postData += '<ogc:Filter>\n' +
-    '<ogc:FeatureId fid="' + formFeature[indexFeature].layerId + '"/>\n' +
+    '<ogc:FeatureId fid="' + formFeature.layerId + '"/>\n' +
     '</ogc:Filter>\n' +
     '</wfs:Update>\n' +
     '</wfs:Transaction>\n';
 
-  // console.log(postData);
+  // console.log(formFeature.layerId);
 
   $.ajax({
     url: url,
@@ -733,38 +655,18 @@ function saveFeature() {
   });
 }
 
-
-async function getCloudData(){
-  const api = new CloudTablesApi('mj1826e6oh', 'J1YyYzyXPIxUsrY2Kxn0FXcN', {
-    clientId: 'global_pro',
-    clientName: 'Global Pro'
-  });
-  let token = await api.token();
-  let script = `
-    <script
-      src="https://mj1826e6oh.cloudtables.io/loader/7fc96372-5291-11ec-92a9-236c4a7dfb18/table/d"
-      data-token="${token}"
-    ></script>
-    `;
-  document.querySelector('body').append(script);
-  //let result = api.dataset('7fc96372-5291-11ec-92a9-236c4a7dfb18').row(0).data();
-  console.log(api);
-}
-
-
 window.addEventListener('DOMContentLoaded', event => {
   if (isMobile) {
     document.querySelector("body").classList.add('mobile');
     document.getElementById('filters').classList.remove('show');
   }
-  getCloudData();
   getBlockData();
 });
 window.onresize = function () { location.reload(); };
 
 const menuToggle = document.getElementById('menu-toggle');
 menuToggle.addEventListener('click', event => {
-  if(!isMobile){
+  if (!isMobile) {
     document.querySelector('body').classList.add('mobile');
   }
 })
