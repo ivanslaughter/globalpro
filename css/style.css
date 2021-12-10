@@ -168,15 +168,21 @@ html, body {
   opacity: 0.63;
 }
 
+#filter-div {
+    position: absolute;
+    top: 0.54rem;
+    right: 0.54rem;
+}
+
 a#filter-toggle {
   color: #ffffff;
   text-decoration: none;
   /* margin: 0; */
 }
 #map-filter {
-  position: absolute;
+  /* position: absolute;
   top: 0.54em;
-  right: 0.54em;
+  right: 0.54em; */
   padding: 0.63rem 0.72rem;
   border-radius: 0.45rem;
   background: #063b63c0;
@@ -318,7 +324,72 @@ a#filter-toggle {
 
 .sidebar-title {
    display: none;
- }
+}
+
+/* EDIT SEPRI */
+#select-filter {
+  /* position: absolute;
+  top: 11.5em;
+  right: 0.54em; */
+  margin-top: 0.54rem;
+  padding: 0.63rem 0.72rem;
+  border-radius: 0.45rem;
+  background: #063b63c0;
+  box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846;
+}
+#select-filter .form-switch .form-check-input {
+  width: 1.8em;
+  margin-left: -2.16em;
+}
+#select-filter .form-switch .form-check-label {
+  font-size: 0.81rem;
+  margin-right: 0.36em;
+}
+
+.ol-popup {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #cccccc;
+  bottom: 12px;
+  left: -50px;
+  min-width: 200px;
+}
+.ol-popup:after, .ol-popup:before {
+  top: 100%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+.ol-popup:after {
+  border-top-color: white;
+  border-width: 10px;
+  left: 48px;
+  margin-left: -10px;
+}
+.ol-popup:before {
+  border-top-color: #cccccc;
+  border-width: 11px;
+  left: 48px;
+  margin-left: -11px;
+}
+
+th {
+  color: white;
+}
+tr {
+  color: white;
+}
+
+/* info table style */
+.table>:not(:first-child) {
+  border-top: 1px solid #ffffff81;
+}
 
 /* Mobile Style */
 
@@ -383,7 +454,12 @@ body.mobile .sidebar-title {
   padding: 0.36rem 0;
 }
 
-body.mobile #map-filter {
+body.mobile #filter-div {
+  position: absolute;
+  top: 4.95rem;
+  right: 0.54rem;
+}
+/* body.mobile #map-filter {
   font-size: 0.8rem;
   padding: 0.45rem 0.54rem;
   top: 4.95rem;
@@ -392,7 +468,7 @@ body.mobile #select-filter {
   font-size: 0.8rem;
   padding: 0.45rem 0.54rem;
   top: 15.95rem;
-}
+} */
 body.mobile #info {
   width: calc(100% - 6.12rem);
   bottom: 0.54rem;
@@ -422,62 +498,4 @@ body.mobile #info #edit-feature {
 }
 @media (min-width:1281px) {
   
-}
-
-/* EDIT SEPRI */
-#select-filter {
-  position: absolute;
-  top: 11.5em;
-  right: 0.54em;
-  padding: 0.63rem 0.72rem;
-  border-radius: 0.45rem;
-  background: #063b63c0;
-  box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846;
-}
-#select-filter .form-switch .form-check-input {
-  width: 1.8em;
-  margin-left: -2.16em;
-}
-#select-filter .form-switch .form-check-label {
-  font-size: 0.81rem;
-  margin-right: 0.36em;
-}
-
-.ol-popup {
-  position: absolute;
-  background-color: white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #cccccc;
-  bottom: 12px;
-  left: -50px;
-  min-width: 200px;
-}
-.ol-popup:after, .ol-popup:before {
-  top: 100%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-}
-.ol-popup:after {
-  border-top-color: white;
-  border-width: 10px;
-  left: 48px;
-  margin-left: -10px;
-}
-.ol-popup:before {
-  border-top-color: #cccccc;
-  border-width: 11px;
-  left: 48px;
-  margin-left: -11px;
-}
-th {
-  color: white;
-}
-tr {
-  color: white;
 }

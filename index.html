@@ -51,53 +51,55 @@
           </div>
       </div>      
 
-      <div id="map-filter" class="text-light">
-        <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Map Filter</span></div>
-        <div id="filters" class="collapse show">
-          <div class="d-flex flex-column">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkMap" checked>
-              <label class="form-check-label" for="checkMap">Map</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkRaster" checked>
-              <label class="form-check-label" for="checkRaster">Foto Udara</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" checked>
-              <label class="form-check-label" for="checkGroup">Afdeling,Blok<br>Jalan,dll..</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkTree" checked>
-              <label class="form-check-label" for="checkTree">Pokok Sawit</label>
+      <div id="filter-div">
+        <div id="map-filter" class="text-light">
+          <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Map Filter</span></div>
+          <div id="filters" class="collapse show">
+            <div class="d-flex flex-column">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="checkMap" checked>
+                <label class="form-check-label" for="checkMap">Map</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="checkRaster" checked>
+                <label class="form-check-label" for="checkRaster">Foto Udara</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" checked>
+                <label class="form-check-label" for="checkGroup">Afdeling,Blok<br>Jalan,dll..</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="checkTree" checked>
+                <label class="form-check-label" for="checkTree">Pokok Sawit</label>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div id="select-filter" class="text-light">
-        <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#select-filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Select Filter</span></div>
-        <div id="select-filters" class="collapse show">
-          <div class="d-flex flex-column">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="selectAfdeling">
-              <label class="form-check-label" for="selectAfdeling">Afdeling</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="selectBlock" checked>
-              <label class="form-check-label" for="selectBlock">Blok</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="selectRoad">
-              <label class="form-check-label" for="selectRoad">Jalan</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="selectBuilding">
-              <label class="form-check-label" for="selectBuilding">Bangunan</label>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="selectRiver">
-              <label class="form-check-label" for="selectRiver">Sungai</label>
+        <div id="select-filter" class="text-light">
+          <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#select-filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Select Filter</span></div>
+          <div id="select-filters" class="collapse show">
+            <div class="d-flex flex-column">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="selectAfdeling">
+                <label class="form-check-label" for="selectAfdeling">Afdeling</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="selectBlock" checked>
+                <label class="form-check-label" for="selectBlock">Blok</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="selectRoad">
+                <label class="form-check-label" for="selectRoad">Jalan</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="selectBuilding">
+                <label class="form-check-label" for="selectBuilding">Bangunan</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="selectRiver">
+                <label class="form-check-label" for="selectRiver">Sungai</label>
+              </div>
             </div>
           </div>
         </div>

@@ -96,8 +96,8 @@ let layerTree = 'SS_Digitasi_Titik_Pokok_Sawit'; //from db
 let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cda7b9c3e/tiles.json?key=uwjhDiDfCigiaSx8FPMr', 'https://api.maptiler.com/tiles/01bf2a1a-ad43-4953-8347-2c1c7b23b09b/tiles.json?key=uwjhDiDfCigiaSx8FPMr'];
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
-//let gsHost = 'http://localhost:8080';
+//let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
+let gsHost = 'http://localhost:8080';
 
 const popup = document.getElementById('popup');
 const popupContent = document.getElementById('popup-content');
@@ -461,6 +461,7 @@ function setMapInfos(layerJson, coord) {
 
     if (selectedFilter === 'blok') {
       firestoreModule.getPupuks(layerId).then(function (data) {
+        console.logs(data);
         let content = `<div class="justify-content-between"><span>Informasi tambahan</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
         let titleTable = "";
         let tableBody = "";
@@ -480,7 +481,7 @@ function setMapInfos(layerJson, coord) {
         });
 
         content += `
-          <table class="table">
+          <table class="table table-sm">
               <thead>
                   <tr>${titleTable}</tr>
               </thead>
@@ -524,7 +525,7 @@ function selectMap(layerJson) {
       if (selectedFilter.includes(element_.toLowerCase())) {
         const source = new VectorSource({
           // &featureId=${element.id}
-          url: `http://localhost:8080/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
+          url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
           format: new GeoJSON(),
         });
 
@@ -604,7 +605,7 @@ function saveFeature() {
     featureProjection: 'urn:ogc:def:crs:EPSG::3857',
   });
 
-  var url = 'http://localhost:8080/geoserver/wfs';
+  var url = gsHost + '/geoserver/wfs';
   var postData =
     '<wfs:Transaction service="WFS" version="1.1.0"\n' +
     'xmlns:ogc="http://www.opengis.net/ogc"\n' +
@@ -659,6 +660,7 @@ window.addEventListener('DOMContentLoaded', event => {
   if (isMobile) {
     document.querySelector("body").classList.add('mobile');
     document.getElementById('filters').classList.remove('show');
+    document.getElementById('select-filters').classList.remove('show');
   }
   getBlockData();
 });
