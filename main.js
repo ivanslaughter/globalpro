@@ -96,8 +96,8 @@ let layerTree = 'SS_Digitasi_Titik_Pokok_Sawit'; //from db
 let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cda7b9c3e/tiles.json?key=uwjhDiDfCigiaSx8FPMr', 'https://api.maptiler.com/tiles/01bf2a1a-ad43-4953-8347-2c1c7b23b09b/tiles.json?key=uwjhDiDfCigiaSx8FPMr'];
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
-//let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://localhost:8080';
+let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
+//let gsHost = 'http://localhost:8080';
 
 const popup = document.getElementById('popup');
 const popupContent = document.getElementById('popup-content');
