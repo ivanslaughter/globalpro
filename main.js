@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/style.css';
+import isMobile from './mobile.js';
 import { Map, View, Overlay } from 'ol';
 import { Draw, Modify, Select, Snap } from 'ol/interaction';
 import MousePosition from 'ol/control/MousePosition';
@@ -14,11 +15,11 @@ import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import OSM from 'ol/source/OSM';
 import { createStringXY } from 'ol/coordinate';
 import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } from 'ol/control';
-import { fromLonLat, useGeographic, Projection } from 'ol/proj';
+import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, addDoc, getDoc, getDocs, setDoc, query, where, orderBy, Timestamp } from "firebase/firestore";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, doc, addDoc, getDoc, getDocs, setDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCYng2dI6yeBkrJfm7ygBn61KHyHw0tf1M",
@@ -78,10 +79,7 @@ numeral.register('locale', 'id', {
   }
 });
 
-// switch between locales
 numeral.locale('id');
-
-const isMobile = navigator.userAgentData.mobile;
 
 let editMode = false;
 let modalEdit = new Modal(document.getElementById('modalEdit'));
@@ -98,12 +96,25 @@ let layerTree = 'SS_Digitasi_Titik_Pokok_Sawit'; //from db
 let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cda7b9c3e/tiles.json?key=uwjhDiDfCigiaSx8FPMr', 'https://api.maptiler.com/tiles/01bf2a1a-ad43-4953-8347-2c1c7b23b09b/tiles.json?key=uwjhDiDfCigiaSx8FPMr'];
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
-// let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://localhost:8080';
+//let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
+let gsHost = 'http://128.199.253.151:8080';
+//let gsHost = 'http://localhost:8080';
 
 const subStats = document.getElementById('sub-stats');
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
+
+function transform(extent) {
+  return transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
+}
+
+const mapExtent = transform([98.17655462693399, 4.233276920014973, 98.2303961838639, 4.298548400759917]);
+
+let mapPadding = [50, 198, 216, 247.68];
+if (isMobile()) {
+  mapPadding = [90, 30, 90, 90];
+}
+
 const source = new OSM();
 const overviewMapControl = new OverviewMap({
   layers: [
@@ -115,7 +126,7 @@ const overviewMapControl = new OverviewMap({
 
 const mousePositionControl = new MousePosition({
   coordinateFormat: createStringXY(4),
-  projection: 'EPSG:4326',
+  projection: 'EPSG:32647',
   // comment the following two lines to have the mouse position
   // be placed within the map.
   className: 'custom-mouse-position',
@@ -151,22 +162,22 @@ const wsmGroup = new ImageLayer({
 });
 
 const tlRaster = [];
-// layerRaster.forEach(element => {
-//   const sourceRaster = new TileJSON({
-//     url: element,
-//     tileSize: 256,
-//     crossOrigin: 'anonymous'
-//   });
+layerRaster.forEach(element => {
+  const sourceRaster = new TileJSON({
+    url: element,
+    tileSize: 256,
+    crossOrigin: 'anonymous'
+  });
 
-//   tlRaster.push(new TileLayer({
-//     //extent: [408380,467955,414599,475177],
-//     name: 'layer-raster',
-//     source: sourceRaster,
-//   }));
-// });
+  tlRaster.push(new TileLayer({
+    //extent: [408380,467955,414599,475177],
+    name: 'layer-raster',
+    source: sourceRaster,
+  }));
+});
 
-// .concat(tlRaster)
-const layers = [osmLayer];
+// 
+const layers = [osmLayer].concat(tlRaster);
 layers.push(wmsTree);
 layers.push(wsmGroup);
 
@@ -175,7 +186,7 @@ const view = new View({
   //projection: projection,
   center: mapCenter,
   pixelRatio: 1,
-  padding: [99, 90, 99, 90],
+  padding: mapPadding,
   zoom: 14,
 });
 
@@ -185,6 +196,8 @@ const map = new Map({
   layers: layers,
   view: view,
 });
+
+map.getView().fit(mapExtent);
 
 map.on('singleclick', function (evt) {
   if (!editMode) {
@@ -428,14 +441,15 @@ function setMapInfos(layerJson) {
       let featureName = element.id.split('.')[0].split('_');
       featureName.forEach(function (title) {
         if (selectedFilter.includes(title.toLowerCase())) {
-          content += `<div class="d-flex align-items-center mb-1 mt-2"><button id="back-stats" class="btn btn-warning"><i class="fa fa-home"></i></button>
-          <div class="text-uppercase fw-bolder">Informasi ${title}</div></div>
-          <div class="d-flex flex-column">`;
+          content += `<div class="d-grid gap-2 mb-1 mt-2"><div class="text-uppercase fw-bolder text-center lh-1">Info ${title}</div>
+          <button id="back-stats" class="btn btn-outline-warning btn-sm lh-1"><i class="fa fa-home"></i> Back</button></div>
+          <div class="d-flex flex-column mt-2">`;
           arrCol.forEach(element_ => {
             if (element_ != 'Id') {
+              let el_label = (element_ == 'Jml_Sawit') ? 'Jumlah Sawit' : element_;
               content += `
               <div id="${element_}" class="stats-box">
-              <div class="stats-label">${element_}</div>
+              <div class="stats-label">${el_label}</div>
               <div id="stats-density" class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
             </div>`;
             }
@@ -454,12 +468,22 @@ function setMapInfos(layerJson) {
 
   if (nullLayer) {
     //popup
-    $('#main-stats').slideUp();
+    //$('#main-stats').slideUp();
+    let mainStats = document.getElementById('main-stats');
+    let subStats = document.getElementById('sub-stats');
+    
+    mainStats.classList.remove('show');
     subStats.innerHTML = content;
-    $('#sub-stats').on('click', '#back-stats', function () {
-      $('#main-stats').show();
+    subStats.classList.add('show');
+
+    document.getElementById('back-stats').addEventListener('click', event => {
+      mainStats.classList.add('show');
+      subStats.classList.remove('show');
       reset.mapView();
+      map.getView().fit(mapExtent);
     });
+
+
 
     if (selectedFilter === 'blok') {
       firestoreModule.getPupuks(layerId).then(function (data) {
@@ -664,7 +688,7 @@ function saveFeature() {
 }
 
 window.addEventListener('DOMContentLoaded', event => {
-  if (isMobile) {
+  if (isMobile()) {
     document.querySelector("body").classList.add('mobile');
     document.getElementById('filters').classList.remove('show');
     document.getElementById('select-filters').classList.remove('show');
@@ -675,7 +699,7 @@ window.onresize = function () { location.reload(); };
 
 const menuToggle = document.getElementById('menu-toggle');
 menuToggle.addEventListener('click', event => {
-  if (!isMobile) {
+  if (!isMobile()) {
     document.querySelector('body').classList.add('mobile');
   }
 })

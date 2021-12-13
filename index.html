@@ -16,7 +16,7 @@
     <div id="wrapper" class="g-0">
       <div id="map"></div>
 
-      <div id="title" class="sidebar-title collapse">
+      <div class="sidebar-title collapse">
         <small class="fw-light">Kebun Sawit</small><br>
         <span class="text-uppercase fw-bolder">Sejahtera</span><br>
         <small class="fw-light">Tahun 2021</small>
@@ -29,7 +29,7 @@
             <small class="fw-light">Tahun 2021</small>
           </div>
           <div id="stats">
-            <div id="main-stats">
+            <div id="main-stats" class="collapse show fade">
               <div class="stats-box">
                 <div class="stats-label">Luas Area (Ha)</div>
                 <div id="stats-area" class="stats-value"></div>
@@ -51,17 +51,14 @@
                 <div id="stats-density" class="stats-value"></div>
               </div>
             </div>
-          </div>
-
-          <div id="stats">
-            <div id="sub-stats"></div>
+            <div id="sub-stats" class="collapse fade"></div>
           </div>
 
       </div>      
 
       <div id="filter-div">
         <div id="map-filter" class="text-light">
-          <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Map Filter</span></div>
+          <div><a id="filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#filters" role="button" aria-controls="filters"><i class="jt-layers"></i> <span class="filter-title ms-1">Map Filter</span></a></div>
           <div id="filters" class="collapse show">
             <div class="d-flex flex-column">
               <div class="form-check form-switch">
@@ -85,7 +82,7 @@
         </div>
 
         <div id="select-filter" class="text-light">
-          <div><a id="filter-toggle" class="text-light me-1" data-bs-toggle="collapse" data-bs-target="#select-filters" role="button" aria-controls="filters"><i class="jt-layers"></i></a> <span class="filter-title">Select Filter</span></div>
+          <div><a id="filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#select-filters" role="button" aria-controls="filters"><i class="jt-layers"></i> <span class="filter-title ms-1">Select Filter</span></a></div>
           <div id="select-filters" class="collapse show">
             <div class="d-flex flex-column">
               <div class="form-check form-switch">
