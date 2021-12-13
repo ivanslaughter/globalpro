@@ -643,9 +643,27 @@ function saveFeature() {
   });
 }
 
-$('#login').on('click', function(){
+const userLogin = document.getElementById('login');
+const userLogout = document.getElementById('logout');
+/* $('#login').on('click', function(){
   auth.init();
-})
+}); */
+
+userLogin.addEventListener('click', event => {
+  //auth.init();
+  localStorage.setItem('gp|logged-on', 'true'); //<-----  bisa diganti pake firebase localstorage
+  document.querySelector('.logged-off').classList.toggle('show');
+  document.querySelector('.logged-on').classList.toggle('show');
+  //console.log(event);
+});
+if (localStorage.getItem('gp|logged-on') === 'true') {  //<-----  bisa diganti pake firebase localstorage
+  userLogout.addEventListener('click', event => {
+    document.querySelector('.logged-off').classList.toggle('show');
+    document.querySelector('.logged-on').classList.toggle('show');
+    //console.log(event);
+    localStorage.setItem('gp|logged-on', 'false'); //<-----  bisa diganti pake firebase localstorage
+  });
+}
 
 window.addEventListener('DOMContentLoaded', event => {
   if (isMobile()) {
@@ -673,6 +691,6 @@ window.onresize = function () { location.reload(); };
 const menuToggle = document.getElementById('menu-toggle');
 menuToggle.addEventListener('click', event => {
   if (!isMobile()) {
-    document.querySelector('body').classList.add('mobile');
+    document.querySelector('body').classList.toggle('mobile');
   }
-})
+});

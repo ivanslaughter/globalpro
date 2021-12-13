@@ -480,6 +480,75 @@ body.mobile #info #edit-feature {
   margin-left: 0.54rem;
 }
 
+body.mobile #sidebar .logged-on,
+body.mobile #sidebar .logged-off,
+body.mobile #sidebar #login,
+body.mobile #sidebar #logout {
+  font-size: 0.72rem;
+}
+body.mobile #sidebar .logged-user {
+  flex-direction: column;
+  margin-bottom: unset;
+}
+
+/* Login */
+
+#login:focus, #logout:focus {
+  box-shadow: 0 0 0 0.1rem rgb(7 59 99 / 54%);
+}
+#sidebar .logged-on.show, #sidebar .logged-off.show {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.logged-user {
+  display: flex;
+  flex-direction: unset;
+  align-items: center;
+  margin-bottom: 0.54rem;
+}
+#authentication {
+  background-image: url('/images/countour.svg'), radial-gradient(100% 50% at center, #004572, #022846);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#authentication .modal-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  background-image: radial-gradient(circle at center, #004572, transparent);
+}
+#authentication .btn-close{
+  position: absolute;
+  top: 0.54rem; right: 0.54rem;
+  color: #ffffffca;
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+#authentication #login-form{
+  max-width: 15.3rem;
+}
+#authentication #login-form .form-control:focus,
+#authentication .login-action button:focus
+{
+  box-shadow: 0 0 0 0.25rem rgb(7 59 99 / 50%);
+}
+#authentication .brand{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#authentication .brand-text {
+    font-size: 2rem;
+    line-height: 1;
+}
+#authentication .login-action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 @media (min-width:320px)  {
 
 }

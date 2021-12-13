@@ -7,7 +7,7 @@
     "serve": "vite preview"
   },
   "devDependencies": {
-    "vite": "^2.7.1"
+    "vite": "^2.7.2"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.0",
@@ -16,6 +16,6 @@
     "jsdom": "^18.1.1",
     "numeral": "^2.0.6",
     "ol": "latest",
-    "ol-ext": "^3.2.16"
+    "ol-ext": "^3.2.18"
   }
 }

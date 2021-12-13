@@ -30,9 +30,18 @@
             <span class="text-uppercase fw-bolder">Sejahtera</span><br>
             <small class="fw-light">Tahun 2021</small>
           </div>
-          <div id="stats">
-            <button id="login" class="btn btn-outline-warning btn-sm lh-1 mb-2"><i class="fa fa-people"></i> Login</button>
 
+          <div class="d-grid gap-2 mt-3">
+            <div class="logged-off collapse show">
+              <button id="login" class="btn btn-outline-warning btn-sm btn-block lh-1 mb-2" data-bs-toggle="modal" data-bs-target="#authentication"><i class="jt-user-male"></i> Login</button>
+            </div>
+            <div class="logged-on collapse">
+              <div class="logged-user"><i class="jt-user-male"></i> Username</div>
+              <button id="logout" class="btn btn-outline-warning btn-sm btn-block lh-1 mb-2">Logout</button>
+            </div>
+          </div>
+
+          <div id="stats">
             <div id="main-stats" class="collapse show fade">
               <div class="stats-box">
                 <div class="stats-label">Luas Area (Ha)</div>
@@ -138,6 +147,36 @@
           <div id="formBody"></div>
 
           <div id="formFooter" class="modal-footer">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="authentication" tabindex="-1" aria-labelledby="login" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="d-flex">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div id="login-form" class="collapse show text-light">
+            <div class="brand mb-3">
+              <img class="brand-logo" src="images/logo_white.svg" width="42.3px">
+              <span class="brand-text ms-1">Global<span class="fw-light">Pro</span></span>
+            </div>
+            <form>
+              <div class="mb-3">
+                <!-- <label for="username" class="col-form-label">User:</label> -->
+                <input type="text" class="form-control" id="username" placeholder="Username">
+              </div>
+              <div class="mb-4">
+                <!-- <label for="password" class="col-form-label">Password:</label> -->
+                <input type="password" class="form-control" id="password" placeholder="Password">
+              </div>
+              <div class="login-action mb-3">
+                <button type="button" class="btn btn-outline-light me-2" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Login</button>
+              </div>              
+            </form>
           </div>
         </div>
       </div>
