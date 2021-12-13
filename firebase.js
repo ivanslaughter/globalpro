@@ -17,8 +17,8 @@ export const firestore = {
         });
         return data;
     },
-    getKebuns: async function (collection_id) {
-        const q = query(collection(db, `companies/${collection_id}/kebuns`));
+    getKebuns: async function (collectionId) {
+        const q = query(collection(db, `companies/${collectionId}/kebuns`));
         const querySnapshot = await getDocs(q);
         let data = [];
         querySnapshot.forEach((doc) => {
@@ -26,8 +26,8 @@ export const firestore = {
         });
         return data;
     },
-    getPupuks: async function (layerId) {
-        const q = query(collection(db, "companies/KhkpYLQ1U4PMDZoio9lc/kebuns/7aKWb6Wm0SiO4b3WobUR/pupuks"), where("layer_id", "==", layerId, orderBy("tanggal", "asc")));
+    getPupuks: async function (collectionId, kebunId, layerId) {
+        const q = query(collection(db, `companies/KhkpYLQ1U4PMDZoio9lc/kebuns/7aKWb6Wm0SiO4b3WobUR/pupuks`), where("layer_id", "==", layerId, orderBy("tanggal", "asc")));
         const querySnapshot = await getDocs(q);
         let data = [];
         querySnapshot.forEach((doc) => {
