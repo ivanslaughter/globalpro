@@ -91,6 +91,8 @@ let selectedLayer = null;
 let selectedFilter = "blok";
 let prevSelected = null;
 let workSpace = 'Mopoli'; //from db
+let layerAfdeling = 'SS_Digitasi_Batas_Afdeling'; //from db
+let layerBlock = 'SS_Digitasi_Batas_Blok'; //from db
 let layerGroup = 'Mopoli_Group'; //from db
 let layerTree = 'SS_Digitasi_Titik_Pokok_Sawit'; //from db
 let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cda7b9c3e/tiles.json?key=uwjhDiDfCigiaSx8FPMr', 'https://api.maptiler.com/tiles/01bf2a1a-ad43-4953-8347-2c1c7b23b09b/tiles.json?key=uwjhDiDfCigiaSx8FPMr'];
@@ -300,15 +302,25 @@ checkTree.addEventListener('change', (event) => {
   //gpDashboardClose.click();
 });
 
-function getBlockData() {
-  const blocksUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + '%3ASS_Digitasi_Batas_Blok&outputFormat=application%2Fjson&srsname=EPSG:32647';
-  fetch(blocksUrl)
+//EDIT SEPRI
+
+function getKebunData() {
+  const afdelingUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + `:${layerAfdeling}&outputFormat=application%2Fjson&srsname=EPSG:32647`;
+  fetch(afdelingUrl)
+    .then((response) => response.text())
+    .then((json) => {
+      // console.log(JSON.parse(json));
+      let afdelingJson = JSON.parse(json).features;
+      document.getElementById('stats-afdeling').innerHTML = afdelingJson.length;
+    });
+
+  const blockUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + `:${layerBlock}&outputFormat=application%2Fjson&srsname=EPSG:32647`;
+  fetch(blockUrl)
     .then((response) => response.text())
     .then((json) => {
       // console.log(JSON.parse(json));
       let blocksJson = JSON.parse(json).features;
       if (blocksJson.length > 0) {
-        //console.log(blocksJson);
         let sa = 0;
         let sb = 0;
         let st = 0;
@@ -318,24 +330,14 @@ function getBlockData() {
           sb++;
           st += (element.properties.Jml_Sawit);
           sd += (element.properties.Density);
-          //console.log(element);
-          let blockId = element.id.split('.')[1];
-          //document.getElementById('select-block').append('<option value="' + blockId +'">Block' + element.properties.Block +'</option>');
-          document.getElementById('select-block').add(new Option(element.properties.Block, blockId));
         });
-        //console.log(sa);
         document.getElementById('stats-area').innerHTML = numeral(sa).format(',0.00');
         document.getElementById('stats-block').innerHTML = sb;
         document.getElementById('stats-tree').innerHTML = numeral(st).format(',0');
         document.getElementById('stats-density').innerHTML = numeral((sd / sb)).format('0.00');
       }
-
     });
-  //console.log(blockSelectData);
-  //console.log(blockSource.getFeatures());
 }
-
-//EDIT SEPRI
 
 $('#selectAfdeling').on('change', (event) => {
   selectedFilter = "afdeling";
@@ -667,7 +669,7 @@ window.addEventListener('DOMContentLoaded', event => {
     document.getElementById('filters').classList.remove('show');
     document.getElementById('select-filters').classList.remove('show');
   }
-  getBlockData();
+  getKebunData();
 });
 window.onresize = function () { location.reload(); };
 
