@@ -18,46 +18,7 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, addDoc, getDoc, getDocs, setDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCYng2dI6yeBkrJfm7ygBn61KHyHw0tf1M",
-  authDomain: "globalpro-22be2.firebaseapp.com",
-  projectId: "globalpro-22be2",
-  storageBucket: "globalpro-22be2.appspot.com",
-  messagingSenderId: "147221436849",
-  appId: "1:147221436849:web:c7ed3b46a288af6974c590",
-  measurementId: "${config.measurementId}"
-};
-
-// Initialize Firebase
-initializeApp(firebaseConfig);
-const db = getFirestore();
-
-const firestoreModule = {
-  getOnce: async function () {
-    const docRef = doc(db, "companies", "KhkpYLQ1U4PMDZoio9lc");
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
-    } else {
-      // doc.data() will be undefined in this case
-      console.log("No such document!");
-    }
-  },
-  getPupuks: async function (layerId) {
-    const q = query(collection(db, "companies/KhkpYLQ1U4PMDZoio9lc/kebuns/7aKWb6Wm0SiO4b3WobUR/pupuks"), where("layer_id", "==", layerId, orderBy("tanggal", "asc")));
-    const querySnapshot = await getDocs(q);
-    let pupuks = [];
-    querySnapshot.forEach((doc) => {
-      pupuks.push(doc.data());
-      // console.log(doc.id, " => ", doc.data());
-    });
-    return pupuks;
-  }
-}
+import { firestore, auth } from './firebase'
 
 //useGeographic();
 numeral.register('locale', 'id', {
@@ -82,7 +43,6 @@ numeral.register('locale', 'id', {
 numeral.locale('id');
 
 let editMode = false;
-let modalEdit = new Modal(document.getElementById('modalEdit'));
 let formFeature = {};
 let selectedSource = null;
 let selectedLayer = null;
@@ -97,10 +57,12 @@ let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cd
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://128.199.253.151:8080';
-//let gsHost = 'http://localhost:8080';
+// let gsHost = 'http://128.199.253.151:8080';
+let gsHost = 'http://localhost:8080';
 
+const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
+const modalEdit = new Modal(document.getElementById('modalEdit'));
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 
@@ -162,19 +124,19 @@ const wsmGroup = new ImageLayer({
 });
 
 const tlRaster = [];
-layerRaster.forEach(element => {
-  const sourceRaster = new TileJSON({
-    url: element,
-    tileSize: 256,
-    crossOrigin: 'anonymous'
-  });
+// layerRaster.forEach(element => {
+//   const sourceRaster = new TileJSON({
+//     url: element,
+//     tileSize: 256,
+//     crossOrigin: 'anonymous'
+//   });
 
-  tlRaster.push(new TileLayer({
-    //extent: [408380,467955,414599,475177],
-    name: 'layer-raster',
-    source: sourceRaster,
-  }));
-});
+//   tlRaster.push(new TileLayer({
+//     //extent: [408380,467955,414599,475177],
+//     name: 'layer-raster',
+//     source: sourceRaster,
+//   }));
+// });
 
 // 
 const layers = [osmLayer].concat(tlRaster);
@@ -395,9 +357,11 @@ const reset = {
     editMode = false;
     ModifyLayer.setActive(false);
     subStats.innerHTML = '';
+    subStats.classList.remove('show');
+    mainStats.classList.add('show');
     const infoDiv = document.body.querySelector('#info');
     infoDiv.classList.remove('show');
-    map.getView().setZoom(14); 
+    map.getView().setZoom(14);
   }
 }
 
@@ -446,10 +410,10 @@ function setMapInfos(layerJson) {
           <div class="d-flex flex-column mt-2">`;
           arrCol.forEach(element_ => {
             if (element_ != 'Id') {
-              let el_label = (element_ == 'Jml_Sawit') ? 'Jumlah Sawit' : element_;
+              const el_label = element_.replace('_', ' ');
               content += `
               <div id="${element_}" class="stats-box">
-              <div class="stats-label">${el_label}</div>
+              <div class="stats-label">${el_label[0].toUpperCase()+el_label.slice(1)}</div>
               <div id="stats-density" class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
             </div>`;
             }
@@ -467,26 +431,17 @@ function setMapInfos(layerJson) {
   });
 
   if (nullLayer) {
-    //popup
-    //$('#main-stats').slideUp();
-    let mainStats = document.getElementById('main-stats');
-    let subStats = document.getElementById('sub-stats');
-    
     mainStats.classList.remove('show');
     subStats.innerHTML = content;
     subStats.classList.add('show');
 
     document.getElementById('back-stats').addEventListener('click', event => {
-      mainStats.classList.add('show');
-      subStats.classList.remove('show');
       reset.mapView();
       map.getView().fit(mapExtent);
     });
 
-
-
     if (selectedFilter === 'blok') {
-      firestoreModule.getPupuks(layerId).then(function (data) {
+      firestore.getPupuks(layerId).then(function (data) {
         if (data.length === 0) {
           const infoDiv = document.body.querySelector('#info');
           infoDiv.classList.remove('show');
@@ -597,7 +552,8 @@ function editFeature(i, layerId, layerProperties) {
 
   const arrCol = Object.keys(layerProperties);
   arrCol.forEach(element => {
-    content += `<label for="${layerId.split('.')[0] + "-" + element}">${element}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
+    const el_label = element.replace('_', ' ');
+    content += `<label class="mt-1" for="${layerId.split('.')[0] + "-" + element}">${el_label[0].toUpperCase()+el_label.slice(1)}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
   });
 
   content += '</div>';
@@ -687,6 +643,10 @@ function saveFeature() {
   });
 }
 
+$('#login').on('click', function(){
+  auth.init();
+})
+
 window.addEventListener('DOMContentLoaded', event => {
   if (isMobile()) {
     document.querySelector("body").classList.add('mobile');
@@ -694,6 +654,19 @@ window.addEventListener('DOMContentLoaded', event => {
     document.getElementById('select-filters').classList.remove('show');
   }
   getKebunData();
+
+  // firestore.getCollectionId('SS_21_01').then((collection_id)=>{
+  //   firestore.getKebuns(collection_id).then((kebuns)=>{
+  //     console.log(kebuns);
+  //     // workSpace = kebuns[0].geoserver.workspace;
+  //     // layerGroup = kebuns[0].geoserver.layer_group;
+  //     // layerAfdeling = kebuns[0].geoserver.layer_afdeling;
+  //     // layerBlock = kebuns[0].geoserver.layer_block;
+  //     // layerTree = kebuns[0].geoserver.layer_tree;
+  //     // layerRaster = kebuns[0].geoserver.layer_raster;
+  //   })
+  // });
+
 });
 window.onresize = function () { location.reload(); };
 
