@@ -45,7 +45,7 @@ numeral.locale('id');
 
 WebFont.load({
   google: {
-    families: ['IBM Plex Sans Condensed']
+    families: ['IBM Plex Sans Condensed:300,400,500,600,700']
   }
 });
 
