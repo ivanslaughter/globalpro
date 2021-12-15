@@ -1,7 +1,8 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, addDoc, getDoc, getDocs, setDoc, query, where, orderBy, Timestamp } from 'firebase/firestore';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { firebaseConfig } from './config';
+import { Modal, Offcanvas } from 'bootstrap';
 
 initializeApp(firebaseConfig());
 
@@ -22,12 +23,17 @@ export const firestore = {
         const querySnapshot = await getDocs(q);
         let data = [];
         querySnapshot.forEach((doc) => {
-            data.push(doc.data());
+            const temp = {
+                ...doc.data(),
+                collection: doc.id
+            }
+            data.push(temp);
         });
         return data;
     },
-    getPupuks: async function (collectionId, kebunId, layerId) {
-        const q = query(collection(db, `companies/KhkpYLQ1U4PMDZoio9lc/kebuns/7aKWb6Wm0SiO4b3WobUR/pupuks`), where("layer_id", "==", layerId, orderBy("tanggal", "asc")));
+    getBlokData: async function (collectionId, kebunId, field, layerId) {
+        const ref = collection(db, `companies/${collectionId}/kebuns/${kebunId}/${field}`);
+        const q = query(ref, where("layer_id", "==", layerId));
         const querySnapshot = await getDocs(q);
         let data = [];
         querySnapshot.forEach((doc) => {
@@ -35,6 +41,15 @@ export const firestore = {
         });
         return data;
     },
+    onLogin: async function (username, password) {
+        const q = query(collection(db, `users`), where("username", "==", username), where("password", "==", password));
+        const querySnapshot = await getDocs(q);
+        let data;
+        querySnapshot.forEach((doc) => {
+            data = doc.data();
+        });
+        return data;
+    }
     // getGeoserver: async function (companyId) {
     //     this.getCollectionId(companyId).then(function (data) {
     //         console.log(data);
@@ -77,9 +92,37 @@ export const auth = {
                 const email = error.email;
                 const credential = GoogleAuthProvider.credentialFromError(error);
             });
+
+        /* const email = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        signInWithEmailAndPassword(getauth, email, password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                // ...
+
+                document.getElementById('form-login').reset();
+
+                console.log('logged in');
+                document.getElementById('auth-close').click();
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            }); */
     },
     saveUser: async function (user) {
         const ref = collection(db, "users");
         await setDoc(doc(ref, user.uid), user);
+    },
+    userSignOut: function(){
+        /* const getauth = getAuth();
+        signOut(getauth).then(() => {
+            // Sign-out successful.
+            document.querySelector('.logged-off').classList.toggle('show');
+            document.querySelector('.logged-on').classList.toggle('show');
+        }).catch((error) => {
+            // An error happened.
+        }); */
     }
 }

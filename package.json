@@ -16,6 +16,7 @@
     "jsdom": "^18.1.1",
     "numeral": "^2.0.6",
     "ol": "latest",
-    "ol-ext": "^3.2.18"
+    "ol-ext": "^3.2.18",
+    "webfontloader": "^1.6.28"
   }
 }

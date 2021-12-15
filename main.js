@@ -18,7 +18,8 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
-import { firestore, auth } from './firebase'
+import { firestore, auth } from './firebase';
+import WebFont from 'webfontloader';
 
 //useGeographic();
 numeral.register('locale', 'id', {
@@ -42,23 +43,34 @@ numeral.register('locale', 'id', {
 
 numeral.locale('id');
 
+WebFont.load({
+  google: {
+    families: ['IBM Plex Sans Condensed']
+  }
+});
+
 let editMode = false;
 let formFeature = {};
 let selectedSource = null;
 let selectedLayer = null;
 let selectedFilter = "blok";
 let prevSelected = null;
-let workSpace = 'Mopoli'; //from db
-let layerAfdeling = 'SS_Digitasi_Batas_Afdeling'; //from db
-let layerBlock = 'SS_Digitasi_Batas_Blok'; //from db
-let layerGroup = 'Mopoli_Group'; //from db
-let layerTree = 'SS_Digitasi_Titik_Pokok_Sawit'; //from db
-let layerRaster = ['https://api.maptiler.com/tiles/abd80c47-6117-489a-8312-a59cda7b9c3e/tiles.json?key=uwjhDiDfCigiaSx8FPMr', 'https://api.maptiler.com/tiles/01bf2a1a-ad43-4953-8347-2c1c7b23b09b/tiles.json?key=uwjhDiDfCigiaSx8FPMr'];
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
 // let gsHost = 'http://128.199.253.151:8080';
 let gsHost = 'http://localhost:8080';
+
+const user = JSON.parse(localStorage.getItem('gp|user'));
+const kebuns = JSON.parse(localStorage.getItem('gp|kebuns'));
+const selected_kebun = localStorage.getItem('gp|selected_kebun')
+
+let workSpace = kebuns ? kebuns[selected_kebun].geoserver.workspace : '';
+let layerAfdeling = kebuns ? kebuns[selected_kebun].geoserver.layer_afdeling : '';
+let layerBlock = kebuns ? kebuns[selected_kebun].geoserver.layer_block : '';
+let layerGroup = kebuns ? kebuns[selected_kebun].geoserver.layer_group : '';
+let layerTree = kebuns ? kebuns[selected_kebun].geoserver.layer_tree : '';
+let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
 
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
@@ -306,10 +318,10 @@ function getKebunData() {
           st += (element.properties.Jml_Sawit);
           sd += (element.properties.Density);
         });
-        document.getElementById('stats-area').innerHTML = numeral(sa).format(',0.00');
+        document.getElementById('stats-area').innerHTML = numeral(sa).format(',0.0');
         document.getElementById('stats-block').innerHTML = sb;
         document.getElementById('stats-tree').innerHTML = numeral(st).format(',0');
-        document.getElementById('stats-density').innerHTML = numeral((sd / sb)).format('0.00');
+        document.getElementById('stats-density').innerHTML = numeral((sd / sb)).format('0.');
       }
     });
 }
@@ -413,7 +425,7 @@ function setMapInfos(layerJson) {
               const el_label = element_.replace('_', ' ');
               content += `
               <div id="${element_}" class="stats-box">
-              <div class="stats-label">${el_label[0].toUpperCase()+el_label.slice(1)}</div>
+              <div class="stats-label">${el_label[0].toUpperCase() + el_label.slice(1)}</div>
               <div id="stats-density" class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
             </div>`;
             }
@@ -441,7 +453,7 @@ function setMapInfos(layerJson) {
     });
 
     if (selectedFilter === 'blok') {
-      firestore.getPupuks(layerId).then(function (data) {
+      firestore.getBlokData(user.collection, kebuns[selected_kebun].collection, 'pupuks', layerId).then(function (data) {
         if (data.length === 0) {
           const infoDiv = document.body.querySelector('#info');
           infoDiv.classList.remove('show');
@@ -553,13 +565,13 @@ function editFeature(i, layerId, layerProperties) {
   const arrCol = Object.keys(layerProperties);
   arrCol.forEach(element => {
     const el_label = element.replace('_', ' ');
-    content += `<label class="mt-1" for="${layerId.split('.')[0] + "-" + element}">${el_label[0].toUpperCase()+el_label.slice(1)}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
+    content += `<label class="mt-1" for="${layerId.split('.')[0] + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
   });
 
   content += '</div>';
 
-  let footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-  <button id="save-feature" type="button" class="btn btn-success">Save</button>`;
+  let footer = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+  <button id="save-feature" type="button" class="btn btn-success btn-sm">Save</button>`;
 
   formFeature = {
     layerId, content, arrCol, footer
@@ -631,10 +643,10 @@ function saveFeature() {
     data: postData,
     contentType: "text/xml",
     success: function (response) {
-      // console.log(response);
+      console.log(response);
       // alert('Berhasil menyimpan data');
       // modalEdit.hide();
-      location.reload();
+      // location.reload();
     },
     error: function (jqXHR, textStatus, errorThrown) {
       console.log(textStatus, errorThrown);
@@ -643,11 +655,80 @@ function saveFeature() {
   });
 }
 
+const changeKebun1 = document.getElementById('change-kebun-1');
+const changeKebun2 = document.getElementById('change-kebun-2');
+const modalKebun = new Modal(document.getElementById('modalKebun'));
+
+const farmSelect1 = document.getElementById('farm-select-1');
+const farmSelect2 = document.getElementById('farm-select-2');
+
+function farmSelectOptions(){
+  kebuns.forEach((element, index) => {
+
+    var option = document.createElement("option");
+    option.text = element.nama_kebun;
+    option.value = index;
+    farmSelect1.add(option);
+
+    var option1 = document.createElement("option");
+    option1.text = element.nama_kebun;
+    option1.value = index;
+    farmSelect2.add(option1);
+
+  });
+  farmSelect1.selectedIndex = selected_kebun;
+  farmSelect2.selectedIndex = selected_kebun;
+}
+
+farmSelect1.addEventListener('change', (event) => {
+  console.log(farmSelect1.selectedIndex);
+  if (farmSelect1.selectedIndex != selected_kebun) {
+    localStorage.setItem('gp|selected_kebun', farmSelect1.selectedIndex);
+    location.reload();
+  }
+});
+
+farmSelect2.addEventListener('change', (event) => {
+  console.log(farmSelect2.selectedIndex);
+  if (farmSelect2.selectedIndex != selected_kebun) {
+    localStorage.setItem('gp|selected_kebun', farmSelect2.selectedIndex);
+    location.reload();
+  }
+});
+
+
+/* changeKebun1.addEventListener('click', event => {
+  showModalKebun();
+})
+changeKebun2.addEventListener('click', event => {
+  showModalKebun();
+}) */
+
+function showModalKebun() {
+  let content = `<div class="modal-body">`;
+
+  kebuns.forEach((element, index) => {
+    content += `<div id="item-kebun" data-index="${index}" class="p-2">${element.nama_kebun}</div>
+    ${index < kebuns.length - 1 ? '<hr>' : ''}`
+  });
+  content += '</div>';
+
+
+  $('#listKebun').html(content);
+  modalKebun.show();
+
+  $('#listKebun').on('click', '#item-kebun', function () {
+    if ($(this).data("index") != selected_kebun) {
+      localStorage.setItem('gp|selected_kebun', $(this).data("index"));
+      location.reload();
+    }
+  });
+}
+
+const modalLogin = new Modal(document.getElementById('authentication'));
 const userLogin = document.getElementById('login');
 const userLogout = document.getElementById('logout');
-/* $('#login').on('click', function(){
-  auth.init();
-}); */
+const onLogin = document.getElementById('onLogin');
 
 userLogin.addEventListener('click', event => {
   //auth.init();
@@ -656,12 +737,54 @@ userLogin.addEventListener('click', event => {
   document.querySelector('.logged-on').classList.toggle('show');
   //console.log(event);
 });
+
 if (localStorage.getItem('gp|logged-on') === 'true') {  //<-----  bisa diganti pake firebase localstorage
   userLogout.addEventListener('click', event => {
+    //auth.userSignOut();
     document.querySelector('.logged-off').classList.toggle('show');
     document.querySelector('.logged-on').classList.toggle('show');
     //console.log(event);
     localStorage.setItem('gp|logged-on', 'false'); //<-----  bisa diganti pake firebase localstorage
+    localStorage.removeItem('gp|user');
+    localStorage.removeItem('gp|kebuns');
+    location.reload();
+  });
+}
+
+/* const loginForm = document.getElementById('form-login');
+loginForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  console.log('form');
+  auth.init();
+});
+ */
+onLogin.addEventListener('click', event => {
+  const username = $("#username").val();
+  const password = $("#password").val();
+  firestore.onLogin(username, password).then((data) => {
+    if (data) {
+      localStorage.setItem('gp|logged-on', 'true');
+      getListKebun(data);
+    } else {
+      alert("Username atau Password salah");
+    }
+  }).catch((err) => {
+    console.log(err);
+  })
+})
+
+function getListKebun(data) {
+  firestore.getCollectionId(data.company_id).then((collection) => {
+    const newuser = {
+      ...data,
+      collection: collection
+    }
+    localStorage.setItem('gp|user', JSON.stringify(newuser));
+    firestore.getKebuns(collection).then((kebuns) => {
+      localStorage.setItem('gp|kebuns', JSON.stringify(kebuns));
+      localStorage.setItem('gp|selected_kebun', 0);
+      location.reload();
+    })
   });
 }
 
@@ -671,19 +794,19 @@ window.addEventListener('DOMContentLoaded', event => {
     document.getElementById('filters').classList.remove('show');
     document.getElementById('select-filters').classList.remove('show');
   }
-  getKebunData();
 
-  // firestore.getCollectionId('SS_21_01').then((collection_id)=>{
-  //   firestore.getKebuns(collection_id).then((kebuns)=>{
-  //     console.log(kebuns);
-  //     // workSpace = kebuns[0].geoserver.workspace;
-  //     // layerGroup = kebuns[0].geoserver.layer_group;
-  //     // layerAfdeling = kebuns[0].geoserver.layer_afdeling;
-  //     // layerBlock = kebuns[0].geoserver.layer_block;
-  //     // layerTree = kebuns[0].geoserver.layer_tree;
-  //     // layerRaster = kebuns[0].geoserver.layer_raster;
-  //   })
-  // });
+  if (!localStorage.getItem('gp|user')) {
+    modalLogin.show();
+  } else {
+    document.querySelector('.logged-off').classList.toggle('show');
+    document.querySelector('.logged-on').classList.toggle('show');
+    $("#user-name").text(user.username);
+    $("#nama-kebun-1").text(kebuns[selected_kebun].nama_kebun);
+    $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
+    getKebunData();
+  }
+
+  farmSelectOptions();
 
 });
 window.onresize = function () { location.reload(); };

@@ -1,7 +1,7 @@
 @import "../node_modules/ol/ol.css";
 @import "font-jagotani.min.css";
 
-@font-face {
+/* @font-face {
   font-family: 'SFCompactRounded';
   src: url('../fonts/SFCompactRounded/SFCompactRounded-Regular.eot');
   src: url('../fonts/SFCompactRounded/SFCompactRounded-Regular.eot?#iefix') format('embedded-opentype'),
@@ -50,12 +50,14 @@
       url('../fonts/SFCompactRounded/SFCompactRounded-Bold.ttf') format('truetype'),
       url('../fonts/SFCompactRounded/SFCompactRounded-Bold.svg#SFCompactRounded-Bold') format('svg');
   font-weight: 700;
-}
+} */
 
 html, body {
   margin: 0;
   height: 100%;
-  font-family: 'SFCompactRounded', Helvetica, sans-serif;
+  /* font-family: 'SFCompactRounded', Helvetica, sans-serif; */
+  /* font-family: 'IPSCondensed', Helvetica, sans-serif; */
+  font-family: 'IBM Plex Sans Condensed', Helvetica, sans-serif;
 }
 #map {
   position: absolute;
@@ -320,7 +322,7 @@ a#filter-toggle {
   position: relative;
   font-size: 1.8em;
   margin-top: 0.54rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .sidebar-title {
@@ -391,6 +393,30 @@ tr {
 .table>:not(:first-child) {
   border-top: 1px solid #ffffff81;
 }
+
+/* Farm select */
+.farm-select {
+  background: #ffffff45;
+  border: none !important;
+  text-transform: uppercase;
+  color: #ff9800;
+  font-weight: 600;
+  text-align: center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border-radius: 0;
+  padding: 0;
+}
+.farm-select:focus {
+  box-shadow: unset;
+}
+.farm-select option {
+  font-size: 0.8em;
+  color: var(--bs-dark);
+}
+
 
 /* Mobile Style */
 
@@ -493,6 +519,12 @@ body.mobile #sidebar .logged-user {
 
 /* Login */
 
+#user-box {
+  margin: 0.54rem -0.54rem 0;
+  background-image: radial-gradient(circle at center, #073b63 50%, transparent);
+  padding: 0.54rem 0;
+}
+
 #login:focus, #logout:focus {
   box-shadow: 0 0 0 0.1rem rgb(7 59 99 / 54%);
 }
@@ -506,7 +538,6 @@ body.mobile #sidebar .logged-user {
   display: flex;
   flex-direction: unset;
   align-items: center;
-  margin-bottom: 0.54rem;
 }
 #authentication {
   background-image: url('/images/countour.svg'), radial-gradient(100% 50% at center, #004572, #022846);
