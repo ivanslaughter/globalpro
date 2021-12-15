@@ -35,9 +35,9 @@ export const firestore = {
         const ref = collection(db, `companies/${collectionId}/kebuns/${kebunId}/${field}`);
         const q = query(ref, where("layer_id", "==", layerId));
         const querySnapshot = await getDocs(q);
-        let data = [];
+        let data;
         querySnapshot.forEach((doc) => {
-            data.push(doc.data());
+            data = doc.data();
         });
         return data;
     },
@@ -84,7 +84,7 @@ export const auth = {
                     company_id: 'SS_21_01',
                     role: 'user'
                 };
-                console.log(user);
+                // console.log(user);
                 this.saveUser(user);
             }).catch((error) => {
                 const errorCode = error.code;

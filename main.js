@@ -19,6 +19,7 @@ import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj'
 import { Modal, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
 import { firestore, auth } from './firebase';
+import { alertLogin, loadingButton } from './animated';
 import WebFont from 'webfontloader';
 
 //useGeographic();
@@ -58,8 +59,8 @@ let prevSelected = null;
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
-// let gsHost = 'http://128.199.253.151:8080';
-let gsHost = 'http://localhost:8080';
+let gsHost = 'http://128.199.253.151:8080';
+// let gsHost = 'http://localhost:8080';
 
 const user = JSON.parse(localStorage.getItem('gp|user'));
 const kebuns = JSON.parse(localStorage.getItem('gp|kebuns'));
@@ -136,19 +137,19 @@ const wsmGroup = new ImageLayer({
 });
 
 const tlRaster = [];
-// layerRaster.forEach(element => {
-//   const sourceRaster = new TileJSON({
-//     url: element,
-//     tileSize: 256,
-//     crossOrigin: 'anonymous'
-//   });
+layerRaster.forEach(element => {
+  const sourceRaster = new TileJSON({
+    url: element,
+    tileSize: 256,
+    crossOrigin: 'anonymous'
+  });
 
-//   tlRaster.push(new TileLayer({
-//     //extent: [408380,467955,414599,475177],
-//     name: 'layer-raster',
-//     source: sourceRaster,
-//   }));
-// });
+  tlRaster.push(new TileLayer({
+    //extent: [408380,467955,414599,475177],
+    name: 'layer-raster',
+    source: sourceRaster,
+  }));
+});
 
 // 
 const layers = [osmLayer].concat(tlRaster);
@@ -369,6 +370,7 @@ const reset = {
     editMode = false;
     ModifyLayer.setActive(false);
     subStats.innerHTML = '';
+    $('#detail-info').html('');
     subStats.classList.remove('show');
     mainStats.classList.add('show');
     const infoDiv = document.body.querySelector('#info');
@@ -408,12 +410,11 @@ function setMapInfos(layerJson) {
   const selectedLayers = layerJson.features;
   let content = '';
   let prevLayer = "";
-  let nullLayer = false;
+  let nullLayer = true;
   let layerId = "";
   selectedLayers.forEach(function (element, i) {
     if (prevLayer !== element.id.split('.')[0]) {
       const arrCol = Object.keys(element.properties);
-
       let featureName = element.id.split('.')[0].split('_');
       featureName.forEach(function (title) {
         if (selectedFilter.includes(title.toLowerCase())) {
@@ -434,15 +435,14 @@ function setMapInfos(layerJson) {
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
-          nullLayer = true;
+          nullLayer = false;
           editFeature(i, element.id, element.properties);
         }
       })
-
     }
   });
 
-  if (nullLayer) {
+  if (!nullLayer) {
     mainStats.classList.remove('show');
     subStats.innerHTML = content;
     subStats.classList.add('show');
@@ -453,60 +453,60 @@ function setMapInfos(layerJson) {
     });
 
     if (selectedFilter === 'blok') {
-      firestore.getBlokData(user.collection, kebuns[selected_kebun].collection, 'pupuks', layerId).then(function (data) {
-        if (data.length === 0) {
-          const infoDiv = document.body.querySelector('#info');
-          infoDiv.classList.remove('show');
+      kebuns[selected_kebun].subcollections.forEach(element => {
+        firestore.getBlokData(user.collection, kebuns[selected_kebun].collection, element, layerId).then(function (data) {
+          if (data) {
+            let content = `<div class="col-sm">`;
+            content += `<h6>${element[0].toUpperCase() + element.slice(1)}</h6>`;
+            let titleTable = "";
+            let tableBody = "";
+            let th = false;
 
-          return;
-        }
+            const titleArr = Object.keys(data.data[0]);
+            data.data.forEach(element_ => {
+              titleArr.forEach(subelement => {
+                const title = subelement.replace('_', ' ');
+                if (!th)
+                  titleTable = titleTable + `<th>${title[0].toUpperCase() + title.slice(1)}</th>`;
+                tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : element_[subelement]}</td>`;
+              });
+              th = true;
+              tableBody = tableBody + "<tr>";
+            });
 
-        let content = `<div class="justify-content-between"><span>Informasi tambahan</span><button type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button></div>`;
-        let titleTable = "";
-        let tableBody = "";
-        let th = false;
-        const titleArr = Object.keys(data[0]);
-        data.forEach(element => {
-          titleArr.forEach(element_ => {
-            if (element_ !== 'layer_id') {
-              const title = element_.replace('_', ' ');
-              if (!th)
-                titleTable = titleTable + `<th>${title[0].toUpperCase()}${title.slice(1)}</th>`;
-              tableBody = tableBody + `<td>${element_ === 'tanggal' ? element[element_].toDate().toLocaleString('id-ID').split(' ')[0] : element[element_]}</td>`;
+            content += `
+              <table class="table table-sm">
+                  <thead>
+                      <tr>${titleTable}</tr>
+                  </thead>
+                  <tbody>
+                      <tr>${tableBody}</tr>
+                  </tbody>
+              </table>
+            `;
+
+            content += `</div>`;
+            $('#detail-info').append(content);
+
+            const infoDiv = document.body.querySelector('#info');
+            const infoToggle = document.body.querySelector('#info-toggled');
+            if (infoToggle) {
+              infoToggle.addEventListener('click', event => {
+                event.preventDefault();
+                document.body.classList.toggle('info-toggled');
+              });
             }
-          });
-          th = true;
-          tableBody = tableBody + "<tr>";
+            infoDiv.classList.add('show');
+          }
         });
-
-        content += `
-          <table class="table table-sm">
-              <thead>
-                  <tr>${titleTable}</tr>
-              </thead>
-              <tbody>
-                  <tr>${tableBody}</tr>
-              </tbody>
-          </table>
-        `;
-
-        $('#detail-info').html(content);
-        const infoDiv = document.body.querySelector('#info');
-        const infoToggle = document.body.querySelector('#info-toggled');
-        if (infoToggle) {
-          infoToggle.addEventListener('click', event => {
-            event.preventDefault();
-            document.body.classList.toggle('info-toggled');
-          });
-        }
-        infoDiv.classList.add('show');
       });
     }
   }
 }
 
 function selectMap(layerJson) {
-  let nullLayer = false;
+  let prevLayer = "";
+  let nullLayer = true;
   const selectStyle = new Style({
     fill: new Fill({
       color: 'rgba(255,255,255,0.1)',
@@ -519,28 +519,31 @@ function selectMap(layerJson) {
   });
 
   layerJson.features.forEach(element => {
-    let layerNames = element.id.split('.')[0].split('_');
-    layerNames.forEach(function (element_) {
-      if (selectedFilter.includes(element_.toLowerCase())) {
-        const source = new VectorSource({
-          // &featureId=${element.id}
-          url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
-          format: new GeoJSON(),
-        });
+    if (prevLayer !== element.id.split('.')[0]) {
+      let layerNames = element.id.split('.')[0].split('_');
+      layerNames.forEach(function (element_) {
+        if (selectedFilter.includes(element_.toLowerCase())) {
+          const source = new VectorSource({
+            // &featureId=${element.id}
+            url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
+            format: new GeoJSON(),
+          });
 
-        selectedSource = source;
+          selectedSource = source;
 
-        selectedLayer = new VectorLayer({
-          source: source,
-          style: selectStyle,
-        })
+          selectedLayer = new VectorLayer({
+            source: source,
+            style: selectStyle,
+          })
 
-        nullLayer = true;
-      }
-    })
+          prevLayer = element.id.split('.')[0];
+          nullLayer = false;
+        }
+      })
+    }
   });
 
-  if (nullLayer) {
+  if (!nullLayer) {
     if (prevSelected) {
       map.removeLayer(prevSelected);
     }
@@ -655,16 +658,11 @@ function saveFeature() {
   });
 }
 
-const changeKebun1 = document.getElementById('change-kebun-1');
-const changeKebun2 = document.getElementById('change-kebun-2');
-const modalKebun = new Modal(document.getElementById('modalKebun'));
-
 const farmSelect1 = document.getElementById('farm-select-1');
 const farmSelect2 = document.getElementById('farm-select-2');
 
-function farmSelectOptions(){
+function farmSelectOptions() {
   kebuns.forEach((element, index) => {
-
     var option = document.createElement("option");
     option.text = element.nama_kebun;
     option.value = index;
@@ -681,7 +679,7 @@ function farmSelectOptions(){
 }
 
 farmSelect1.addEventListener('change', (event) => {
-  console.log(farmSelect1.selectedIndex);
+  // console.log(farmSelect1.selectedIndex);
   if (farmSelect1.selectedIndex != selected_kebun) {
     localStorage.setItem('gp|selected_kebun', farmSelect1.selectedIndex);
     location.reload();
@@ -689,87 +687,48 @@ farmSelect1.addEventListener('change', (event) => {
 });
 
 farmSelect2.addEventListener('change', (event) => {
-  console.log(farmSelect2.selectedIndex);
+  // console.log(farmSelect2.selectedIndex);
   if (farmSelect2.selectedIndex != selected_kebun) {
     localStorage.setItem('gp|selected_kebun', farmSelect2.selectedIndex);
     location.reload();
   }
 });
 
-
-/* changeKebun1.addEventListener('click', event => {
-  showModalKebun();
-})
-changeKebun2.addEventListener('click', event => {
-  showModalKebun();
-}) */
-
-function showModalKebun() {
-  let content = `<div class="modal-body">`;
-
-  kebuns.forEach((element, index) => {
-    content += `<div id="item-kebun" data-index="${index}" class="p-2">${element.nama_kebun}</div>
-    ${index < kebuns.length - 1 ? '<hr>' : ''}`
-  });
-  content += '</div>';
-
-
-  $('#listKebun').html(content);
-  modalKebun.show();
-
-  $('#listKebun').on('click', '#item-kebun', function () {
-    if ($(this).data("index") != selected_kebun) {
-      localStorage.setItem('gp|selected_kebun', $(this).data("index"));
-      location.reload();
-    }
-  });
-}
-
-const modalLogin = new Modal(document.getElementById('authentication'));
+const modalLogin = new Modal(document.getElementById('authentication'), { keyboard: false });
 const userLogin = document.getElementById('login');
 const userLogout = document.getElementById('logout');
 const onLogin = document.getElementById('onLogin');
 
 userLogin.addEventListener('click', event => {
-  //auth.init();
-  localStorage.setItem('gp|logged-on', 'true'); //<-----  bisa diganti pake firebase localstorage
+  localStorage.setItem('gp|logged-on', 'true');
   document.querySelector('.logged-off').classList.toggle('show');
   document.querySelector('.logged-on').classList.toggle('show');
-  //console.log(event);
 });
 
-if (localStorage.getItem('gp|logged-on') === 'true') {  //<-----  bisa diganti pake firebase localstorage
+if (localStorage.getItem('gp|logged-on') === 'true') {
   userLogout.addEventListener('click', event => {
-    //auth.userSignOut();
     document.querySelector('.logged-off').classList.toggle('show');
     document.querySelector('.logged-on').classList.toggle('show');
-    //console.log(event);
-    localStorage.setItem('gp|logged-on', 'false'); //<-----  bisa diganti pake firebase localstorage
+
+    localStorage.setItem('gp|logged-on', 'false');
     localStorage.removeItem('gp|user');
     localStorage.removeItem('gp|kebuns');
     location.reload();
   });
 }
 
-/* const loginForm = document.getElementById('form-login');
-loginForm.addEventListener('submit', (event) => {
-  event.preventDefault();
-  console.log('form');
-  auth.init();
-});
- */
 onLogin.addEventListener('click', event => {
+  loadingButton('onLogin');
   const username = $("#username").val();
   const password = $("#password").val();
   firestore.onLogin(username, password).then((data) => {
     if (data) {
+      alertLogin('alert-success', 'Login berhasil');
       localStorage.setItem('gp|logged-on', 'true');
       getListKebun(data);
     } else {
-      alert("Username atau Password salah");
+      alertLogin('alert-danger', 'Username atau Password Anda salah');
     }
-  }).catch((err) => {
-    console.log(err);
   })
 })
 
@@ -803,12 +762,11 @@ window.addEventListener('DOMContentLoaded', event => {
     $("#user-name").text(user.username);
     $("#nama-kebun-1").text(kebuns[selected_kebun].nama_kebun);
     $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
+    farmSelectOptions();
     getKebunData();
   }
-
-  farmSelectOptions();
-
 });
+
 window.onresize = function () { location.reload(); };
 
 const menuToggle = document.getElementById('menu-toggle');
