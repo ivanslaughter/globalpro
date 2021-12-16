@@ -21,6 +21,7 @@ import numeral from 'numeral';
 import { firestore, auth } from './firebase';
 import { alertLogin, loadingButton } from './animated';
 import WebFont from 'webfontloader';
+import nameFormatter from './name-formatter';
 
 //useGeographic();
 numeral.register('locale', 'id', {
@@ -413,8 +414,8 @@ function setMapInfos(layerJson) {
       let featureName = element.id.split('.')[0].split('_');
       featureName.forEach(function (title) {
         if (selectedFilter.includes(title.toLowerCase())) {
-          content += `<div class="d-grid gap-2 mb-1 mt-2"><div class="text-uppercase fw-bolder text-center lh-1">Info ${title}</div>
-          <button id="back-stats" class="btn btn-outline-warning btn-sm lh-1"><i class="fa fa-home"></i> Back</button></div>
+          content += `<div class="d-grid gap-2 mb-1 mt-2"><div class="stats-title">Info <div class="stats-title-text">${title}</div></div>
+          <button id="back-stats" class="btn btn-outline-warning btn-sm lh-1"><i class="jt-chevron-left"></i> Back</button></div>
           <div class="d-flex flex-column mt-2">`;
           arrCol.forEach(element_ => {
             if (element_ != 'Id') {
@@ -437,11 +438,22 @@ function setMapInfos(layerJson) {
     }
   });
 
+  /* const statsTitleTxt = document.querySelector('.stats-title-text');
+  function isEllipsisActive(e) {
+    return (e.offsetWidth < e.scrollWidth);
+  } */
+
   if (!nullLayer) {
     $('#detail-info').html('');
     mainStats.classList.remove('show');
     subStats.innerHTML = content;
     subStats.classList.add('show');
+    const statsTitleTxt = document.querySelector('.stats-title-text');
+    if(isMobile()){
+      if (statsTitleTxt.offsetWidth < statsTitleTxt.scrollWidth) {
+        statsTitleTxt.style.setProperty('font-size', '0.72em');
+      }
+    }
 
     document.getElementById('back-stats').addEventListener('click', event => {
       reset.mapView();
@@ -753,7 +765,13 @@ window.addEventListener('DOMContentLoaded', event => {
   } else {
     document.querySelector('.logged-off').classList.toggle('show');
     document.querySelector('.logged-on').classList.toggle('show');
-    $("#user-name").text(user.nama);
+    const nameTxt = user.nama;
+    let displayName = nameTxt;
+    if (isMobile()) {
+      displayName = nameFormatter(nameTxt);
+      //console.log(displayName);
+    }
+    $("#user-name").text(displayName);
     $("#company-name-1").text(company.company_name);
     $("#company-name-2").text(company.company_name);
     $("#nama-kebun-1").text(kebuns[selected_kebun].nama_kebun);
