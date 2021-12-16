@@ -9,13 +9,27 @@ initializeApp(firebaseConfig());
 const db = getFirestore();
 
 export const firestore = {
-    getCollectionId: async function (companyId) {
+    onLogin: async function (username, password) {
+        const q = query(collection(db, `users`), where("username", "==", username), where("password", "==", password));
+        const querySnapshot = await getDocs(q);
+        let data;
+        querySnapshot.forEach((doc) => {
+            data = doc.data();
+        });
+        delete data.password;
+        return data;
+    },
+    getCompany: async function (companyId) {
         const q = query(collection(db, "companies"), where("id", "==", companyId));
         const querySnapshot = await getDocs(q);
         let data;
         querySnapshot.forEach((doc) => {
-            data = doc.id;
+            data = {
+                ...doc.data(),
+                collection: doc.id
+            }
         });
+        delete data.id;
         return data;
     },
     getKebuns: async function (collectionId) {
@@ -41,15 +55,6 @@ export const firestore = {
         });
         return data;
     },
-    onLogin: async function (username, password) {
-        const q = query(collection(db, `users`), where("username", "==", username), where("password", "==", password));
-        const querySnapshot = await getDocs(q);
-        let data;
-        querySnapshot.forEach((doc) => {
-            data = doc.data();
-        });
-        return data;
-    }
     // getGeoserver: async function (companyId) {
     //     this.getCollectionId(companyId).then(function (data) {
     //         console.log(data);
@@ -76,7 +81,7 @@ export const auth = {
             .then((result) => {
                 const credential = GoogleAuthProvider.credentialFromResult(result);
                 const user = {
-                    email: result.user.email, 
+                    email: result.user.email,
                     nama: result.user.displayName,
                     photo: result.user.photoURL,
                     uid: result.user.uid,
@@ -115,7 +120,7 @@ export const auth = {
         const ref = collection(db, "users");
         await setDoc(doc(ref, user.uid), user);
     },
-    userSignOut: function(){
+    userSignOut: function () {
         /* const getauth = getAuth();
         signOut(getauth).then(() => {
             // Sign-out successful.
