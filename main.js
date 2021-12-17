@@ -60,8 +60,8 @@ let prevSelected = null;
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
-let gsHost = 'http://128.199.253.151:8080';
-// let gsHost = 'http://localhost:8080';
+// let gsHost = 'http://128.199.253.151:8080';
+let gsHost = 'http://localhost:8080';
 
 const user = JSON.parse(localStorage.getItem('gp|user'));
 const company = JSON.parse(localStorage.getItem('gp|company'));
@@ -77,7 +77,6 @@ let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
 
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
-const modalEdit = new Modal(document.getElementById('modalEdit'));
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 
@@ -139,19 +138,19 @@ const wsmGroup = new ImageLayer({
 });
 
 const tlRaster = [];
-layerRaster.forEach(element => {
-  const sourceRaster = new TileJSON({
-    url: element,
-    tileSize: 256,
-    crossOrigin: 'anonymous'
-  });
+// layerRaster.forEach(element => {
+//   const sourceRaster = new TileJSON({
+//     url: element,
+//     tileSize: 256,
+//     crossOrigin: 'anonymous'
+//   });
 
-  tlRaster.push(new TileLayer({
-    //extent: [408380,467955,414599,475177],
-    name: 'layer-raster',
-    source: sourceRaster,
-  }));
-});
+//   tlRaster.push(new TileLayer({
+//     //extent: [408380,467955,414599,475177],
+//     name: 'layer-raster',
+//     source: sourceRaster,
+//   }));
+// });
 
 // 
 const layers = [osmLayer].concat(tlRaster);
@@ -402,13 +401,15 @@ const ModifyLayer = {
   },
 };
 
+const modalFeature = new Modal(document.getElementById('modalFeature'));
+
 function setMapInfos(layerJson) {
   const selectedLayers = layerJson.features;
   let content = '';
   let prevLayer = "";
   let nullLayer = true;
   let layerId = "";
-  selectedLayers.forEach(function (element, i) {
+  selectedLayers.forEach(function (element) {
     if (prevLayer !== element.id.split('.')[0]) {
       const arrCol = Object.keys(element.properties);
       let featureName = element.id.split('.')[0].split('_');
@@ -427,12 +428,12 @@ function setMapInfos(layerJson) {
             </div>`;
             }
           });
-          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalEdit">Edit</button>`;
+          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
           nullLayer = false;
-          editFeature(i, element.id, element.properties);
+          showModalFeature(element.id, element.properties);
         }
       })
     }
@@ -449,7 +450,7 @@ function setMapInfos(layerJson) {
     subStats.innerHTML = content;
     subStats.classList.add('show');
     const statsTitleTxt = document.querySelector('.stats-title-text');
-    if(isMobile()){
+    if (isMobile()) {
       if (statsTitleTxt.offsetWidth < statsTitleTxt.scrollWidth) {
         statsTitleTxt.style.setProperty('font-size', '0.72em');
       }
@@ -461,28 +462,33 @@ function setMapInfos(layerJson) {
     });
 
     if (selectedFilter === 'blok') {
-      kebuns[selected_kebun].subcollections.forEach(element => {
-        firestore.getBlokData(company.collection, kebuns[selected_kebun].collection, element, layerId).then(function (data) {
-          if (data) {
+      firestore.getBlokColls().then(function (collections) {
+        collections.forEach(element => {
+          firestore.getBlokData(company.collection, kebuns[selected_kebun].collection, element.collection, layerId).then(function (data) {
             let content = `<div class="col-sm">`;
-            content += `<h6>${element[0].toUpperCase() + element.slice(1)}</h6>`;
-            let titleTable = "";
-            let tableBody = "";
-            let th = false;
+            content += `<div class="d-flex align-items-center">
+          <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>
+          <button id="add-data-blok" data-coll="${element.collection}" data-fields="${element.fields}" class="btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
+          </div>`;
 
-            const titleArr = Object.keys(data.data[0]);
-            data.data.forEach(element_ => {
-              titleArr.forEach(subelement => {
-                const title = subelement.replace('_', ' ');
-                if (!th)
-                  titleTable = titleTable + `<th>${title[0].toUpperCase() + title.slice(1)}</th>`;
-                tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : element_[subelement]}</td>`;
+            if (data) {
+              let titleTable = "";
+              let tableBody = "";
+              let th = false;
+
+              const titleArr = Object.keys(data.data[0]);
+              data.data.forEach(element_ => {
+                titleArr.forEach(subelement => {
+                  const title = subelement.replace('_', ' ');
+                  if (!th)
+                    titleTable = titleTable + `<th>${title[0].toUpperCase() + title.slice(1)}</th>`;
+                  tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : element_[subelement]}</td>`;
+                });
+                th = true;
+                tableBody = tableBody + "<tr>";
               });
-              th = true;
-              tableBody = tableBody + "<tr>";
-            });
 
-            content += `
+              content += `
               <table class="table table-sm">
                   <thead>
                       <tr>${titleTable}</tr>
@@ -492,6 +498,9 @@ function setMapInfos(layerJson) {
                   </tbody>
               </table>
             `;
+            } else {
+              content += `<div class="mb-2">Belum ada data</div>`;
+            }
 
             content += `</div>`;
             $('#detail-info').append(content);
@@ -505,11 +514,80 @@ function setMapInfos(layerJson) {
               });
             }
             infoDiv.classList.add('show');
-          }
+
+          });
         });
-      });
+
+        showModalBlok();
+      })
     }
   }
+}
+
+const modalBlok = new Modal(document.getElementById('modalBlok'));
+
+function showModalBlok() {
+  const formBlok = (coll, fields) => {
+    let content = `<div class="modal-body">`;
+
+    fields.forEach(element => {
+      const el_label = element.replace('_', ' ');
+      content += `<label class="mt-1" for="${coll + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="text" id="${coll + "-" + element}" value=''>`;
+    });
+
+    content += '</div>';
+
+    const footer = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+    <button id="save-data-blok" type="button" class="btn btn-success btn-sm">Save</button>`;
+
+    return {
+      content,
+      footer
+    }
+  }
+
+  $('#info').on('click', '#add-data-blok', function () {
+    const coll = $(this).attr("data-coll");
+    const fields = $(this).attr("data-fields").split(',');
+    
+    $('#modalBlokTitle').text(`Tambah data ${coll}`)
+    $('#bodyBlok').html(formBlok(coll, fields).content);
+    $('#footerBlok').html(formBlok(coll, fields).footer);
+    modalBlok.show();
+  });
+
+  // $('#').on('click', '#save-feature', function () {
+  //   saveData();
+  // });
+}
+
+function showModalFeature(layerId, layerProperties) {
+  let content = `<div class="modal-body">`;
+
+  const arrCol = Object.keys(layerProperties);
+  arrCol.forEach(element => {
+    const el_label = element.replace('_', ' ');
+    content += `<label class="mt-1" for="${layerId.split('.')[0] + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
+  });
+
+  content += '</div>';
+
+  let footer = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+  <button id="save-feature" type="button" class="btn btn-success btn-sm">Save</button>`;
+
+  formFeature = {
+    layerId, content, arrCol, footer
+  };
+
+  $('#sub-stats').on('click', '#edit-feature', function () {
+    $('#bodyFeature').html(formFeature.content);
+    $('#footerFeature').html(formFeature.footer);
+    modalFeature.show();
+  });
+
+  $('#footerFeature').on('click', '#save-feature', function () {
+    saveFeature();
+  });
 }
 
 function selectMap(layerJson) {
@@ -570,35 +648,6 @@ function selectMap(layerJson) {
   }
 }
 
-function editFeature(i, layerId, layerProperties) {
-  let content = `<div class="modal-body">`;
-
-  const arrCol = Object.keys(layerProperties);
-  arrCol.forEach(element => {
-    const el_label = element.replace('_', ' ');
-    content += `<label class="mt-1" for="${layerId.split('.')[0] + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="text" id="${layerId.split('.')[0] + "-" + element}" value='${layerProperties[element]}'>`;
-  });
-
-  content += '</div>';
-
-  let footer = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-  <button id="save-feature" type="button" class="btn btn-success btn-sm">Save</button>`;
-
-  formFeature = {
-    layerId, content, arrCol, footer
-  };
-
-  $('#sub-stats').on('click', '#edit-feature', function () {
-    $('#formBody').html(formFeature.content);
-    $('#formFooter').html(formFeature.footer);
-    modalEdit.show();
-  });
-
-  $('#formFooter').on('click', '#save-feature', function () {
-    saveFeature();
-  });
-}
-
 function saveFeature() {
   let arrData = [];
   formFeature.arrCol.forEach(element => {
@@ -656,7 +705,7 @@ function saveFeature() {
     success: function (response) {
       console.log(response);
       // alert('Berhasil menyimpan data');
-      // modalEdit.hide();
+      // modalFeature.hide();
       location.reload();
     },
     error: function (jqXHR, textStatus, errorThrown) {
@@ -720,7 +769,9 @@ if (localStorage.getItem('gp|logged-on') === 'true') {
 
     localStorage.setItem('gp|logged-on', 'false');
     localStorage.removeItem('gp|user');
+    localStorage.removeItem('gp|company');
     localStorage.removeItem('gp|kebuns');
+    localStorage.removeItem('gp|selected_kebun');
     location.reload();
   });
 }

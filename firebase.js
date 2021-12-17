@@ -16,7 +16,8 @@ export const firestore = {
         querySnapshot.forEach((doc) => {
             data = doc.data();
         });
-        delete data.password;
+        if(data)
+            delete data.password;
         return data;
     },
     getCompany: async function (companyId) {
@@ -29,7 +30,8 @@ export const firestore = {
                 collection: doc.id
             }
         });
-        delete data.id;
+        if(data)
+            delete data.id;
         return data;
     },
     getKebuns: async function (collectionId) {
@@ -42,6 +44,16 @@ export const firestore = {
                 collection: doc.id
             }
             data.push(temp);
+        });
+        return data;
+    },
+    getBlokColls: async function () {
+        const ref = collection(db, `statics`);
+        const q = query(ref, where("layer", "==", 'blok'));
+        const querySnapshot = await getDocs(q);
+        let data;
+        querySnapshot.forEach((doc) => {
+            data = doc.data().data;
         });
         return data;
     },

@@ -10,7 +10,7 @@ Object.defineProperty(String.prototype, 'charLength', {
 
 export default function nameFormatter(name) {
     let nameLength = name.charLength;
-    console.log(nameLength);
+    // console.log(nameLength);
 
     let newName = '';
 

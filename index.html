@@ -149,36 +149,34 @@
     <span id="menu-title"><span class="fw-bolder">GlobalPro</span> Dashboard</span>
   </a>
 
-  <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+  <div class="modal fade" id="modalFeature" tabindex="-1" aria-labelledby="modalFeatureLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h6 class="modal-title" id="modatEditTitle">Edit Feature</h6>
+          <h6 class="modal-title">Edit Feature</h6>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
-        <div id="formBody"></div>
+        <div id="bodyFeature"></div>
 
-        <div id="formFooter" class="modal-footer">
+        <div id="footerFeature" class="modal-footer">
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal fade" id="modalKebun" tabindex="-1" aria-labelledby="modalKebunLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
+  <div class="modal fade" id="modalBlok" tabindex="-1" aria-labelledby="modalBlokLabel" aria-hidden="true">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h6 class="modal-title">Pilih Kebun</h6>
+          <h6 class="modal-title" id="modalBlokTitle"></h6>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
-        <div id="listKebun"></div>
+        <div id="bodyBlok"></div>
 
-        <div class="modal-footer">
-          <br>
+        <div id="footerBlok" class="modal-footer">
         </div>
-
       </div>
     </div>
   </div>
@@ -209,15 +207,12 @@
 
           <form id="form-login">
             <div class="mb-2 mt-4">
-              <!-- <label for="username" class="col-form-label">User:</label> -->
               <input type="text" class="form-control" id="username" placeholder="Username" value="globalpro">
             </div>
             <div class="mb-4">
-              <!-- <label for="password" class="col-form-label">Password:</label> -->
               <input type="password" class="form-control" id="password" placeholder="Password" value="qwerty">
             </div>
             <div class="login-action mb-3">
-              <!-- <button id="auth-close" type="button" class="btn btn-outline-light me-2" data-bs-dismiss="modal">Close</button> -->
               <button id="onLogin" type="button" class="btn btn-primary btn-block"> Login</button>
             </div>
           </form>
