@@ -108,12 +108,19 @@ html, body {
 }
 
 
-#menu-toggle{
-  position:absolute;
+#menu-toggle {
+  position: absolute;
   z-index: 1;
-  top: 0.54rem; left: 0.54rem;
-  background-color: transparent;
+  top: 0.54rem;
+  left: 0.54rem;
+  background-color: #2b597b;
   border-color: transparent;
+  padding: 0.54rem 0.72rem;
+  min-width: 14.4rem;
+  min-height: 3.33rem;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.45rem 0.45rem 0 0;
 }
 #menu-toggle:focus{
   box-shadow: none !important;
@@ -122,6 +129,7 @@ html, body {
 }
 #menu-toggle #menu-title{
   margin: 0 0.54rem;
+  font-size: 1.08rem;
 }
 
 .ol-control {
@@ -238,6 +246,19 @@ a#filter-toggle {
   overflow-y: auto;
   scrollbar-width: 0.54rem;
   padding: 2.7rem 0.54rem 0.54rem;
+}
+
+::-webkit-scrollbar {
+    width: 0.54rem;
+    margin-left: -0.54rem;
+}
+
+::-webkit-scrollbar-track {
+    border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 0px;
 }
 
 #content{
@@ -440,11 +461,11 @@ body.mobile #sidebar{
   width: 4.5rem;
 }
 
-body.mobile #menu-logo {
-    margin-inline-start: 0.63rem;
+body.mobile #menu-toggle{
+  min-width: 4.5rem;
 }
 body.mobile #menu-title{
-  visibility: hidden;
+  display: none;
 }
 body.mobile #stats .stats-title {
   flex-direction: column;
