@@ -52,7 +52,6 @@ WebFont.load({
   }
 });
 
-let editMode = false;
 let formFeature = {};
 let selectedSource = null;
 let selectedLayer = null;
@@ -177,34 +176,31 @@ const map = new Map({
 map.getView().fit(mapExtent);
 
 map.on('singleclick', function (evt) {
-  if (!editMode) {
-    const viewResolution = /** @type {number} */ (view.getResolution());
-    const url = wmsSourceGroup.getFeatureInfoUrl(
-      evt.coordinate,
-      viewResolution,
-      'EPSG:3857',
-      {
-        'exceptions': 'application/vnd.ogc.se_inimage',
-        //'INFO_FORMAT': 'text/html',
-        'INFO_FORMAT': 'application/json',
-        'FEATURE_COUNT': '100',
-        'X': '50',
-        'Y': '50',
-        //'SRS':'EPSG:32647',
-      }
-    );
-
-    if (url) {
-      fetch(url)
-        .then((response) => response.text())
-        .then((json) => {
-          const layerJson = JSON.parse(json);
-          if (layerJson.features.length !== 0) {
-            setMapInfos(layerJson);
-            selectMap(layerJson);
-          }
-        });
+  const viewResolution = /** @type {number} */ (view.getResolution());
+  const url = wmsSourceGroup.getFeatureInfoUrl(
+    evt.coordinate,
+    viewResolution,
+    'EPSG:3857',
+    {
+      'exceptions': 'application/vnd.ogc.se_inimage',
+      //'INFO_FORMAT': 'text/html',
+      'INFO_FORMAT': 'application/json',
+      'FEATURE_COUNT': '100',
+      'X': '50',
+      'Y': '50',
+      //'SRS':'EPSG:32647',
     }
+  );
+
+  if (url) {
+    fetch(url)
+      .then((response) => response.text())
+      .then((json) => {
+        const layerJson = JSON.parse(json);
+        if (layerJson.features.length !== 0) {
+          selectMap(layerJson);
+        }
+      });
   }
 });
 
@@ -364,7 +360,6 @@ const reset = {
     map.removeLayer(selectedLayer);
     selectedSource = null;
     selectedLayer = null;
-    editMode = false;
     ModifyLayer.setActive(false);
     subStats.innerHTML = '';
     subStats.classList.remove('show');
@@ -433,7 +428,8 @@ function setMapInfos(layerJson) {
             if (element_.toLowerCase() === 'block' || element_.toLowerCase() === 'blok')
               layerName = 'Blok ' + element.properties[element_];
           });
-          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
+          // content += `<button id="edit-geom" hidden type="button" class="btn btn-warning btn-sm col mt-3">Save Geometri</button>`;
+          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalFeature">Edit Data</button>`;
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
@@ -656,20 +652,23 @@ function selectMap(layerJson) {
       let layerNames = element.id.split('.')[0].split('_');
       layerNames.forEach(function (element_) {
         if (selectedFilter.includes(element_.toLowerCase())) {
-          const source = new VectorSource({
-            // &featureId=${element.id}
-            url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
-            format: new GeoJSON(),
-          });
+          const url = gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`;
+          if (!selectedLayer || selectedLayer.values_.source.url_ !== url) {
+            const source = new VectorSource({
+              // &featureId=${element.id}
+              url: gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`,
+              format: new GeoJSON(),
+            });
 
-          selectedSource = source;
+            selectedSource = source;
 
-          selectedLayer = new VectorLayer({
-            source: source,
-            style: selectStyle,
-          })
+            selectedLayer = new VectorLayer({
+              source: source,
+              style: selectStyle,
+            })
 
-          prevLayer = element.id.split('.')[0];
+            prevLayer = element.id.split('.')[0];
+          }
           nullLayer = false;
         }
       })
@@ -678,21 +677,32 @@ function selectMap(layerJson) {
 
   if (!nullLayer) {
     if (prevSelected) {
-      map.removeLayer(prevSelected);
+      if (selectedLayer.values_.source.url_ !== prevSelected.values_.source.url_) {
+        map.removeLayer(prevSelected);
+        setSelectMap();
+        setMapInfos(layerJson);
+      } 
+      // else {
+      //   $('#edit-geom').show();
+      // }
+    } else {
+      setSelectMap();
+      setMapInfos(layerJson);
     }
-
-    map.addLayer(selectedLayer);
-    prevSelected = selectedLayer;
-
-    selectedLayer.getSource().on('featuresloadend', function () {
-      const feature = selectedSource.getFeatures()[0];
-      const blockPolygon = feature.getGeometry();
-      // , { padding: [0, 0, 0, 0] }
-      view.fit(blockPolygon);
-      editMode = true;
-      ModifyLayer.init();
-    });
   }
+}
+
+function setSelectMap() {
+  map.addLayer(selectedLayer);
+  prevSelected = selectedLayer;
+
+  selectedLayer.getSource().on('featuresloadend', function () {
+    const feature = selectedSource.getFeatures()[0];
+    const blockPolygon = feature.getGeometry();
+    // , { padding: [0, 0, 0, 0] }
+    view.fit(blockPolygon);
+    ModifyLayer.init();
+  });
 }
 
 function saveFeature() {
