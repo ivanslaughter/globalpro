@@ -140,12 +140,14 @@ html, body {
     left: 15.48em;
 }
 .ol-overviewmap {
-    left: 15.48em;
-    bottom: 2.52em;
+  display: none;
+    /* left: 15.48em;
+    bottom: 2.52em; */
 }
 .ol-scale-line {
-    left: 15.48em;
-    bottom: 0.54em;
+  display: none;
+    /* left: 15.48em;
+    bottom: 0.54em; */
 }
 
 /* offcanvas custom */
@@ -279,7 +281,6 @@ a#filter-toggle {
   left: 15.48rem;
   border-radius: 0.45rem;
 }
-
 #info button#edit-feature {
     max-width: fit-content;
 }
@@ -293,6 +294,13 @@ a#filter-toggle {
 #info .feature-title{
   min-width: max-content;
   margin-right: 1rem;
+}
+#info-button {
+  background: #002d4b;
+  position: absolute;
+  display: none;
+  left: 15.7rem;
+  bottom: 0.7em;
 }
 
 #title {
@@ -372,9 +380,6 @@ a#filter-toggle {
 
 /* EDIT SEPRI */
 #select-filter {
-  /* position: absolute;
-  top: 11.5em;
-  right: 0.54em; */
   margin-top: 0.54rem;
   padding: 0.63rem 0.72rem;
   border-radius: 0.45rem;
@@ -388,39 +393,6 @@ a#filter-toggle {
 #select-filter .form-switch .form-check-label {
   font-size: 0.81rem;
   margin-right: 0.36em;
-}
-
-.ol-popup {
-  position: absolute;
-  background-color: white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #cccccc;
-  bottom: 12px;
-  left: -50px;
-  min-width: 200px;
-}
-.ol-popup:after, .ol-popup:before {
-  top: 100%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-}
-.ol-popup:after {
-  border-top-color: white;
-  border-width: 10px;
-  left: 48px;
-  margin-left: -10px;
-}
-.ol-popup:before {
-  border-top-color: #cccccc;
-  border-width: 11px;
-  left: 48px;
-  margin-left: -11px;
 }
 
 th {
@@ -503,12 +475,14 @@ body.mobile .ol-zoom {
   left: 5.58rem;
 }
 body.mobile .ol-overviewmap {
-    left: 5.58rem;
-    bottom: 2.52rem;
+  display: none;
+    /* left: 5.58rem;
+    bottom: 2.52rem; */
 }
 body.mobile .ol-scale-line {
-    left: 5.58em;
-    bottom: 0.54rem;
+  display: none;
+    /* left: 5.58em;
+    bottom: 0.54rem; */
 }
 
 body.mobile #title {
@@ -573,6 +547,14 @@ body.mobile #sidebar .logged-user {
 body.mobile #sidebar .logged-on.show,
 body.mobile #sidebar .logged-off.show {
   max-width: 3.33rem;
+}
+
+body.mobile #info-button{
+  left: 5.7rem;
+  bottom: 0.7em;
+}
+.jt-info {
+  color: white;
 }
 
 /* Login */

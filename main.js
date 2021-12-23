@@ -78,6 +78,7 @@ let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
 const infoDiv = document.body.querySelector('#info');
+const infoBtn = $('#info-button').hide();
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 
@@ -139,19 +140,19 @@ const wsmGroup = new ImageLayer({
 });
 
 const tlRaster = [];
-// layerRaster.forEach(element => {
-//   const sourceRaster = new TileJSON({
-//     url: element,
-//     tileSize: 256,
-//     crossOrigin: 'anonymous'
-//   });
+layerRaster.forEach(element => {
+  const sourceRaster = new TileJSON({
+    url: element,
+    tileSize: 256,
+    crossOrigin: 'anonymous'
+  });
 
-//   tlRaster.push(new TileLayer({
-//     //extent: [408380,467955,414599,475177],
-//     name: 'layer-raster',
-//     source: sourceRaster,
-//   }));
-// });
+  tlRaster.push(new TileLayer({
+    //extent: [408380,467955,414599,475177],
+    name: 'layer-raster',
+    source: sourceRaster,
+  }));
+});
 
 const layers = [osmLayer].concat(tlRaster);
 layers.push(wmsTree);
@@ -373,6 +374,7 @@ const reset = {
     subStats.classList.remove('show');
     mainStats.classList.add('show');
     infoDiv.classList.remove('show');
+    infoBtn.hide();
   },
   mapView: function () {
     $(".logged-on").css('display', 'flex');
@@ -386,6 +388,7 @@ const reset = {
     subStats.classList.remove('show');
     mainStats.classList.add('show');
     infoDiv.classList.remove('show');
+    infoBtn.hide();
     map.getView().setZoom(14);
   }
 }
@@ -460,6 +463,7 @@ function setMapInfos(layerJson) {
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
           nullLayer = false;
+
           showModalFeature(element.id, element.properties);
         }
       })
@@ -548,6 +552,12 @@ function getBlokData(layerId, layerName) {
             document.body.classList.toggle('info-toggled');
           });
         }
+        
+        infoBtn.show();
+        infoBtn.on('click', (event) => {
+          infoDiv.classList.add('show');
+        });
+
         infoDiv.classList.add('show');
 
       });
