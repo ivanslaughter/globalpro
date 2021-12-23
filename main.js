@@ -77,6 +77,7 @@ let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
 
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
+const infoDiv = document.body.querySelector('#info');
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 
@@ -138,21 +139,20 @@ const wsmGroup = new ImageLayer({
 });
 
 const tlRaster = [];
-layerRaster.forEach(element => {
-  const sourceRaster = new TileJSON({
-    url: element,
-    tileSize: 256,
-    crossOrigin: 'anonymous'
-  });
+// layerRaster.forEach(element => {
+//   const sourceRaster = new TileJSON({
+//     url: element,
+//     tileSize: 256,
+//     crossOrigin: 'anonymous'
+//   });
 
-  tlRaster.push(new TileLayer({
-    //extent: [408380,467955,414599,475177],
-    name: 'layer-raster',
-    source: sourceRaster,
-  }));
-});
+//   tlRaster.push(new TileLayer({
+//     //extent: [408380,467955,414599,475177],
+//     name: 'layer-raster',
+//     source: sourceRaster,
+//   }));
+// });
 
-// 
 const layers = [osmLayer].concat(tlRaster);
 layers.push(wmsTree);
 layers.push(wsmGroup);
@@ -198,6 +198,8 @@ map.on('singleclick', function (evt) {
       .then((json) => {
         const layerJson = JSON.parse(json);
         if (layerJson.features.length !== 0) {
+          $("#sidebar").addClass("select-active");
+          $(".logged-on").css('display', 'none');
           selectMap(layerJson);
         }
       });
@@ -344,7 +346,10 @@ $('#selectBridge').on('change', (event) => {
 const reset = {
   selectFilter: function (id) {
     if (selectedLayer) {
-      this.mapView();
+      if (id === 'selectAfdeling')
+        this.mapView();
+      else
+        this.selectView();
     }
     const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver', 'selectBridge'];
     ids.forEach(element => {
@@ -356,7 +361,10 @@ const reset = {
       }
     });
   },
-  mapView: function () {
+  selectView: function () {
+    $(".logged-on").css('display', 'flex');
+    $("#sidebar").removeClass("select-active");
+    $("#user-box").show();
     map.removeLayer(selectedLayer);
     selectedSource = null;
     selectedLayer = null;
@@ -364,7 +372,19 @@ const reset = {
     subStats.innerHTML = '';
     subStats.classList.remove('show');
     mainStats.classList.add('show');
-    const infoDiv = document.body.querySelector('#info');
+    infoDiv.classList.remove('show');
+  },
+  mapView: function () {
+    $(".logged-on").css('display', 'flex');
+    $("#sidebar").removeClass("select-active");
+    $("#user-box").show();
+    map.removeLayer(selectedLayer);
+    selectedSource = null;
+    selectedLayer = null;
+    ModifyLayer.setActive(false);
+    subStats.innerHTML = '';
+    subStats.classList.remove('show');
+    mainStats.classList.add('show');
     infoDiv.classList.remove('show');
     map.getView().setZoom(14);
   }
@@ -406,30 +426,36 @@ function setMapInfos(layerJson) {
   let nullLayer = true;
   let layerId = "";
   let layerName = "";
-  selectedLayers.forEach(function (element) {
+  selectedLayers.forEach(element => {
     if (prevLayer !== element.id.split('.')[0]) {
       const arrCol = Object.keys(element.properties);
-      let featureName = element.id.split('.')[0].split('_');
-      featureName.forEach(function (title) {
+      let featureNames = element.id.split('.')[0].split('_');
+      featureNames.forEach(title => {
         if (selectedFilter.includes(title.toLowerCase())) {
-          content += `<div class="d-grid gap-2 mb-1 mt-2"><div class="stats-title">Info <div class="stats-title-text">${title}</div></div>
-          <button id="back-stats" class="btn btn-outline-warning btn-sm lh-1"><i class="jt-chevron-left"></i> Back</button></div>
-          <div class="d-flex flex-column mt-2">`;
+          content += `<div class="d-grid gap-2 mb-2 ${!isMobile() ? 'mt-3' : ''}"><div class="stats-title">Info <div class="stats-title-text">${title}</div></div>`;
+          if (!isMobile())
+            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2 lh-1"><i class="jt-chevron-left"></i> Back</button></div>`;
+          content += `<div class="d-flex flex-column mt-1">`;
           arrCol.forEach(element_ => {
-            if (element_ != 'Id') {
+            // if (element_ !== 'Id') {
               const el_label = element_.replace('_', ' ');
               content += `
               <div id="${element_}" class="stats-box">
               <div class="stats-label">${el_label[0].toUpperCase() + el_label.slice(1)}</div>
               <div id="stats-density" class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
             </div>`;
-            }
+            // }
 
-            if (element_.toLowerCase() === 'block' || element_.toLowerCase() === 'blok')
-              layerName = 'Blok ' + element.properties[element_];
+            let fieldNames = element_.split('_');
+            fieldNames.forEach(title => {
+              if (title.toLowerCase().includes('block') || title.toLowerCase().includes('blok'))
+                layerName = 'Blok ' + element.properties[element_];
+            });
           });
-          // content += `<button id="edit-geom" hidden type="button" class="btn btn-warning btn-sm col mt-3">Save Geometri</button>`;
-          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-3" data-toggle="modal" data-target="#modalFeature">Edit Data</button>`;
+
+          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-1 ${!isMobile() ? 'mb-4' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
+          if (isMobile())
+            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2 lh-1"><i class="jt-chevron-left"></i> Back</button></div>`;
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
@@ -476,7 +502,7 @@ function getBlokData(layerId, layerName) {
         let content = `<div class="col-sm">`;
         content += `<div class="d-flex align-items-center">
       <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>
-      <button id="add-data-blok" data-coll="${element.collection}" data-fields="${element.fields}" class="btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
+      <button id="add-data-blok" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
       </div>`;
 
         if (data) {
@@ -488,9 +514,11 @@ function getBlokData(layerId, layerName) {
           data.data.forEach(element_ => {
             titleArr.forEach(subelement => {
               const title = subelement.replace('_', ' ');
-              if (!th)
+              if (!th && subelement !== 'satuan')
                 titleTable = titleTable + `<th>${title[0].toUpperCase() + title.slice(1)}</th>`;
-              tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : element_[subelement]}</td>`;
+              
+              if (subelement !== 'satuan')
+                tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : isNaN(element_[subelement]) ? element_[subelement] : element_[subelement]+element_['satuan']}</td>`;
             });
             th = true;
             tableBody = tableBody + "<tr>";
@@ -513,7 +541,6 @@ function getBlokData(layerId, layerName) {
         content += `</div>`;
         $('#detail-info').append(content);
 
-        const infoDiv = document.body.querySelector('#info');
         const infoToggle = document.body.querySelector('#info-toggled');
         if (infoToggle) {
           infoToggle.addEventListener('click', event => {
@@ -537,14 +564,25 @@ function showModalBlok(layerId, layerName) {
     let content = `<div class="modal-body">`;
 
     fields.forEach(element => {
-      const el_label = element.replace('_', ' ');
-      content += `<label class="mt-1" for="${layerId.replace('.', '_') + "-" + coll + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="${element === 'tanggal' ? 'date' : 'text'}" id="${layerId.replace('.', '_') + "-" + coll + "-" + element}" value=''>`;
+      const el_label = element.id.replace('_', ' ');
+      if (element.type === 'option') {
+        content += `<select class="mt-1 form-select" id="${layerId.replace('.', '_') + "-" + coll + "-" + element.id}">
+        <option selected value="">Pilih satuan</option>`;
+        let options = "";
+        element.option.forEach(element_ => {
+          options += `<option value="${element_}">${element_}</option>`;
+        });
+        content += options;
+        content += `</select>`;
+      } else {
+        content += `<label class="mt-1" for="${layerId.replace('.', '_') + "-" + coll + "-" + element.id}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="${element.type}" id="${layerId.replace('.', '_') + "-" + coll + "-" + element.id}" value="">`;
+      }
     });
 
     content += '<div id="alert-blok"></div></div>';
 
     const footer = `<button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-    <button id="save-data-blok" data-layer_id="${layerId}" data-layer_name="${layerName}" data-coll="${coll}" data-fields="${fields}" type="button" class="btn btn-success btn-sm">Save</button>`;
+    <button id="save-data-blok" data-layer_id="${layerId}" data-layer_name="${layerName}" data-coll="${coll}" data-fields='${JSON.stringify(fields)}' type="button" class="btn btn-success btn-sm">Save</button>`;
 
     return {
       content,
@@ -554,7 +592,7 @@ function showModalBlok(layerId, layerName) {
 
   $('#info').on('click', '#add-data-blok', function () {
     const coll = $(this).attr("data-coll");
-    const fields = $(this).attr("data-fields").split(',');
+    const fields = $(this).data("fields");
 
     $('#modalBlokTitle').text(`Tambah data ${coll}`)
     $('#bodyBlok').html(formBlok(coll, fields).content);
@@ -566,20 +604,20 @@ function showModalBlok(layerId, layerName) {
 $('#footerBlok').on('click', '#save-data-blok', function () {
   startLoadingButton('save-data-blok');
   const coll = $(this).attr("data-coll");
-  const fields = $(this).attr("data-fields").split(',');
+  const fields = $(this).data("fields");
   const layer_id = $(this).attr("data-layer_id");
   const layer_name = $(this).attr("data-layer_name");
 
   let data = {};
   let nullValue = false;
   fields.forEach(element => {
-    if ($(`#${layer_id.replace('.', '_') + "-" + coll + "-" + element}`).val() === '')
+    if ($(`#${layer_id.replace('.', '_') + "-" + coll + "-" + element.id}`).val() === '')
       nullValue = true;
 
-    if (element === 'tanggal')
-      data[element] = Timestamp.fromDate(new Date($(`#${layer_id.replace('.', '_') + "-" + coll + "-" + element}`).val()));
+    if (element.type === 'date')
+      data[element.id] = Timestamp.fromDate(new Date($(`#${layer_id.replace('.', '_') + "-" + coll + "-" + element.id}`).val()));
     else
-      data[element] = $(`#${layer_id.replace('.', '_') + "-" + coll + "-" + element}`).val();
+      data[element.id] = $(`#${layer_id.replace('.', '_') + "-" + coll + "-" + element.id}`).val();
 
   });
 
@@ -681,10 +719,11 @@ function selectMap(layerJson) {
         map.removeLayer(prevSelected);
         setSelectMap();
         setMapInfos(layerJson);
-      } 
-      // else {
-      //   $('#edit-geom').show();
-      // }
+      }
+      else {
+        infoDiv.classList.add('show');
+        // $('#edit-geom').show();
+      }
     } else {
       setSelectMap();
       setMapInfos(layerJson);

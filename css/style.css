@@ -248,6 +248,10 @@ a#filter-toggle {
   padding: 2.7rem 0.54rem 0.54rem;
 }
 
+#sidebar.select-active {
+  background: #002d4b;
+}
+
 ::-webkit-scrollbar {
     width: 0.54rem;
     margin-left: -0.54rem;
@@ -310,6 +314,7 @@ a#filter-toggle {
 }
 
 .stats-title {
+  color: #ff9800;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -320,6 +325,7 @@ a#filter-toggle {
   overflow-inline: hidden;
 }
 .stats-title-text {
+  color: #ff9800;
   margin-left: 0.36rem;
 }
 
@@ -573,7 +579,7 @@ body.mobile #sidebar .logged-off.show {
 
 #user-box {
   margin: 0.54rem -0.54rem 0;
-  background-image: radial-gradient(circle at center, #073b63 50%, transparent);
+  /* background-image: radial-gradient(circle at center, #073b63 50%, transparent); */
   padding: 0.54rem 0.54rem;
 }
 
