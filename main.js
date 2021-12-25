@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/style.css';
-import isMobile from './mobile.js';
+import isMobile from './mobile';
+import WebFont from 'webfontloader';
 import { Map, View, Overlay } from 'ol';
 import { Draw, Modify, Select, Snap } from 'ol/interaction';
 import MousePosition from 'ol/control/MousePosition';
@@ -21,8 +22,8 @@ import numeral from 'numeral';
 import { firestore, auth } from './firebase';
 import { Timestamp } from 'firebase/firestore';
 import { showAlert, startLoadingButton, stopLoadingButton } from './animated';
-import WebFont from 'webfontloader';
 import nameFormatter from './name-formatter';
+import showFarmStats from './sidebar';
 
 //useGeographic();
 numeral.register('locale', 'id', {
@@ -285,22 +286,27 @@ checkTree.addEventListener('change', (event) => {
 //EDIT SEPRI
 
 function getKebunData() {
+  let afdeling = 0;
   const afdelingUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + `:${layerAfdeling}&outputFormat=application%2Fjson&srsname=EPSG:32647`;
   fetch(afdelingUrl)
     .then((response) => response.text())
     .then((json) => {
       // console.log(JSON.parse(json));
+      //afdelingJson.push(JSON.parse(json).features);
       let afdelingJson = JSON.parse(json).features;
-      document.getElementById('stats-afdeling').innerHTML = afdelingJson.length;
+      afdeling = afdelingJson.length;
+      /* document.getElementById('stats-afdeling').innerHTML = afdelingJson.length; */
     });
 
   const blockUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + `:${layerBlock}&outputFormat=application%2Fjson&srsname=EPSG:32647`;
   fetch(blockUrl)
     .then((response) => response.text())
     .then((json) => {
-      // console.log(JSON.parse(json));
+      //console.log(JSON.parse(json).features);
+      // blocksJson.push(JSON.parse(json).features);
       let blocksJson = JSON.parse(json).features;
-      if (blocksJson.length > 0) {
+      showFarmStats(afdeling, blocksJson);
+      /* if (blocksJson.length > 0) {
         let sa = 0;
         let sb = 0;
         let st = 0;
@@ -315,7 +321,7 @@ function getKebunData() {
         document.getElementById('stats-block').innerHTML = sb;
         document.getElementById('stats-tree').innerHTML = numeral(st).format(',0');
         document.getElementById('stats-density').innerHTML = numeral((sd / sb)).format('0.');
-      }
+      } */
     });
 }
 
@@ -907,9 +913,6 @@ window.addEventListener('DOMContentLoaded', event => {
     document.querySelector('.logged-on').classList.toggle('show');
     const nameTxt = user.nama;
     let displayName = nameTxt;
-    if (isMobile()) {
-      displayName = nameFormatter(nameTxt);
-    }
     $("#user-name").text(displayName);
     $("#company-name-1").text(company.company_name);
     $("#company-name-2").text(company.company_name);
@@ -917,6 +920,9 @@ window.addEventListener('DOMContentLoaded', event => {
     $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
     farmSelectOptions();
     getKebunData();
+    if (isMobile()) {
+      displayName = nameFormatter(nameTxt);
+    }
   }
 });
 
