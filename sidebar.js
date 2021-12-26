@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 
 export default function showFarmStats(afdeling, block){
-  let stasHTML = '';
+  let statsHTML = '';
 
   if (block.length > 0) {
     let sa = 0;
@@ -15,7 +15,8 @@ export default function showFarmStats(afdeling, block){
       sd += (element.properties.Density);
     });
 
-    stasHTML = `<div class="stats-box">
+    statsHTML = `<div class="stats-title mb-2">Data Kebun</div>
+      <div class="stats-box">
         <div class="stats-label">Luas Area (Ha)</div>
         <div id="stats-area" class="stats-value">${numeral(sa).format(',0.0')}</div>
       </div>
@@ -36,7 +37,7 @@ export default function showFarmStats(afdeling, block){
         <div id="stats-density" class="stats-value">${numeral((sd / sb)).format('0.')}</div>
       </div>`;
     document.getElementById('sidebar').classList.toggle('show');
-    document.getElementById('main-stats').innerHTML = stasHTML;
+    document.getElementById('main-stats').innerHTML = statsHTML;
   }
 
 }

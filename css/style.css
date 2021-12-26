@@ -52,6 +52,15 @@
   font-weight: 700;
 } */
 
+:root{
+  --gp-padding: 0.54rem;
+  --gp-margin-bottom: 0.54rem;
+  --gp-border-radius: 0.45rem;
+  --gp-padding-mobile: calc(0.81 * var(--gp-padding));
+  --gp-margin-bottom-mobile: calc(0.81 * var(--gp-margin-bottom));
+  --gp-border-radius-mobile: calc(0.81 * var(--gp-border-radius));
+}
+
 html, body {
   margin: 0;
   height: 100%;
@@ -109,6 +118,7 @@ html, body {
 
 
 #menu-toggle {
+  display: flex;
   position: absolute;
   z-index: 1;
   top: 0.54rem;
@@ -240,20 +250,17 @@ a#filter-toggle {
 }
 
 #sidebar{
-  background: linear-gradient(180deg, #004572 20%, #004572de);
-  height: calc(100% - 1.08rem);
+  /* background: linear-gradient(180deg, #004572 20%, #004572de); */
   width: 14.4rem;
   position: absolute;
   top: 0.54rem;
   left: 0.54rem;
   z-index: 1;
   border-radius: 0.45rem;
-  overflow-y: auto;
-  scrollbar-width: 0.54rem;
-  padding: 2.7rem 0.54rem 0.54rem;
+  padding: 3.42rem 0 0.54rem;
 }
 
-#sidebar.select-active {
+#sidebar.select-active #stats {
   background: #002d4b;
 }
 
@@ -293,6 +300,7 @@ a#filter-toggle {
 }
 #info .btn-close{
   float: right;
+  margin-left: -1.53rem;
 }
 #info .feature-title{
   min-width: max-content;
@@ -301,7 +309,6 @@ a#filter-toggle {
 #info-button {
   background: #002d4b;
   position: absolute;
-  display: none;
   left: 15.7rem;
   bottom: 0.7em;
 }
@@ -317,11 +324,16 @@ a#filter-toggle {
   padding: 0.9rem 0;
 }
 
-#stats{
+#stats {
   display: flex;
   flex-direction: column;
   font-size: 1rem;
   margin-top: 0.54rem;
+  background: #004572de;
+  padding: var(--gp-padding);
+  border-radius: var(--gp-border-radius);
+  overflow-y: auto;
+  scrollbar-width: 0.54rem;
 }
 
 .stats-title {
@@ -375,6 +387,16 @@ a#filter-toggle {
   font-size: 1.8em;
   margin-top: 0.54rem;
   font-weight: 500;
+}
+#back-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+#back-stats i {
+  margin-bottom: -2.97px;
+  font-size: 1.26em;
 }
 
 .sidebar-title {
@@ -448,6 +470,10 @@ body.mobile #menu-toggle{
 body.mobile #menu-title{
   display: none;
 }
+#stats {
+  padding: var(--gp-padding-mobile);
+  border-radius: var(--gp-border-radius-mobile);
+}
 body.mobile #stats .stats-title {
   flex-direction: column;
   max-width: 3.33rem;
@@ -472,6 +498,13 @@ body.mobile .stats-box .stats-label{
 body.mobile .stats-box .stats-value{
   margin-top: 0;
   font-size: 0.9em;
+}
+body.mobile button#back-stats {
+  font-size: 0.72rem;
+  padding: 0.36rem 0.36rem 0.36rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 body.mobile .ol-zoom {
   top: 5.94rem;
@@ -528,10 +561,20 @@ body.mobile #info {
   left: 5.58rem;
   font-size: 0.72rem;
 }
+body.mobile #info .btn-close{
+  margin-left: -1.17rem;
+}
 body.mobile #info #edit-feature {
   font-size: 0.72rem;
   padding: 0.18rem 0.36rem;
   margin-left: 0.54rem;
+}
+body.mobile #sub-stats #edit-feature{
+  font-size: 0.72rem;
+  padding: 0.36rem 0.36rem 0.36rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 body.mobile #sidebar .logged-on,
@@ -560,12 +603,21 @@ body.mobile #info-button{
   color: white;
 }
 
+body.mobile #user-box {
+  margin: var(--gp-padding-mobile) 0 0;
+  padding: var(--gp-padding-mobile);
+  border-radius: var(--gp-border-radius-mobile);
+}
+
 /* Login */
 
 #user-box {
-  margin: 0.54rem -0.54rem 0;
-  /* background-image: radial-gradient(circle at center, #073b63 50%, transparent); */
-  padding: 0.54rem 0.54rem;
+  display: flex;
+  margin: var(--gp-padding) 0 0;
+  background-color: #004572;
+  padding: var(--gp-padding);
+  border-radius: var(--gp-border-radius);
+  justify-content: center;
 }
 
 #login:focus, #logout:focus {

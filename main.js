@@ -17,7 +17,7 @@ import OSM from 'ol/source/OSM';
 import { createStringXY } from 'ol/coordinate';
 import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } from 'ol/control';
 import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
-import { Modal, Offcanvas } from 'bootstrap';
+import { Modal, Tooltip, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
 import { firestore, auth } from './firebase';
 import { Timestamp } from 'firebase/firestore';
@@ -58,6 +58,7 @@ let selectedSource = null;
 let selectedLayer = null;
 let selectedFilter = "blok";
 let prevSelected = null;
+let mapFullyLoaded = false;
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
@@ -79,7 +80,7 @@ let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
 const infoDiv = document.body.querySelector('#info');
-const infoBtn = $('#info-button').hide();
+const infoBtn = document.getElementById('info-button');
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 
@@ -200,9 +201,13 @@ map.on('singleclick', function (evt) {
       .then((json) => {
         const layerJson = JSON.parse(json);
         if (layerJson.features.length !== 0) {
-          $("#sidebar").addClass("select-active");
-          $(".logged-on").css('display', 'none');
-          selectMap(layerJson);
+          if (mapFullyLoaded){
+            $("#sidebar").addClass("select-active");
+            $("#user-box").css('display', 'none');
+            selectMap(layerJson);
+            mapFullyLoaded = false;
+            // console.log('loaded -> ' + mapFullyLoaded);
+          }
         }
       });
   }
@@ -243,6 +248,7 @@ const checkRaster = document.getElementById('checkRaster');
 const checkGroup = document.getElementById('checkGroup');
 const checkTree = document.getElementById('checkTree');
 
+//showFilter();
 checkMap.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
     osmLayer.setVisible(true);
@@ -282,6 +288,7 @@ checkTree.addEventListener('change', (event) => {
   }
   //gpDashboardClose.click();
 });
+
 
 //EDIT SEPRI
 
@@ -369,7 +376,7 @@ const reset = {
     });
   },
   selectView: function () {
-    $(".logged-on").css('display', 'flex');
+    $("#user-box").css('display', 'flex');
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
     map.removeLayer(selectedLayer);
@@ -380,10 +387,10 @@ const reset = {
     subStats.classList.remove('show');
     mainStats.classList.add('show');
     infoDiv.classList.remove('show');
-    infoBtn.hide();
+    infoBtn.classList.remove('show');
   },
   mapView: function () {
-    $(".logged-on").css('display', 'flex');
+    $("#user-box").css('display', 'flex');
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
     map.removeLayer(selectedLayer);
@@ -394,7 +401,7 @@ const reset = {
     subStats.classList.remove('show');
     mainStats.classList.add('show');
     infoDiv.classList.remove('show');
-    infoBtn.hide();
+    infoBtn.classList.remove('show');
     map.getView().setZoom(14);
   }
 }
@@ -441,19 +448,26 @@ function setMapInfos(layerJson) {
       let featureNames = element.id.split('.')[0].split('_');
       featureNames.forEach(title => {
         if (selectedFilter.includes(title.toLowerCase())) {
-          content += `<div class="d-grid gap-2 mb-2 ${!isMobile() ? 'mt-3' : ''}"><div class="stats-title">Info <div class="stats-title-text">${title}</div></div>`;
+          // console.log('title->' + title);
+          // console.log('arrCol' + arrCol);
+          content += `<div class="d-grid gap-2 mb-2 ${!isMobile() ? 'mt-2' : ''}">`;
+          if(title == 'Blok'){
+            content += `<div class="stats-title">Blok <div class="stats-title-text">${element.properties['Block']}</div></div>`;
+          } else {
+            content += `<div class="stats-title">Info <div class="stats-title-text">${title}</div></div>`;
+          }
           if (!isMobile())
-            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2 lh-1"><i class="jt-chevron-left"></i> Back</button></div>`;
+            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
           content += `<div class="d-flex flex-column mt-1">`;
           arrCol.forEach(element_ => {
-            // if (element_ !== 'Id') {
+            if (element_ !== 'Block') {
               const el_label = element_.replace('_', ' ');
               content += `
               <div id="${element_}" class="stats-box">
               <div class="stats-label">${el_label[0].toUpperCase() + el_label.slice(1)}</div>
-              <div id="stats-density" class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
+              <div class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
             </div>`;
-            // }
+            }
 
             let fieldNames = element_.split('_');
             fieldNames.forEach(title => {
@@ -462,9 +476,9 @@ function setMapInfos(layerJson) {
             });
           });
 
-          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-1 ${!isMobile() ? 'mb-4' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
+          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-4' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
           if (isMobile())
-            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2 lh-1"><i class="jt-chevron-left"></i> Back</button></div>`;
+            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
@@ -505,6 +519,7 @@ function setMapInfos(layerJson) {
 
 function getBlokData(layerId, layerName) {
   $('#detail-info').html('');
+  document.body.classList.toggle('info-show');
 
   firestore.getBlokColls().then(function (collections) {
     collections.forEach(element => {
@@ -555,12 +570,13 @@ function getBlokData(layerId, layerName) {
         if (infoToggle) {
           infoToggle.addEventListener('click', event => {
             event.preventDefault();
-            document.body.classList.toggle('info-toggled');
+            //document.body.classList.toggle('info-show');
+            infoBtn.classList.add('show');
           });
         }
         
-        infoBtn.show();
-        infoBtn.on('click', (event) => {
+        infoBtn.classList.toggle('show');
+        infoBtn.addEventListener('click', (event) => {
           infoDiv.classList.add('show');
         });
 
@@ -899,6 +915,11 @@ onLogin.addEventListener('click', event => {
   auth.userSignIn(email, password);
 })
 
+map.on('rendercomplete', function(evt){
+  mapFullyLoaded = true;
+  // console.log('loaded -> ' + mapFullyLoaded);
+})
+
 window.addEventListener('DOMContentLoaded', event => {
   if (isMobile()) {
     document.querySelector("body").classList.add('mobile');
@@ -924,6 +945,8 @@ window.addEventListener('DOMContentLoaded', event => {
       displayName = nameFormatter(nameTxt);
     }
   }
+  document.querySelector('#filter-div').classList.toggle('show');
+  document.querySelector('#menu-toggle').classList.toggle('show');
 });
 
 // window.onresize = function () { location.reload(); };
