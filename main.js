@@ -17,7 +17,7 @@ import OSM from 'ol/source/OSM';
 import { createStringXY } from 'ol/coordinate';
 import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } from 'ol/control';
 import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
-import { Modal, Tooltip, Offcanvas } from 'bootstrap';
+import { Modal, Collapse, Tooltip, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
 import { firestore, auth } from './firebase';
 import { Timestamp } from 'firebase/firestore';
@@ -77,10 +77,46 @@ let layerGroup = kebuns ? kebuns[selected_kebun].geoserver.layer_group : '';
 let layerTree = kebuns ? kebuns[selected_kebun].geoserver.layer_tree : '';
 let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
 
+const Stats = document.getElementById('stats');
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
 const infoDiv = document.body.querySelector('#info');
 const infoBtn = document.getElementById('info-button');
+
+let bsStats = new Collapse(Stats, {
+  toggle: false
+});
+let bsInfoDiv = new Collapse(infoDiv, {
+  toggle: false
+});
+let bsInfoBtn = new Collapse(infoBtn, {
+  toggle: false
+});
+infoDiv.addEventListener('shown.bs.collapse', function () {
+  console.log('info collapse show');
+  if (subStats.classList.contains('show') == true) {
+    console.log('sub-stats on');
+    Stats.classList.remove('info-active');
+    bsInfoBtn.hide();
+  }
+});
+infoDiv.addEventListener('hidden.bs.collapse', function () {
+  console.log('info collapse hide');
+  if (subStats.classList.contains('show') == true){
+    console.log('sub-stats on');
+    Stats.classList.add('info-active');
+    bsInfoBtn.show();
+  }
+});
+
+/* infoBtn.addEventListener('show.bs.collapse', function () {
+  console.log('btn info collapse hide');
+  Stats.classList.remove('info-active');
+});
+infoBtn.addEventListener('hide.bs.collapse', function () {
+  console.log('btn info collapse show');
+  Stats.classList.add('info-active');
+}); */
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 
@@ -156,8 +192,8 @@ layerRaster.forEach(element => {
   }));
 });
 
-const layers = [osmLayer].concat(tlRaster);
-layers.push(wmsTree);
+const layers = [osmLayer];//.concat(tlRaster);
+// layers.push(wmsTree);
 layers.push(wsmGroup);
 
 const view = new View({
@@ -386,8 +422,11 @@ const reset = {
     subStats.innerHTML = '';
     subStats.classList.remove('show');
     mainStats.classList.add('show');
-    infoDiv.classList.remove('show');
+    /* infoDiv.classList.remove('show'); */
     infoBtn.classList.remove('show');
+    Stats.classList.remove('info-active');
+    bsInfoDiv.hide();
+    bsInfoBtn.hide();
   },
   mapView: function () {
     $("#user-box").css('display', 'flex');
@@ -400,8 +439,11 @@ const reset = {
     subStats.innerHTML = '';
     subStats.classList.remove('show');
     mainStats.classList.add('show');
-    infoDiv.classList.remove('show');
+    /* infoDiv.classList.remove('show'); */
     infoBtn.classList.remove('show');
+    bsInfoDiv.hide();
+    bsInfoBtn.hide();
+    Stats.classList.remove('info-active');
     map.getView().setZoom(14);
   }
 }
@@ -550,7 +592,7 @@ function getBlokData(layerId, layerName) {
           });
 
           content += `
-          <table class="table table-sm">
+          <table class="table table-sm text-light">
               <thead>
                   <tr>${titleTable}</tr>
               </thead>
@@ -566,21 +608,23 @@ function getBlokData(layerId, layerName) {
         content += `</div>`;
         $('#detail-info').append(content);
 
-        const infoToggle = document.body.querySelector('#info-toggled');
+        /* const infoToggle = document.body.querySelector('#info-toggled');
         if (infoToggle) {
           infoToggle.addEventListener('click', event => {
             event.preventDefault();
             //document.body.classList.toggle('info-show');
             infoBtn.classList.add('show');
           });
-        }
+        } */
         
-        infoBtn.classList.toggle('show');
+        /* infoBtn.classList.toggle('show');
         infoBtn.addEventListener('click', (event) => {
           infoDiv.classList.add('show');
-        });
+        }); */
 
-        infoDiv.classList.add('show');
+        //infoDiv.classList.add('show');
+        bsInfoDiv.show();
+
 
       });
     });
@@ -923,8 +967,12 @@ map.on('rendercomplete', function(evt){
 window.addEventListener('DOMContentLoaded', event => {
   if (isMobile()) {
     document.querySelector("body").classList.add('mobile');
-    document.getElementById('filters').classList.remove('show');
-    document.getElementById('select-filters').classList.remove('show');
+    // document.getElementById('filters').classList.toggle('show');
+    // document.getElementById('select-filters').classList.toggle('show');
+    document.getElementById('filters').classList.toggle('show');
+    document.getElementById('map-filter-title').classList.toggle('show');
+    document.getElementById('select-filter').classList.toggle('show');
+    // document.getElementById('map-filter-toggle').click();
   }
 
   if (!localStorage.getItem('gp|user')) {
@@ -945,7 +993,8 @@ window.addEventListener('DOMContentLoaded', event => {
       displayName = nameFormatter(nameTxt);
     }
   }
-  document.querySelector('#filter-div').classList.toggle('show');
+  // document.querySelector('#map-filter-title').classList.toggle('show');
+  document.querySelector('#select-filter').classList.toggle('show');
   document.querySelector('#menu-toggle').classList.toggle('show');
 });
 

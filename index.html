@@ -56,16 +56,17 @@
         <small class="fw-light">Tahun 2021</small>
       </div>
 
-      <div id="stats">
+      <div id="stats" class="collapse show">
+        <button id="info-button" class="btn btn-sm btn-block rounded-circle collapse" data-bs-toggle="collapse" data-bs-target="#info"><i class="jt-info"></i></button>
         <div id="main-stats" class="collapse show fade"></div>
         <div id="sub-stats" class="collapse fade"></div>
       </div>
     </div>
 
-    <div id="filter-div" class="fade">
+    <div id="filter-div" class="fade show">
       <div id="map-filter" class="text-light">
-        <div><a id="filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#filters" role="button"
-            aria-controls="filters"><i class="jt-layers"></i> <span class="filter-title ms-1">Tampilan Peta</span></a>
+        <div><a id="map-filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#filters,#map-filter-title,#select-filter" role="button"
+            aria-controls="filters"><i class="jt-layers"></i> <span id="map-filter-title" class="filter-title collapse show ms-1">Tampilan Peta</span></a>
         </div>
         <div id="filters" class="collapse show">
           <div class="d-flex flex-column">
@@ -78,7 +79,7 @@
               <label class="form-check-label" for="checkRaster">Foto Udara</label>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse" data-bs-target="#select-filters" checked>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse" data-bs-target="#select-filter" checked>
               <label class="form-check-label" for="checkGroup">Afdeling,Blok<br>Jalan,dll..</label>
             </div>
             <div class="form-check form-switch">
@@ -89,8 +90,8 @@
         </div>
       </div>
 
-      <div id="select-filter" class="text-light">
-        <div><a id="filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#select-filters"
+      <div id="select-filter" class="collapse text-light">
+        <div><a id="select-filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#select-filters"
             role="button" aria-controls="filters"><i class="jt-layers"></i> <span class="filter-title ms-1">Pilih Objek</span></a></div>
         <div id="select-filters" class="collapse show">
           <div class="d-flex flex-column">
@@ -131,7 +132,7 @@
 
   <div hidden id="mouse-position"></div>
 
-  <button id="info-button" class="btn btn-sm btn-block rounded-circle fade"><i class="jt-info"></i></button>
+  <!-- <button id="info-button" class="btn btn-sm btn-block rounded-circle fade"><i class="jt-info"></i></button> -->
 
   <a id="menu-toggle" class="btn btn-primary fade" role="button">
     <img id="menu-logo" src="images/logo_white.svg" width="27px" />
