@@ -691,6 +691,21 @@ body.mobile #user-box {
   align-items: center;
 }
 
+
+/* custom bootstrap */
+.btn-check:focus+.btn, .btn:focus {
+  outline: 0;
+  box-shadow: 0 0 0 .09rem #00457227;
+}
+.collapsing{
+  transition: height .36s ease-out;
+}
+#info-button.collapsing{
+  height:unset;
+  opacity: 0;
+  transition: opacity .18s ease-out;
+}
+
 @media (min-width:320px)  {
 
 }
