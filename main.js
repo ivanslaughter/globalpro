@@ -619,6 +619,7 @@ function getBlokData(layerId, layerName) {
           });
 
           content += `
+          <div class="table-responsive-sm">
           <table class="table table-sm text-light mb-2">
               <thead>
                   <tr>${titleTable}</tr>
@@ -627,6 +628,7 @@ function getBlokData(layerId, layerName) {
                   <tr>${tableBody}</tr>
               </tbody>
           </table>
+          </div>
         `;
         } else {
           content += `<div class="mb-2">Belum ada data</div>`;
@@ -636,6 +638,10 @@ function getBlokData(layerId, layerName) {
         $('#detail-info').append(content);
 
         //infoDiv.classList.add('show');
+        let sidebarInfoGap = window.innerHeight - document.getElementById('sidebar').clientHeight - 17.28 - infoDiv.clientHeight;
+        if (sidebarInfoGap > 17.28){
+          infoDiv.classList.add('full-width');
+        }
         bsInfoDiv.show();
 
 
