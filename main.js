@@ -82,6 +82,8 @@ const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
 const infoDiv = document.body.querySelector('#info');
 const infoBtn = document.getElementById('info-button');
+const filterDiv = document.body.querySelector('#filter-div');
+const statsBoxesBtn = document.getElementById('stats-boxes-button');
 
 let bsStats = new Collapse(Stats, {
   toggle: false
@@ -92,12 +94,17 @@ let bsInfoDiv = new Collapse(infoDiv, {
 let bsInfoBtn = new Collapse(infoBtn, {
   toggle: false
 });
+let bsFilterDiv = new Collapse(filterDiv, {
+  toggle: false
+});
+
 infoDiv.addEventListener('shown.bs.collapse', function () {
   console.log('info collapse show');
   if (subStats.classList.contains('show') == true) {
     console.log('sub-stats on');
     Stats.classList.remove('info-active');
     bsInfoBtn.hide();
+    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
   }
 });
 infoDiv.addEventListener('hidden.bs.collapse', function () {
@@ -425,6 +432,7 @@ const reset = {
     /* infoDiv.classList.remove('show'); */
     infoBtn.classList.remove('show');
     Stats.classList.remove('info-active');
+    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
     bsInfoDiv.hide();
     bsInfoBtn.hide();
   },
@@ -443,6 +451,7 @@ const reset = {
     infoBtn.classList.remove('show');
     bsInfoDiv.hide();
     bsInfoBtn.hide();
+    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
     Stats.classList.remove('info-active');
     map.getView().setZoom(14);
   }
@@ -500,7 +509,7 @@ function setMapInfos(layerJson) {
           }
           if (!isMobile())
             content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
-          content += `<div class="d-flex flex-column mt-1">`;
+          content += `<div id="sub-stats-boxes" class="stats-boxes collapse show">`;
           arrCol.forEach(element_ => {
             if (element_ !== 'Block') {
               const el_label = element_.replace('_', ' ');
@@ -518,7 +527,7 @@ function setMapInfos(layerJson) {
             });
           });
 
-          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-4' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
+          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-2' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
           if (isMobile())
             content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
           content += '</div>';
@@ -541,6 +550,9 @@ function setMapInfos(layerJson) {
     mainStats.classList.remove('show');
     subStats.innerHTML = content;
     subStats.classList.add('show');
+    console.log(document.getElementById('sub-stats-boxes').classList.contains('show'));
+    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+
     const statsTitleTxt = document.querySelector('.stats-title-text');
     if (isMobile()) {
       if (statsTitleTxt.offsetWidth < statsTitleTxt.scrollWidth) {
@@ -569,7 +581,7 @@ function getBlokData(layerId, layerName) {
         let content = `<div class="col-sm">`;
         content += `<div class="d-flex align-items-center">
       <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>
-      <button id="add-data-blok" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
+      <button id="add-data-blok-${element.collection}" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="add-data-blok btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
       </div>`;
 
         if (data) {
@@ -592,7 +604,7 @@ function getBlokData(layerId, layerName) {
           });
 
           content += `
-          <table class="table table-sm text-light">
+          <table class="table table-sm text-light mb-2">
               <thead>
                   <tr>${titleTable}</tr>
               </thead>
@@ -607,20 +619,6 @@ function getBlokData(layerId, layerName) {
 
         content += `</div>`;
         $('#detail-info').append(content);
-
-        /* const infoToggle = document.body.querySelector('#info-toggled');
-        if (infoToggle) {
-          infoToggle.addEventListener('click', event => {
-            event.preventDefault();
-            //document.body.classList.toggle('info-show');
-            infoBtn.classList.add('show');
-          });
-        } */
-        
-        /* infoBtn.classList.toggle('show');
-        infoBtn.addEventListener('click', (event) => {
-          infoDiv.classList.add('show');
-        }); */
 
         //infoDiv.classList.add('show');
         bsInfoDiv.show();
@@ -666,7 +664,7 @@ function showModalBlok(layerId, layerName) {
     }
   }
 
-  $('#info').on('click', '#add-data-blok', function () {
+  $('#info').on('click', '.add-data-blok', function () {
     const coll = $(this).attr("data-coll");
     const fields = $(this).data("fields");
 
@@ -797,7 +795,8 @@ function selectMap(layerJson) {
         setMapInfos(layerJson);
       }
       else {
-        infoDiv.classList.add('show');
+        // infoDiv.classList.add('show');
+        bsInfoDiv.show();
         // $('#edit-geom').show();
       }
     } else {

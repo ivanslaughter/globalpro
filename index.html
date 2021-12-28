@@ -29,10 +29,14 @@
     <div id="map"></div>
 
     <div class="sidebar-title collapse">
-      <small id="company-name-2" class="fw-light"></small><br>
-      <select id="farm-select-2" class="form-select farm-select my-1" aria-label="Select Farm">
-      </select>
-      <small class="fw-light">Tahun 2021</small>
+      <small id="company-name-2" class="fw-light"></small>
+      <div class="farm-select-div">
+        <select id="farm-select-2" class="form-select farm-select" aria-label="Select Farm"></select>
+        <select id="farm-select-year-2" class="form-select farm-select farm-select-year" aria-label="Select Year">
+          <option value="2021">2021</option>
+        </select>
+      </div>
+      <!-- <small class="fw-light">Tahun 2021</small> -->
     </div>
 
     <div id="sidebar" class="text-light fade" aria-hidden="true">
@@ -51,19 +55,23 @@
       
       <div id="title">
         <small id="company-name-1" class="fw-light"></small><br>
-        <select id="farm-select-1" class="form-select farm-select my-1" aria-label="Select Farm">
+        <select id="farm-select-1" class="form-select farm-select" aria-label="Select Farm"></select>
+        <select id="farm-select-year-1" class="form-select farm-select farm-select-year" aria-label="Select Year">
+          <option value="2021">2021</option>
         </select>
-        <small class="fw-light">Tahun 2021</small>
+        <!-- <small class="fw-light">Tahun 2021</small> -->
       </div>
 
       <div id="stats" class="collapse show">
         <button id="info-button" class="btn btn-sm btn-block rounded-circle collapse" data-bs-toggle="collapse" data-bs-target="#info"><i class="jt-info"></i></button>
         <div id="main-stats" class="collapse show fade"></div>
         <div id="sub-stats" class="collapse fade"></div>
+        <button id="stats-boxes-button" class="btn btn-sm btn-block" data-bs-toggle="collapse"
+          data-bs-target=".stats-boxes"><i class="jt-chevron-thin-up"></i></button>
       </div>
     </div>
 
-    <div id="filter-div" class="fade show">
+    <div id="filter-div" class="fade">
       <div id="map-filter" class="text-light">
         <div><a id="map-filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#filters,#map-filter-title,#select-filter" role="button"
             aria-controls="filters"><i class="jt-layers"></i> <span id="map-filter-title" class="filter-title collapse show ms-1">Tampilan Peta</span></a>
