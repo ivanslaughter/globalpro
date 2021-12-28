@@ -199,8 +199,8 @@ layerRaster.forEach(element => {
   }));
 });
 
-const layers = [osmLayer];//.concat(tlRaster);
-// layers.push(wmsTree);
+const layers = [osmLayer].concat(tlRaster);
+layers.push(wmsTree);
 layers.push(wsmGroup);
 
 const view = new View({
