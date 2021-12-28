@@ -55,6 +55,7 @@ export default function showFarmStats(afdeling, block){
     });
     statsBoxes.addEventListener('shown.bs.collapse', function () {
       console.log('stats-boxes collapse show');
+      console.log(statsBoxesBtn.classList.contains('collapsed'));
       if (statsBoxes.classList.contains('show') == true) {
         console.log('stats-boxes on');
         statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
@@ -62,8 +63,9 @@ export default function showFarmStats(afdeling, block){
     });
     statsBoxes.addEventListener('hidden.bs.collapse', function () {
       console.log('stats-boxes collapse hide');
+      console.log(statsBoxesBtn.classList.contains('collapsed'));
       if (statsBoxes.classList.contains('show') == false) {
-        console.log('stats-boxes on');
+        console.log('stats-boxes off');
         statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-down"></i>';
       }
     });

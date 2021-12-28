@@ -104,7 +104,7 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
     console.log('sub-stats on');
     Stats.classList.remove('info-active');
     bsInfoBtn.hide();
-    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+    // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
   }
 });
 infoDiv.addEventListener('hidden.bs.collapse', function () {
@@ -199,8 +199,8 @@ layerRaster.forEach(element => {
   }));
 });
 
-const layers = [osmLayer].concat(tlRaster);
-layers.push(wmsTree);
+const layers = [osmLayer];//.concat(tlRaster);
+//layers.push(wmsTree);
 layers.push(wsmGroup);
 
 const view = new View({
@@ -375,7 +375,7 @@ function getKebunData() {
     });
 }
 
-$('#selectAfdeling').on('change', (event) => {
+/* $('#selectAfdeling').on('change', (event) => {
   selectedFilter = "afdeling";
   reset.selectFilter('selectAfdeling');
 });
@@ -398,6 +398,15 @@ $('#selectRiver').on('change', (event) => {
 $('#selectBridge').on('change', (event) => {
   selectedFilter = "jembatan";
   reset.selectFilter('selectBridge');
+}); */
+
+function selectFilterFunction(event) {
+  console.log('Checked radio with ID = ' + event.target.value);
+  selectedFilter = event.target.value;
+  reset.selectFilter(event.target.id);
+}
+document.querySelectorAll("input[name='selectFiltersRadios']").forEach((input) => {
+  input.addEventListener('change', selectFilterFunction);
 });
 
 const reset = {
@@ -408,7 +417,7 @@ const reset = {
       else
         this.selectView();
     }
-    const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver', 'selectBridge'];
+    /* const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver', 'selectBridge'];
     ids.forEach(element => {
       if (element !== id) {
         $(`#${element}`).prop('checked', false);
@@ -416,7 +425,7 @@ const reset = {
       } else {
         $(`#${element}`).attr("disabled", true);
       }
-    });
+    }); */
   },
   selectView: function () {
     $("#user-box").css('display', 'flex');
@@ -430,7 +439,7 @@ const reset = {
     subStats.classList.remove('show');
     mainStats.classList.add('show');
     /* infoDiv.classList.remove('show'); */
-    infoBtn.classList.remove('show');
+    // infoBtn.classList.remove('show');
     Stats.classList.remove('info-active');
     statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
     bsInfoDiv.hide();
@@ -448,7 +457,7 @@ const reset = {
     subStats.classList.remove('show');
     mainStats.classList.add('show');
     /* infoDiv.classList.remove('show'); */
-    infoBtn.classList.remove('show');
+    // infoBtn.classList.remove('show');
     bsInfoDiv.hide();
     bsInfoBtn.hide();
     statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
@@ -550,8 +559,14 @@ function setMapInfos(layerJson) {
     mainStats.classList.remove('show');
     subStats.innerHTML = content;
     subStats.classList.add('show');
-    console.log(document.getElementById('sub-stats-boxes').classList.contains('show'));
+
     statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+
+    if (document.getElementById('map-filter-toggle').classList.contains('collapsed') == false) {
+      console.log('filter-div on');
+      document.getElementById('map-filter-toggle').click();
+    }
+
 
     const statsTitleTxt = document.querySelector('.stats-title-text');
     if (isMobile()) {
@@ -971,6 +986,7 @@ window.addEventListener('DOMContentLoaded', event => {
     document.getElementById('filters').classList.toggle('show');
     document.getElementById('map-filter-title').classList.toggle('show');
     document.getElementById('select-filter').classList.toggle('show');
+    document.getElementById('map-filter-toggle').classList.toggle('collapsed');
     // document.getElementById('map-filter-toggle').click();
   }
 
