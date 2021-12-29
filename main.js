@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/style.css';
-import isMobile from './mobile.js';
+import isMobile from './mobile';
+import WebFont from 'webfontloader';
 import { Map, View, Overlay } from 'ol';
 import { Draw, Modify, Select, Snap } from 'ol/interaction';
 import MousePosition from 'ol/control/MousePosition';
@@ -16,13 +17,13 @@ import OSM from 'ol/source/OSM';
 import { createStringXY } from 'ol/coordinate';
 import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } from 'ol/control';
 import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
-import { Modal, Offcanvas } from 'bootstrap';
+import { Modal, Collapse, Tooltip, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
 import { firestore, auth } from './firebase';
 import { Timestamp } from 'firebase/firestore';
 import { showAlert, startLoadingButton, stopLoadingButton } from './animated';
-import WebFont from 'webfontloader';
 import nameFormatter from './name-formatter';
+import showFarmStats from './sidebar';
 
 //useGeographic();
 numeral.register('locale', 'id', {
@@ -57,6 +58,7 @@ let selectedSource = null;
 let selectedLayer = null;
 let selectedFilter = "blok";
 let prevSelected = null;
+let mapFullyLoaded = false;
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
@@ -75,10 +77,53 @@ let layerGroup = kebuns ? kebuns[selected_kebun].geoserver.layer_group : '';
 let layerTree = kebuns ? kebuns[selected_kebun].geoserver.layer_tree : '';
 let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
 
+const Stats = document.getElementById('stats');
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
 const infoDiv = document.body.querySelector('#info');
-const infoBtn = $('#info-button').hide();
+const infoBtn = document.getElementById('info-button');
+const filterDiv = document.body.querySelector('#filter-div');
+const statsBoxesBtn = document.getElementById('stats-boxes-button');
+
+let bsStats = new Collapse(Stats, {
+  toggle: false
+});
+let bsInfoDiv = new Collapse(infoDiv, {
+  toggle: false
+});
+let bsInfoBtn = new Collapse(infoBtn, {
+  toggle: false
+});
+let bsFilterDiv = new Collapse(filterDiv, {
+  toggle: false
+});
+
+infoDiv.addEventListener('shown.bs.collapse', function () {
+  console.log('info collapse show');
+  if (subStats.classList.contains('show') == true) {
+    console.log('sub-stats on');
+    Stats.classList.remove('info-active');
+    bsInfoBtn.hide();
+    // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+  }
+});
+infoDiv.addEventListener('hidden.bs.collapse', function () {
+  console.log('info collapse hide');
+  if (subStats.classList.contains('show') == true){
+    console.log('sub-stats on');
+    Stats.classList.add('info-active');
+    bsInfoBtn.show();
+  }
+});
+
+/* infoBtn.addEventListener('show.bs.collapse', function () {
+  console.log('btn info collapse hide');
+  Stats.classList.remove('info-active');
+});
+infoBtn.addEventListener('hide.bs.collapse', function () {
+  console.log('btn info collapse show');
+  Stats.classList.add('info-active');
+}); */
 
 const mapCenter = fromLonLat([98.1969, 4.2667]);
 
@@ -154,8 +199,8 @@ const tlRaster = [];
 //   }));
 // });
 
-const layers = [osmLayer].concat(tlRaster);
-layers.push(wmsTree);
+const layers = [osmLayer];//.concat(tlRaster);
+//layers.push(wmsTree);
 layers.push(wsmGroup);
 
 const view = new View({
@@ -199,9 +244,13 @@ map.on('singleclick', function (evt) {
       .then((json) => {
         const layerJson = JSON.parse(json);
         if (layerJson.features.length !== 0) {
-          $("#sidebar").addClass("select-active");
-          $(".logged-on").css('display', 'none');
-          selectMap(layerJson);
+          if (mapFullyLoaded){
+            $("#sidebar").addClass("select-active");
+            $("#user-box").css('display', 'none');
+            selectMap(layerJson);
+            mapFullyLoaded = false;
+            // console.log('loaded -> ' + mapFullyLoaded);
+          }
         }
       });
   }
@@ -242,6 +291,7 @@ const checkRaster = document.getElementById('checkRaster');
 const checkGroup = document.getElementById('checkGroup');
 const checkTree = document.getElementById('checkTree');
 
+//showFilter();
 checkMap.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
     osmLayer.setVisible(true);
@@ -282,25 +332,31 @@ checkTree.addEventListener('change', (event) => {
   //gpDashboardClose.click();
 });
 
+
 //EDIT SEPRI
 
 function getKebunData() {
+  let afdeling = 0;
   const afdelingUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + `:${layerAfdeling}&outputFormat=application%2Fjson&srsname=EPSG:32647`;
   fetch(afdelingUrl)
     .then((response) => response.text())
     .then((json) => {
       // console.log(JSON.parse(json));
+      //afdelingJson.push(JSON.parse(json).features);
       let afdelingJson = JSON.parse(json).features;
-      document.getElementById('stats-afdeling').innerHTML = afdelingJson.length;
+      afdeling = afdelingJson.length;
+      /* document.getElementById('stats-afdeling').innerHTML = afdelingJson.length; */
     });
 
   const blockUrl = gsHost + '/geoserver/' + workSpace + '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' + workSpace + `:${layerBlock}&outputFormat=application%2Fjson&srsname=EPSG:32647`;
   fetch(blockUrl)
     .then((response) => response.text())
     .then((json) => {
-      // console.log(JSON.parse(json));
+      //console.log(JSON.parse(json).features);
+      // blocksJson.push(JSON.parse(json).features);
       let blocksJson = JSON.parse(json).features;
-      if (blocksJson.length > 0) {
+      showFarmStats(afdeling, blocksJson);
+      /* if (blocksJson.length > 0) {
         let sa = 0;
         let sb = 0;
         let st = 0;
@@ -315,11 +371,11 @@ function getKebunData() {
         document.getElementById('stats-block').innerHTML = sb;
         document.getElementById('stats-tree').innerHTML = numeral(st).format(',0');
         document.getElementById('stats-density').innerHTML = numeral((sd / sb)).format('0.');
-      }
+      } */
     });
 }
 
-$('#selectAfdeling').on('change', (event) => {
+/* $('#selectAfdeling').on('change', (event) => {
   selectedFilter = "afdeling";
   reset.selectFilter('selectAfdeling');
 });
@@ -342,6 +398,15 @@ $('#selectRiver').on('change', (event) => {
 $('#selectBridge').on('change', (event) => {
   selectedFilter = "jembatan";
   reset.selectFilter('selectBridge');
+}); */
+
+function selectFilterFunction(event) {
+  console.log('Checked radio with ID = ' + event.target.value);
+  selectedFilter = event.target.value;
+  reset.selectFilter(event.target.id);
+}
+document.querySelectorAll("input[name='selectFiltersRadios']").forEach((input) => {
+  input.addEventListener('change', selectFilterFunction);
 });
 
 const reset = {
@@ -352,7 +417,7 @@ const reset = {
       else
         this.selectView();
     }
-    const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver', 'selectBridge'];
+    /* const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver', 'selectBridge'];
     ids.forEach(element => {
       if (element !== id) {
         $(`#${element}`).prop('checked', false);
@@ -360,10 +425,10 @@ const reset = {
       } else {
         $(`#${element}`).attr("disabled", true);
       }
-    });
+    }); */
   },
   selectView: function () {
-    $(".logged-on").css('display', 'flex');
+    $("#user-box").css('display', 'flex');
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
     map.removeLayer(selectedLayer);
@@ -373,11 +438,15 @@ const reset = {
     subStats.innerHTML = '';
     subStats.classList.remove('show');
     mainStats.classList.add('show');
-    infoDiv.classList.remove('show');
-    infoBtn.hide();
+    /* infoDiv.classList.remove('show'); */
+    // infoBtn.classList.remove('show');
+    Stats.classList.remove('info-active');
+    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+    bsInfoDiv.hide();
+    bsInfoBtn.hide();
   },
   mapView: function () {
-    $(".logged-on").css('display', 'flex');
+    $("#user-box").css('display', 'flex');
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
     map.removeLayer(selectedLayer);
@@ -387,8 +456,12 @@ const reset = {
     subStats.innerHTML = '';
     subStats.classList.remove('show');
     mainStats.classList.add('show');
-    infoDiv.classList.remove('show');
-    infoBtn.hide();
+    /* infoDiv.classList.remove('show'); */
+    // infoBtn.classList.remove('show');
+    bsInfoDiv.hide();
+    bsInfoBtn.hide();
+    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+    Stats.classList.remove('info-active');
     map.getView().setZoom(14);
   }
 }
@@ -435,19 +508,26 @@ function setMapInfos(layerJson) {
       let featureNames = element.id.split('.')[0].split('_');
       featureNames.forEach(title => {
         if (selectedFilter.includes(title.toLowerCase())) {
-          content += `<div class="d-grid gap-2 mb-2 ${!isMobile() ? 'mt-3' : ''}"><div class="stats-title">Info <div class="stats-title-text">${title}</div></div>`;
+          // console.log('title->' + title);
+          // console.log('arrCol' + arrCol);
+          content += `<div class="d-grid gap-2 mb-2 ${!isMobile() ? 'mt-2' : ''}">`;
+          if(title == 'Blok'){
+            content += `<div class="stats-title">Blok <div class="stats-title-text">${element.properties['Block']}</div></div>`;
+          } else {
+            content += `<div class="stats-title">Info <div class="stats-title-text">${title}</div></div>`;
+          }
           if (!isMobile())
-            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2 lh-1"><i class="jt-chevron-left"></i> Back</button></div>`;
-          content += `<div class="d-flex flex-column mt-1">`;
+            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
+          content += `<div id="sub-stats-boxes" class="stats-boxes collapse show">`;
           arrCol.forEach(element_ => {
-            // if (element_ !== 'Id') {
+            if (element_ !== 'Block') {
               const el_label = element_.replace('_', ' ');
               content += `
               <div id="${element_}" class="stats-box">
               <div class="stats-label">${el_label[0].toUpperCase() + el_label.slice(1)}</div>
-              <div id="stats-density" class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
+              <div class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
             </div>`;
-            // }
+            }
 
             let fieldNames = element_.split('_');
             fieldNames.forEach(title => {
@@ -456,9 +536,9 @@ function setMapInfos(layerJson) {
             });
           });
 
-          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm col mt-1 ${!isMobile() ? 'mb-4' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
+          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-2' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
           if (isMobile())
-            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2 lh-1"><i class="jt-chevron-left"></i> Back</button></div>`;
+            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
@@ -479,6 +559,15 @@ function setMapInfos(layerJson) {
     mainStats.classList.remove('show');
     subStats.innerHTML = content;
     subStats.classList.add('show');
+
+    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+
+    if (document.getElementById('map-filter-toggle').classList.contains('collapsed') == false) {
+      console.log('filter-div on');
+      document.getElementById('map-filter-toggle').click();
+    }
+
+
     const statsTitleTxt = document.querySelector('.stats-title-text');
     if (isMobile()) {
       if (statsTitleTxt.offsetWidth < statsTitleTxt.scrollWidth) {
@@ -499,6 +588,7 @@ function setMapInfos(layerJson) {
 
 function getBlokData(layerId, layerName) {
   $('#detail-info').html('');
+  document.body.classList.toggle('info-show');
 
   firestore.getBlokColls().then(function (collections) {
     collections.forEach(element => {
@@ -506,7 +596,7 @@ function getBlokData(layerId, layerName) {
         let content = `<div class="col-sm">`;
         content += `<div class="d-flex align-items-center">
       <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>
-      <button id="add-data-blok" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
+      <button id="add-data-blok-${element.collection}" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="add-data-blok btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
       </div>`;
 
         if (data) {
@@ -529,7 +619,8 @@ function getBlokData(layerId, layerName) {
           });
 
           content += `
-          <table class="table table-sm">
+          <div class="table-responsive-sm">
+          <table class="table table-sm text-light mb-2">
               <thead>
                   <tr>${titleTable}</tr>
               </thead>
@@ -537,6 +628,7 @@ function getBlokData(layerId, layerName) {
                   <tr>${tableBody}</tr>
               </tbody>
           </table>
+          </div>
         `;
         } else {
           content += `<div class="mb-2">Belum ada data</div>`;
@@ -545,20 +637,13 @@ function getBlokData(layerId, layerName) {
         content += `</div>`;
         $('#detail-info').append(content);
 
-        const infoToggle = document.body.querySelector('#info-toggled');
-        if (infoToggle) {
-          infoToggle.addEventListener('click', event => {
-            event.preventDefault();
-            document.body.classList.toggle('info-toggled');
-          });
+        //infoDiv.classList.add('show');
+        let sidebarInfoGap = window.innerHeight - document.getElementById('sidebar').clientHeight - 17.28 - infoDiv.clientHeight;
+        if (sidebarInfoGap > 17.28){
+          infoDiv.classList.add('full-width');
         }
-        
-        infoBtn.show();
-        infoBtn.on('click', (event) => {
-          infoDiv.classList.add('show');
-        });
+        bsInfoDiv.show();
 
-        infoDiv.classList.add('show');
 
       });
     });
@@ -600,7 +685,7 @@ function showModalBlok(layerId, layerName) {
     }
   }
 
-  $('#info').on('click', '#add-data-blok', function () {
+  $('#info').on('click', '.add-data-blok', function () {
     const coll = $(this).attr("data-coll");
     const fields = $(this).data("fields");
 
@@ -731,7 +816,8 @@ function selectMap(layerJson) {
         setMapInfos(layerJson);
       }
       else {
-        infoDiv.classList.add('show');
+        // infoDiv.classList.add('show');
+        bsInfoDiv.show();
         // $('#edit-geom').show();
       }
     } else {
@@ -893,11 +979,21 @@ onLogin.addEventListener('click', event => {
   auth.userSignIn(email, password);
 })
 
+map.on('rendercomplete', function(evt){
+  mapFullyLoaded = true;
+  // console.log('loaded -> ' + mapFullyLoaded);
+})
+
 window.addEventListener('DOMContentLoaded', event => {
   if (isMobile()) {
     document.querySelector("body").classList.add('mobile');
-    document.getElementById('filters').classList.remove('show');
-    document.getElementById('select-filters').classList.remove('show');
+    // document.getElementById('filters').classList.toggle('show');
+    // document.getElementById('select-filters').classList.toggle('show');
+    document.getElementById('filters').classList.toggle('show');
+    document.getElementById('map-filter-title').classList.toggle('show');
+    document.getElementById('select-filter').classList.toggle('show');
+    document.getElementById('map-filter-toggle').classList.toggle('collapsed');
+    // document.getElementById('map-filter-toggle').click();
   }
 
   if (!localStorage.getItem('gp|user')) {
@@ -907,9 +1003,6 @@ window.addEventListener('DOMContentLoaded', event => {
     document.querySelector('.logged-on').classList.toggle('show');
     const nameTxt = user.nama;
     let displayName = nameTxt;
-    if (isMobile()) {
-      displayName = nameFormatter(nameTxt);
-    }
     $("#user-name").text(displayName);
     $("#company-name-1").text(company.company_name);
     $("#company-name-2").text(company.company_name);
@@ -917,7 +1010,13 @@ window.addEventListener('DOMContentLoaded', event => {
     $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
     farmSelectOptions();
     getKebunData();
+    if (isMobile()) {
+      displayName = nameFormatter(nameTxt);
+    }
   }
+  // document.querySelector('#map-filter-title').classList.toggle('show');
+  document.querySelector('#select-filter').classList.toggle('show');
+  document.querySelector('#menu-toggle').classList.toggle('show');
 });
 
 // window.onresize = function () { location.reload(); };
