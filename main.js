@@ -140,19 +140,19 @@ const wsmGroup = new ImageLayer({
 });
 
 const tlRaster = [];
-layerRaster.forEach(element => {
-  const sourceRaster = new TileJSON({
-    url: element,
-    tileSize: 256,
-    crossOrigin: 'anonymous'
-  });
+// layerRaster.forEach(element => {
+//   const sourceRaster = new TileJSON({
+//     url: element,
+//     tileSize: 256,
+//     crossOrigin: 'anonymous'
+//   });
 
-  tlRaster.push(new TileLayer({
-    //extent: [408380,467955,414599,475177],
-    name: 'layer-raster',
-    source: sourceRaster,
-  }));
-});
+//   tlRaster.push(new TileLayer({
+//     //extent: [408380,467955,414599,475177],
+//     name: 'layer-raster',
+//     source: sourceRaster,
+//   }));
+// });
 
 const layers = [osmLayer].concat(tlRaster);
 layers.push(wmsTree);
