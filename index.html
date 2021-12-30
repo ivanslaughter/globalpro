@@ -105,7 +105,7 @@
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse"
                 data-bs-target="#select-filter" checked>
-              <label class="form-check-label" for="checkGroup">Jalan, dll..</label>
+              <label class="form-check-label" for="checkGroup">Jalan dll..</label>
             </div>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="checkTree">
@@ -246,47 +246,46 @@
     </div>
   </div>
 
-  <div class="modal fade" id="modal-admin" tabindex="-1" aria-labelledby="login" aria-hidden="true">
+  <div class="modal fade" id="modal-admin" tabindex="-1" aria-labelledby="user-admin" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
       <div class="modal-content">
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 
-        <div class="brand mt-2 mb-4">
-          <button type="button" class="btn btn-primary-outline" data-bs-dismiss="modal"><i
-              class="jt-arrow-left"></i></button>
-          <img class="brand-logo" src="images/logo_white.svg" width="42.3px">
-          <span class="brand-text ms-1">Global<span class="fw-light">Pro</span></span>
-        </div>
-
-        <div class="brand">
-          <span id="admin-name" class="brand-text"></span>
-        </div>
-
-        <div class="brand">
-          <span id="admin-company" class="brand-text"></span>
+        <div id="admin-header" class="text-light">
+          <div class="text-light">
+            <small>Administrator</small>
+            <h5 id="admin-name"></h5>
+          </div>
+          <div class="text-light">
+            <small>Perusahaan</small>
+            <h5 id="admin-company"></h5>
+          </div>
         </div>
 
         <div id="detail-info" class="row text-light lh-1 mt-4">
-          <div class="col-sm-4">
-            <form id="form-admin">
-              <input type="text" class="form-control mt-2" id="admin-nama" placeholder="Nama">
-              <input type="email" class="form-control mt-2" id="admin-email" placeholder="Email">
-              <input type="text" class="form-control mt-2" id="admin-password" placeholder="Password">
-              <select id="admin-jabatan" class="mt-2 form-select">
+          <div class="col-sm-5">
+            <h4>Tambah User</h4>
+            <form id="form-admin" class="mb-4">
+              <input type="text" class="form-control form-control-sm mb-2" id="admin-nama" placeholder="Nama">
+              <input type="email" class="form-control form-control-sm mb-2" id="admin-email" placeholder="Email">
+              <input type="text" class="form-control form-control-sm mb-2" id="admin-password" placeholder="Password">
+              <select id="admin-jabatan" class="form-select form-select-sm mb-3">
                 <option value="">Pilih jabatan</option>
                 <option value="Manager">Manager</option>
                 <option value="Asisten Kebun">Asisten Kebun</option>
               </select>
 
-              <div id="alert-admin"></div>
+              <div id="alert-admin my-2"></div>
 
-              <button id="addUser" type="button" class="btn btn-primary btn-block mt-3">Simpan</button>
+              <button id="addUser" type="button" class="btn btn-primary mb-3">Simpan</button>
             </form>
 
           </div>
 
-          <div class="col-lg-6">
-            <div class="table-responsive mt-4">
-              <table id="admin-table" class="table">
+          <div class="col-lg-7">
+            <h4>Daftar User</h4>
+            <div class="table-responsive">
+              <table id="admin-table" class="table table-sm text-light">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
