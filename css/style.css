@@ -150,14 +150,17 @@ html, body {
 }
 .ol-zoom {
     top: 0.54em;
-    left: 15.48em;
+    left: unset;
+    right: 2.88rem;
     display: flex;
 }
 .ol-zoom .ol-zoom-in {
   border-radius: 0.36rem 0 0 0.36rem;
+  font-size: 1.5rem;
 }
 .ol-zoom .ol-zoom-out {
   border-radius: 0 0.36rem 0.36rem 0;
+  font-size: 1.5rem;
 }
 .ol-overviewmap {
   display: none;
@@ -203,12 +206,13 @@ html, body {
 
 #filter-div {
   position: absolute;
-  top: 0.54rem;
+  top: 3.24rem;
   right: 0.54rem;
-  padding: 0.45rem 0.72rem;
+  padding: var(--gp-padding);
   border-radius: 0.36rem;
   background: #063b63de;
   box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846;
+  line-height: 1;
 }
 
 #map-filter-toggle, #select-filter-toggle {
@@ -216,6 +220,11 @@ html, body {
   text-decoration: none;
   /* margin: 0; */
 }
+#map-filter-toggle i,
+#select-filter-toggle i {
+  margin-top: 1.8px;
+}
+
 #map-filter {
   position: relative;
   /* top: 0.54em;
@@ -224,10 +233,6 @@ html, body {
   border-radius: 0.45rem;
   background: #063b63c0;
   box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846; */
-}
-#map-filter .form-switch .form-check-input {
-  width: 1.8em;
-  margin-left: -2.16em;
 }
 #map-filter .form-switch .form-check-label {
   font-size: 0.81rem;
@@ -251,11 +256,7 @@ html, body {
   height: 0.9px;
   background: radial-gradient(circle at center, #ffffff27, transparent);
 }
-#select-filter .form-switch .form-check-input {
-  width: 1.8em;
-  margin-left: -2.16em;
-}
-#select-filter .form-switch .form-check-label {
+#select-filter .form-check .form-check-label {
   font-size: 0.81rem;
   margin-right: 0.36em;
 }
@@ -370,7 +371,7 @@ html, body {
   border-radius: 0.45rem;
   border: 0.27px solid #02284600;
   box-shadow: inset 0.27px 0.45px #022846,  inset -0.27px -0.45px #022846;
-  padding: 0.9rem 0;
+  padding: 0.54rem 0;
 }
 
 #stats {
@@ -412,7 +413,7 @@ html, body {
   align-content: center;
   justify-content: center;
   align-items: center;
-  min-height: 5.4rem;
+  min-height: 4.5rem;
   line-height: 1;
   text-align: center;
   background-color: #efefef09;
@@ -543,6 +544,101 @@ tbody, td, tfoot, th, thead, tr {
   margin-left: 1.08px;
 }
 
+/* Login */
+
+#user-box {
+  display: flex;
+  position: absolute;
+  top: 0.54rem; right: 0.54rem;
+  margin: 0 0 var(--gp-padding) 0;
+  background-color: #004572;
+  padding: var(--gp-padding);
+  border-radius: var(--gp-border-radius);
+  justify-content: center;
+  color: #ffffff;
+  z-index: 1;
+}
+#user-toggle {
+  display: flex;
+  text-decoration: none;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+#user-toggle i {
+  margin-top: 1.8px;
+}
+#user-menu {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0.45rem 0 0;
+}
+#user-name {
+  padding: 0 0.45rem 0.27rem 0.45rem;
+}
+#user-menu button {
+  border-top: 0.54px solid #ffffff18;
+  padding: 0.27rem 0;
+}
+
+#login:focus, #logout:focus {
+  box-shadow: 0 0 0 0.1rem rgb(7 59 99 / 54%);
+}
+#user-box .logged-on.show, #user-box .logged-off.show {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+}
+.logged-user {
+  display: flex;
+  flex-direction: unset;
+  align-items: center;
+}
+
+#authentication {
+  background-image: url('/images/countour.svg'), radial-gradient(100% 50% at center, #004572, #022846);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#authentication .modal-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  background-image: radial-gradient(circle at center, #004572, transparent);
+}
+#authentication .btn-close{
+  position: absolute;
+  top: 0.54rem; right: 0.54rem;
+  color: #ffffffca;
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+#authentication #login-form{
+  max-width: 15.3rem;
+}
+#authentication #login-form .form-control:focus,
+#authentication .login-action button:focus
+{
+  box-shadow: 0 0 0 0.25rem rgb(7 59 99 / 50%);
+}
+#authentication .brand{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#authentication .brand-text {
+    font-size: 2rem;
+    line-height: 1;
+}
+#authentication .login-action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 
 /* Mobile Style */
 
@@ -594,8 +690,8 @@ body.mobile button#back-stats {
 }
 body.mobile .ol-zoom {
   top: 4.5rem;
-  left: 5.58rem;
-  display: flex;
+  left: unset;
+  right: 2.88rem;
 }
 body.mobile .ol-overviewmap {
   display: none;
@@ -631,15 +727,15 @@ body.mobile .sidebar-title {
 
 body.mobile #filter-div {
   position: absolute;
-  top: 4.5rem;
+  top: 6.93rem;
   right: 0.54rem;
-  padding: 0.36rem 0.54rem;
+  line-height: 1em;
 }
 body.mobile #map-filter {
-  font-size: 0.8rem;
+  font-size: 0.81rem;
 }
 body.mobile #select-filter {
-  font-size: 0.8rem;
+  font-size: 0.81rem;
 }
 body.mobile #info {
   width: calc(100% - 6.12rem);
@@ -667,21 +763,39 @@ body.mobile #sub-stats #edit-feature{
   justify-content: center;
 }
 
-body.mobile #sidebar .logged-on,
-body.mobile #sidebar .logged-off,
-body.mobile #sidebar #login,
-body.mobile #sidebar #logout {
-  font-size: 0.72rem;
+body.mobile .farm-select {
+  font-size: 0.99rem;
 }
-body.mobile #sidebar .logged-user {
+body.mobile .farm-select-year {
+  font-size: 0.81rem;
+}
+
+body.mobile #farm-select-2 {
+  flex-shrink: 2;
+}
+body.mobile #farm-select-year-2 {
+  flex-shrink: 5;
+}
+
+body.mobile #user-box {
+  top: 4.5rem;
+  margin: 0 0 var(--gp-padding-mobile) 0;
+  border-radius: var(--gp-border-radius-mobile);
+}
+
+body.mobile #user-box .logged-on,
+body.mobile #user-box .logged-off,
+body.mobile #user-box #login,
+body.mobile #user-box #logout,
+body.mobile #user-box #user-admin {
+  font-size: 0.81rem;
+}
+body.mobile #user-box .logged-user {
   flex-direction: column;
-  margin-bottom: unset;
-  text-align: center;
   line-height: 1;
-  margin-bottom: 0.27rem;
 }
-body.mobile #sidebar .logged-on.show,
-body.mobile #sidebar .logged-off.show {
+body.mobile #user-box .logged-on.show,
+body.mobile #user-box .logged-off.show {
   max-width: 3.33rem;
 }
 
@@ -692,78 +806,6 @@ body.mobile #info-button{
 }
 .jt-info {
   color: white;
-}
-
-body.mobile #user-box {
-  margin: var(--gp-padding-mobile) 0 0;
-  padding: var(--gp-padding-mobile);
-  border-radius: var(--gp-border-radius-mobile);
-}
-
-/* Login */
-
-#user-box {
-  display: flex;
-  margin: var(--gp-padding) 0 0;
-  background-color: #004572;
-  padding: var(--gp-padding);
-  border-radius: var(--gp-border-radius);
-  justify-content: center;
-}
-
-#login:focus, #logout:focus {
-  box-shadow: 0 0 0 0.1rem rgb(7 59 99 / 54%);
-}
-#sidebar .logged-on.show, #sidebar .logged-off.show {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.logged-user {
-  display: flex;
-  flex-direction: unset;
-  align-items: center;
-}
-#authentication {
-  background-image: url('/images/countour.svg'), radial-gradient(100% 50% at center, #004572, #022846);
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-#authentication .modal-content{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: transparent;
-  background-image: radial-gradient(circle at center, #004572, transparent);
-}
-#authentication .btn-close{
-  position: absolute;
-  top: 0.54rem; right: 0.54rem;
-  color: #ffffffca;
-  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
-}
-#authentication #login-form{
-  max-width: 15.3rem;
-}
-#authentication #login-form .form-control:focus,
-#authentication .login-action button:focus
-{
-  box-shadow: 0 0 0 0.25rem rgb(7 59 99 / 50%);
-}
-#authentication .brand{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-#authentication .brand-text {
-    font-size: 2rem;
-    line-height: 1;
-}
-#authentication .login-action {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
 }
 
 

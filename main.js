@@ -246,7 +246,6 @@ map.on('singleclick', function (evt) {
         if (layerJson.features.length !== 0) {
           if (mapFullyLoaded){
             $("#sidebar").addClass("select-active");
-            $("#user-box").css('display', 'none');
             selectMap(layerJson);
             mapFullyLoaded = false;
             // console.log('loaded -> ' + mapFullyLoaded);
@@ -638,6 +637,7 @@ function getBlokData(layerId, layerName) {
         $('#detail-info').append(content);
 
         //infoDiv.classList.add('show');
+        infoDiv.classList.remove('full-width');
         let sidebarInfoGap = window.innerHeight - document.getElementById('sidebar').clientHeight - 17.28 - infoDiv.clientHeight;
         if (sidebarInfoGap > 17.28){
           infoDiv.classList.add('full-width');
@@ -962,8 +962,8 @@ const onLogin = document.getElementById('onLogin');
 
 userLogin.addEventListener('click', event => {
   localStorage.setItem('gp|logged-on', 'true');
-  document.querySelector('.logged-off').classList.toggle('show');
-  document.querySelector('.logged-on').classList.toggle('show');
+  document.querySelector('.logged-off').classList.remove('show');
+  document.querySelector('.logged-on').classList.add('show');
 });
 
 if (localStorage.getItem('gp|logged-on') === 'true') {
@@ -999,10 +999,13 @@ window.addEventListener('DOMContentLoaded', event => {
   if (!localStorage.getItem('gp|user')) {
     modalLogin.show();
   } else {
-    document.querySelector('.logged-off').classList.toggle('show');
-    document.querySelector('.logged-on').classList.toggle('show');
+    document.querySelector('.logged-off').classList.remove('show');
+    document.querySelector('.logged-on').classList.add('show');
     const nameTxt = user.nama;
     let displayName = nameTxt;
+    if (isMobile()) {
+      displayName = nameFormatter(nameTxt);
+    }
     $("#user-name").text(displayName);
     $("#company-name-1").text(company.company_name);
     $("#company-name-2").text(company.company_name);
@@ -1010,9 +1013,6 @@ window.addEventListener('DOMContentLoaded', event => {
     $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
     farmSelectOptions();
     getKebunData();
-    if (isMobile()) {
-      displayName = nameFormatter(nameTxt);
-    }
   }
   // document.querySelector('#map-filter-title').classList.toggle('show');
   document.querySelector('#select-filter').classList.toggle('show');

@@ -39,20 +39,25 @@
       <!-- <small class="fw-light">Tahun 2021</small> -->
     </div>
 
+    <div id="user-box" class="collapse show">
+      <div class="logged-off collapse">
+        <button id="login" class="btn btn-outline-warning btn-sm btn-block lh-1" data-bs-toggle="modal"
+          data-bs-target="#authentication"><i class="jt-user-male"></i>Login</button>
+      </div>
+      <div class="logged-on collapse">
+        <a id="user-toggle" class="text-light" data-bs-toggle="collapse"
+          data-bs-target="#user-menu" role="button" aria-controls="filters"><i class="jt-user-male"></i></a>
+        <div id="user-menu" class="collapse">
+          <div id="user-name" class="logged-user">Username</div>
+          <button id="user-admin" class="btn btn-sm btn-block lh-1 text-light w-100">Admin</button>
+          <button id="logout" class="btn btn-sm btn-block lh-1 text-light w-100">Logout</button>
+        </div>
+        
+      </div>
+    </div>
+
     <div id="sidebar" class="text-light fade" aria-hidden="true">
 
-      <div id="user-box" class="gap-2">
-        <div class="logged-off collapse show">
-          <button id="login" class="btn btn-outline-warning btn-sm btn-block lh-1" data-bs-toggle="modal"
-            data-bs-target="#authentication"><i class="jt-user-male"></i>Login</button>
-        </div>
-        <div class="logged-on collapse">
-          <i class="jt-user-male"></i>
-          <div id="user-name" class="logged-user">Username</div>
-          <button id="logout" class="btn btn-outline-warning btn-sm btn-block lh-1">Logout</button>
-        </div>
-      </div>
-      
       <div id="title">
         <small id="company-name-1" class="fw-light"></small><br>
         <select id="farm-select-1" class="form-select farm-select" aria-label="Select Farm"></select>
@@ -88,7 +93,7 @@
             </div>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse" data-bs-target="#select-filter" checked>
-              <label class="form-check-label" for="checkGroup">Afdeling,Blok<br>Jalan,dll..</label>
+              <label class="form-check-label" for="checkGroup">Afdeling, Blok,<br> Jalan, dll..</label>
             </div>
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" id="checkTree" checked>
