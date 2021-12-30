@@ -143,6 +143,7 @@ function getUserData(email) {
                 stopLoadingButton('onLogin');
                 localStorage.setItem('gp|kebuns', JSON.stringify(kebuns));
                 localStorage.setItem('gp|selected_kebun', 0);
+                localStorage.setItem('gp|selected_tahun', 0);
                 location.reload();
             })
         });

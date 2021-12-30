@@ -32,9 +32,7 @@
       <small id="company-name-2" class="fw-light"></small>
       <div class="farm-select-div">
         <select id="farm-select-2" class="form-select farm-select" aria-label="Select Farm"></select>
-        <select id="farm-select-year-2" class="form-select farm-select farm-select-year" aria-label="Select Year">
-          <option value="2021">2021</option>
-        </select>
+        <select id="farm-select-year-2" class="form-select farm-select farm-select-year" aria-label="Select Year"></select>
       </div>
       <!-- <small class="fw-light">Tahun 2021</small> -->
     </div>
@@ -56,9 +54,7 @@
       <div id="title">
         <small id="company-name-1" class="fw-light"></small><br>
         <select id="farm-select-1" class="form-select farm-select" aria-label="Select Farm"></select>
-        <select id="farm-select-year-1" class="form-select farm-select farm-select-year" aria-label="Select Year">
-          <option value="2021">2021</option>
-        </select>
+        <select id="farm-select-year-1" class="form-select farm-select farm-select-year" aria-label="Select Year"></select>
         <!-- <small class="fw-light">Tahun 2021</small> -->
       </div>
 
@@ -87,11 +83,19 @@
               <label class="form-check-label" for="checkRaster">Foto Udara</label>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse" data-bs-target="#select-filter" checked>
-              <label class="form-check-label" for="checkGroup">Afdeling,Blok<br>Jalan,dll..</label>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkAfdeling" checked>
+              <label class="form-check-label" for="checkAfdeling">Afdeling</label>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkTree" checked>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkBlock" checked>
+              <label class="form-check-label" for="checkBlock">Blok</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse" data-bs-target="#select-filter" checked>
+              <label class="form-check-label" for="checkGroup">Jalan, dll..</label>
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="checkTree">
               <label class="form-check-label" for="checkTree">Pokok Sawit</label>
             </div>
           </div>

@@ -53,6 +53,7 @@ WebFont.load({
   }
 });
 
+let selectedWsmSource = null;
 let formFeature = {};
 let selectedSource = null;
 let selectedLayer = null;
@@ -68,14 +69,15 @@ let gsHost = 'http://128.199.253.151:8080';
 const user = JSON.parse(localStorage.getItem('gp|user'));
 const company = JSON.parse(localStorage.getItem('gp|company'));
 const kebuns = JSON.parse(localStorage.getItem('gp|kebuns'));
-const selected_kebun = localStorage.getItem('gp|selected_kebun')
+const selected_kebun = localStorage.getItem('gp|selected_kebun');
+const selected_tahun = localStorage.getItem('gp|selected_tahun');
 
-let workSpace = kebuns ? kebuns[selected_kebun].geoserver.workspace : '';
-let layerAfdeling = kebuns ? kebuns[selected_kebun].geoserver.layer_afdeling : '';
-let layerBlock = kebuns ? kebuns[selected_kebun].geoserver.layer_block : '';
-let layerGroup = kebuns ? kebuns[selected_kebun].geoserver.layer_group : '';
-let layerTree = kebuns ? kebuns[selected_kebun].geoserver.layer_tree : '';
-let layerRaster = kebuns ? kebuns[selected_kebun].geoserver.layer_raster : [];
+let workSpace = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.workspace : '';
+let layerAfdeling = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_afdeling : '';
+let layerBlock = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_block : '';
+let layerGroup = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_group : '';
+let layerTree = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_tree : '';
+let layerRaster = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_raster : [];
 
 const Stats = document.getElementById('stats');
 const mainStats = document.getElementById('main-stats');
@@ -109,7 +111,7 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
 });
 infoDiv.addEventListener('hidden.bs.collapse', function () {
   console.log('info collapse hide');
-  if (subStats.classList.contains('show') == true){
+  if (subStats.classList.contains('show') == true) {
     console.log('sub-stats on');
     Stats.classList.add('info-active');
     bsInfoBtn.show();
@@ -156,6 +158,18 @@ const mousePositionControl = new MousePosition({
   target: document.getElementById('mouse-position'),
 });
 
+const wmsSourceAfdeling = new ImageWMS({
+  url: gsHost + '/geoserver/' + workSpace + '/wms',
+  params: { 'LAYERS': workSpace + `:${layerAfdeling}` },
+  serverType: 'geoserver',
+});
+
+const wmsSourceBlock = new ImageWMS({
+  url: gsHost + '/geoserver/' + workSpace + '/wms',
+  params: { 'LAYERS': workSpace + `:${layerBlock}` },
+  serverType: 'geoserver',
+});
+
 const wmsSourceGroup = new ImageWMS({
   url: gsHost + '/geoserver/' + workSpace + '/wms',
   params: { 'LAYERS': workSpace + `:${layerGroup}` },
@@ -172,16 +186,28 @@ const osmLayer = new TileLayer({
   source: new OSM()
 });
 
-const wmsTree = new ImageLayer({
+const wsmAfdeling = new ImageLayer({
   //extent: [408380,467955,414599,475177],
-  name: 'layer3',
-  source: wmsSourceTree,
+  name: 'layer1',
+  source: wmsSourceAfdeling,
+});
+
+const wsmBlock = new ImageLayer({
+  //extent: [408380,467955,414599,475177],
+  name: 'layer1',
+  source: wmsSourceBlock,
 });
 
 const wsmGroup = new ImageLayer({
   //extent: [408380,467955,414599,475177],
   name: 'layer1',
   source: wmsSourceGroup,
+});
+
+const wmsTree = new ImageLayer({
+  //extent: [408380,467955,414599,475177],
+  name: 'layer3',
+  source: wmsSourceTree,
 });
 
 const tlRaster = [];
@@ -199,9 +225,12 @@ const tlRaster = [];
 //   }));
 // });
 
-const layers = [osmLayer];//.concat(tlRaster);
-//layers.push(wmsTree);
+const layers = [osmLayer].concat(tlRaster);
 layers.push(wsmGroup);
+layers.push(wsmBlock);
+layers.push(wsmAfdeling);
+
+selectedWsmSource = wmsSourceBlock;
 
 const view = new View({
   //center: proj.transform([98.1969, 4.2667], 'EPSG:4326', 'EPSG:32647'),
@@ -223,7 +252,7 @@ map.getView().fit(mapExtent);
 
 map.on('singleclick', function (evt) {
   const viewResolution = /** @type {number} */ (view.getResolution());
-  const url = wmsSourceGroup.getFeatureInfoUrl(
+  const url = selectedWsmSource.getFeatureInfoUrl(
     evt.coordinate,
     viewResolution,
     'EPSG:3857',
@@ -244,9 +273,7 @@ map.on('singleclick', function (evt) {
       .then((json) => {
         const layerJson = JSON.parse(json);
         if (layerJson.features.length !== 0) {
-          if (mapFullyLoaded){
-            $("#sidebar").addClass("select-active");
-            $("#user-box").css('display', 'none');
+          if (mapFullyLoaded) {
             selectMap(layerJson);
             mapFullyLoaded = false;
             // console.log('loaded -> ' + mapFullyLoaded);
@@ -288,6 +315,8 @@ map.on('singleclick', function (evt) {
 const gpDashboardClose = document.getElementById('gp-dashboard-close');
 const checkMap = document.getElementById('checkMap');
 const checkRaster = document.getElementById('checkRaster');
+const checkAfdeling = document.getElementById('checkAfdeling');
+const checkBlock = document.getElementById('checkBlock');
 const checkGroup = document.getElementById('checkGroup');
 const checkTree = document.getElementById('checkTree');
 
@@ -314,6 +343,24 @@ checkRaster.addEventListener('change', (event) => {
   //gpDashboardClose.click();
 });
 
+checkAfdeling.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    wsmAfdeling.setVisible(true);
+  } else {
+    wsmAfdeling.setVisible(false);
+  }
+  //gpDashboardClose.click();
+});
+
+checkBlock.addEventListener('change', (event) => {
+  if (event.currentTarget.checked) {
+    wsmBlock.setVisible(true);
+  } else {
+    wsmBlock.setVisible(false);
+  }
+  //gpDashboardClose.click();
+});
+
 checkGroup.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
     wsmGroup.setVisible(true);
@@ -325,9 +372,10 @@ checkGroup.addEventListener('change', (event) => {
 
 checkTree.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
-    wmsTree.setVisible(true);
+    const layers = map.getLayers();
+    layers.insertAt(2, wmsTree);
   } else {
-    wmsTree.setVisible(false);
+    map.removeLayer(wmsTree);
   }
   //gpDashboardClose.click();
 });
@@ -403,20 +451,29 @@ $('#selectBridge').on('change', (event) => {
 function selectFilterFunction(event) {
   console.log('Checked radio with ID = ' + event.target.value);
   selectedFilter = event.target.value;
+  if(selectedFilter === 'afdeling')
+    selectedWsmSource = wmsSourceAfdeling
+  else if(selectedFilter === 'blok')
+    selectedWsmSource = wmsSourceBlock
+  else
+    selectedWsmSource = wmsSourceGroup
+
   reset.selectFilter(event.target.id);
+  selectObject();
 }
+
 document.querySelectorAll("input[name='selectFiltersRadios']").forEach((input) => {
   input.addEventListener('change', selectFilterFunction);
 });
 
 const reset = {
   selectFilter: function (id) {
-    if (selectedLayer) {
-      if (id === 'selectAfdeling')
+    // if (selectedLayer) {
+    //   if (id === 'selectAfdeling')
         this.mapView();
-      else
-        this.selectView();
-    }
+    //   else
+    //     this.selectView();
+    // }
     /* const ids = ['selectAfdeling', 'selectBlock', 'selectRoad', 'selectBuilding', 'selectRiver', 'selectBridge'];
     ids.forEach(element => {
       if (element !== id) {
@@ -427,32 +484,16 @@ const reset = {
       }
     }); */
   },
-  selectView: function () {
-    $("#user-box").css('display', 'flex');
-    $("#sidebar").removeClass("select-active");
-    $("#user-box").show();
-    map.removeLayer(selectedLayer);
-    selectedSource = null;
-    selectedLayer = null;
-    ModifyLayer.setActive(false);
-    subStats.innerHTML = '';
-    subStats.classList.remove('show');
-    mainStats.classList.add('show');
-    /* infoDiv.classList.remove('show'); */
-    // infoBtn.classList.remove('show');
-    Stats.classList.remove('info-active');
-    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
-    bsInfoDiv.hide();
-    bsInfoBtn.hide();
-  },
   mapView: function () {
+    if (selectedSource)
+      ModifyLayer.setActive(false);
     $("#user-box").css('display', 'flex');
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
     map.removeLayer(selectedLayer);
     selectedSource = null;
     selectedLayer = null;
-    ModifyLayer.setActive(false);
+    prevSelected = null;
     subStats.innerHTML = '';
     subStats.classList.remove('show');
     mainStats.classList.add('show');
@@ -462,7 +503,7 @@ const reset = {
     bsInfoBtn.hide();
     statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
     Stats.classList.remove('info-active');
-    map.getView().setZoom(14);
+    // map.getView().setZoom(14);
   }
 }
 
@@ -511,7 +552,7 @@ function setMapInfos(layerJson) {
           // console.log('title->' + title);
           // console.log('arrCol' + arrCol);
           content += `<div class="d-grid gap-2 mb-2 ${!isMobile() ? 'mt-2' : ''}">`;
-          if(title == 'Blok'){
+          if (title == 'Blok') {
             content += `<div class="stats-title">Blok <div class="stats-title-text">${element.properties['Block']}</div></div>`;
           } else {
             content += `<div class="stats-title">Info <div class="stats-title-text">${title}</div></div>`;
@@ -610,9 +651,9 @@ function getBlokData(layerId, layerName) {
               const title = subelement.replace('_', ' ');
               if (!th && subelement !== 'satuan')
                 titleTable = titleTable + `<th>${title[0].toUpperCase() + title.slice(1)}</th>`;
-              
+
               if (subelement !== 'satuan')
-                tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : isNaN(element_[subelement]) ? element_[subelement] : element_[subelement]+element_['satuan']}</td>`;
+                tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : isNaN(element_[subelement]) ? element_[subelement] : element_[subelement] + element_['satuan']}</td>`;
             });
             th = true;
             tableBody = tableBody + "<tr>";
@@ -639,7 +680,7 @@ function getBlokData(layerId, layerName) {
 
         //infoDiv.classList.add('show');
         let sidebarInfoGap = window.innerHeight - document.getElementById('sidebar').clientHeight - 17.28 - infoDiv.clientHeight;
-        if (sidebarInfoGap > 17.28){
+        if (sidebarInfoGap > 17.28) {
           infoDiv.classList.add('full-width');
         }
         bsInfoDiv.show();
@@ -775,14 +816,13 @@ function selectMap(layerJson) {
     }),
     stroke: new Stroke({
       color: '#FF0000',
-      width: 3,
-      lineDash: [4.5, 1.8]
+      width: 5,
     }),
   });
 
   layerJson.features.forEach(element => {
     if (prevLayer !== element.id.split('.')[0]) {
-      let layerNames = element.id.split('.')[0].split('_');
+      const layerNames = element.id.split('.')[0].split('_');
       layerNames.forEach(function (element_) {
         if (selectedFilter.includes(element_.toLowerCase())) {
           const url = gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${element.id.split('.')[0]}&outputFormat=application%2Fjson&srsname=EPSG:4326&featureId=${element.id}`;
@@ -814,8 +854,7 @@ function selectMap(layerJson) {
         map.removeLayer(prevSelected);
         setSelectMap();
         setMapInfos(layerJson);
-      }
-      else {
+      }else {
         // infoDiv.classList.add('show');
         bsInfoDiv.show();
         // $('#edit-geom').show();
@@ -828,6 +867,8 @@ function selectMap(layerJson) {
 }
 
 function setSelectMap() {
+  $("#sidebar").addClass("select-active");
+  $("#user-box").css('display', 'none');
   map.addLayer(selectedLayer);
   prevSelected = selectedLayer;
 
@@ -955,6 +996,42 @@ farmSelect2.addEventListener('change', (event) => {
   }
 });
 
+const yearSelect1 = document.getElementById('farm-select-year-1');
+const yearSelect2 = document.getElementById('farm-select-year-2');
+
+function yearSelectOptions() {
+  kebuns[selected_kebun].geoserver.forEach((element, index) => {
+    var option = document.createElement("option");
+    option.text = element.tahun;
+    option.value = index;
+    yearSelect1.add(option);
+
+    var option1 = document.createElement("option");
+    option1.text = element.tahun;
+    option1.value = index;
+    yearSelect2.add(option1);
+
+  });
+  yearSelect1.selectedIndex = selected_tahun;
+  yearSelect2.selectedIndex = selected_tahun;
+}
+
+yearSelect1.addEventListener('change', (event) => {
+  // console.log(farmSelect1.selectedIndex);
+  if (yearSelect1.selectedIndex != selected_tahun) {
+    localStorage.setItem('gp|selected_tahun', farmSelect1.selectedIndex);
+    location.reload();
+  }
+});
+
+yearSelect2.addEventListener('change', (event) => {
+  // console.log(farmSelect2.selectedIndex);
+  if (yearSelect2.selectedIndex != selected_tahun) {
+    localStorage.setItem('gp|selected_tahun', yearSelect2.selectedIndex);
+    location.reload();
+  }
+});
+
 const modalLogin = new Modal(document.getElementById('authentication'), { keyboard: false });
 const userLogin = document.getElementById('login');
 const userLogout = document.getElementById('logout');
@@ -979,7 +1056,7 @@ onLogin.addEventListener('click', event => {
   auth.userSignIn(email, password);
 })
 
-map.on('rendercomplete', function(evt){
+map.on('rendercomplete', function (evt) {
   mapFullyLoaded = true;
   // console.log('loaded -> ' + mapFullyLoaded);
 })
@@ -1009,6 +1086,7 @@ window.addEventListener('DOMContentLoaded', event => {
     $("#nama-kebun-1").text(kebuns[selected_kebun].nama_kebun);
     $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
     farmSelectOptions();
+    yearSelectOptions();
     getKebunData();
     if (isMobile()) {
       displayName = nameFormatter(nameTxt);
@@ -1027,3 +1105,46 @@ menuToggle.addEventListener('click', event => {
     document.querySelector('body').classList.toggle('mobile');
   }
 });
+
+function selectObject() {
+  let layerName = '';
+  Object.keys(kebuns[selected_kebun].geoserver[selected_tahun].data).map((key) => {
+    if (key !== 'layer_raster' && key !== 'workspace') {
+      const layerNames = kebuns[selected_kebun].geoserver[selected_tahun].data[key].split("_");
+      layerNames.forEach(element => {
+        if (selectedFilter.includes(element.toLowerCase())) {
+          layerName = kebuns[selected_kebun].geoserver[selected_tahun].data[key];
+        }
+      }); 
+    }
+  })
+
+  const style = new Style({
+    fill: new Fill({
+      color: 'rgba(255,255,255,0.1)',
+    }),
+    stroke: new Stroke({
+      color: '#FF0000',
+      width: 1.5,
+    }),
+  });
+
+  const url = gsHost + `/geoserver/` + workSpace + `/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=` + workSpace + `:${layerName}&outputFormat=application%2Fjson&srsname=EPSG:4326`;
+
+  const source = new VectorSource({
+    url: url,
+    format: new GeoJSON(),
+  });
+
+  const layer = new VectorLayer({
+    source: source,
+    style: style,
+  })
+
+  selectedLayer = layer;
+  prevSelected = selectedLayer;
+
+  map.addLayer(layer);
+
+  // setTimeout(() => { map.removeLayer(layer); }, 300);
+}
