@@ -18,6 +18,7 @@
     .fade:not(.show) {
       opacity: 0;
     }
+
     .collapse:not(.show) {
       display: none;
     }
@@ -32,7 +33,8 @@
       <small id="company-name-2" class="fw-light"></small>
       <div class="farm-select-div">
         <select id="farm-select-2" class="form-select farm-select" aria-label="Select Farm"></select>
-        <select id="farm-select-year-2" class="form-select farm-select farm-select-year" aria-label="Select Year"></select>
+        <select id="farm-select-year-2" class="form-select farm-select farm-select-year"
+          aria-label="Select Year"></select>
       </div>
       <!-- <small class="fw-light">Tahun 2021</small> -->
     </div>
@@ -43,14 +45,15 @@
           data-bs-target="#authentication"><i class="jt-user-male"></i>Login</button>
       </div>
       <div class="logged-on collapse">
-        <a id="user-toggle" class="text-light" data-bs-toggle="collapse"
-          data-bs-target="#user-menu" role="button" aria-controls="filters"><i class="jt-user-male"></i></a>
+        <a id="user-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#user-menu" role="button"
+          aria-controls="filters"><i class="jt-user-male"></i></a>
         <div id="user-menu" class="collapse">
           <div id="user-name" class="logged-user">Username</div>
-          <button id="user-admin" class="btn btn-sm btn-block lh-1 text-light w-100">Admin</button>
+          <button id="user-admin" class="btn btn-sm btn-block lh-1 text-light w-100" data-bs-toggle="modal"
+            data-bs-target="#modal-admin">Admin</button>
           <button id="logout" class="btn btn-sm btn-block lh-1 text-light w-100">Logout</button>
         </div>
-        
+
       </div>
     </div>
 
@@ -59,12 +62,14 @@
       <div id="title">
         <small id="company-name-1" class="fw-light"></small><br>
         <select id="farm-select-1" class="form-select farm-select" aria-label="Select Farm"></select>
-        <select id="farm-select-year-1" class="form-select farm-select farm-select-year" aria-label="Select Year"></select>
+        <select id="farm-select-year-1" class="form-select farm-select farm-select-year"
+          aria-label="Select Year"></select>
         <!-- <small class="fw-light">Tahun 2021</small> -->
       </div>
 
       <div id="stats" class="collapse show">
-        <button id="info-button" class="btn btn-sm btn-block rounded-circle collapse" data-bs-toggle="collapse" data-bs-target="#info"><i class="jt-info"></i></button>
+        <button id="info-button" class="btn btn-sm btn-block rounded-circle collapse" data-bs-toggle="collapse"
+          data-bs-target="#info"><i class="jt-info"></i></button>
         <div id="main-stats" class="collapse show fade"></div>
         <div id="sub-stats" class="collapse fade"></div>
         <button id="stats-boxes-button" class="btn btn-sm btn-block" data-bs-toggle="collapse"
@@ -74,8 +79,10 @@
 
     <div id="filter-div" class="fade">
       <div id="map-filter" class="text-light">
-        <div><a id="map-filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#filters,#map-filter-title,#select-filter" role="button"
-            aria-controls="filters"><i class="jt-layers"></i> <span id="map-filter-title" class="filter-title collapse show ms-1">Tampilan Peta</span></a>
+        <div><a id="map-filter-toggle" class="text-light" data-bs-toggle="collapse"
+            data-bs-target="#filters,#map-filter-title,#select-filter" role="button" aria-controls="filters"><i
+              class="jt-layers"></i> <span id="map-filter-title" class="filter-title collapse show ms-1">Tampilan
+              Peta</span></a>
         </div>
         <div id="filters" class="collapse show">
           <div class="d-flex flex-column">
@@ -96,7 +103,8 @@
               <label class="form-check-label" for="checkBlock">Blok</label>
             </div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse" data-bs-target="#select-filter" checked>
+              <input class="form-check-input" type="checkbox" role="switch" id="checkGroup" data-bs-toggle="collapse"
+                data-bs-target="#select-filter" checked>
               <label class="form-check-label" for="checkGroup">Jalan, dll..</label>
             </div>
             <div class="form-check form-switch">
@@ -109,15 +117,18 @@
 
       <div id="select-filter" class="collapse text-light">
         <div><a id="select-filter-toggle" class="text-light" data-bs-toggle="collapse" data-bs-target="#select-filters"
-            role="button" aria-controls="filters"><i class="jt-layers"></i> <span class="filter-title ms-1">Pilih Objek</span></a></div>
+            role="button" aria-controls="filters"><i class="jt-layers"></i> <span class="filter-title ms-1">Pilih
+              Objek</span></a></div>
         <div id="select-filters" class="collapse show">
           <div class="d-flex flex-column">
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectAfdeling" value="afdeling">
+              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectAfdeling"
+                value="afdeling">
               <label class="form-check-label" for="selectAfdeling">Afdeling</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectBlock" value="blok" checked>
+              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectBlock" value="blok"
+                checked>
               <label class="form-check-label" for="selectBlock">Blok</label>
             </div>
             <div class="form-check">
@@ -125,7 +136,8 @@
               <label class="form-check-label" for="selectRoad">Jalan</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectBuilding" value="bangunan">
+              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectBuilding"
+                value="bangunan">
               <label class="form-check-label" for="selectBuilding">Bangunan</label>
             </div>
             <div class="form-check">
@@ -133,7 +145,8 @@
               <label class="form-check-label" for="selectRiver">Sungai</label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectBridge" value="jembatan">
+              <input class="form-check-input" type="radio" name="selectFiltersRadios" id="selectBridge"
+                value="jembatan">
               <label class="form-check-label" for="selectBridge">Jembatan</label>
             </div>
           </div>
@@ -142,7 +155,8 @@
     </div>
 
     <div id="info" class="collapse p-2">
-      <button id="info-toggled" type="button" class="btn-close btn-close-white" data-bs-toggle="collapse" data-bs-target="#info" aria-label="Close"></button>
+      <button id="info-toggled" type="button" class="btn-close btn-close-white" data-bs-toggle="collapse"
+        data-bs-target="#info" aria-label="Close"></button>
       <div id="detail-info" class="row text-light lh-1"></div>
     </div>
   </div>
@@ -214,7 +228,8 @@
 
           <form id="form-login">
             <div class="mb-2 mt-4">
-              <input type="email" class="form-control" id="email" placeholder="Email" value="globalprodashboard@gmail.com">
+              <input type="email" class="form-control" id="email" placeholder="Email"
+                value="globalprodashboard@gmail.com">
             </div>
             <div class="mb-4">
               <input type="password" class="form-control" id="password" placeholder="Password" value="qwerty">
@@ -227,6 +242,66 @@
           <!-- https://getbootstrap.com/docs/5.0/components/alerts/ -->
           <div id="alert-login"></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modal-admin" tabindex="-1" aria-labelledby="login" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content">
+
+        <div class="brand mt-2 mb-4">
+          <button type="button" class="btn btn-primary-outline" data-bs-dismiss="modal"><i
+              class="jt-arrow-left"></i></button>
+          <img class="brand-logo" src="images/logo_white.svg" width="42.3px">
+          <span class="brand-text ms-1">Global<span class="fw-light">Pro</span></span>
+        </div>
+
+        <div class="brand">
+          <span id="admin-name" class="brand-text"></span>
+        </div>
+
+        <div class="brand">
+          <span id="admin-company" class="brand-text"></span>
+        </div>
+
+        <div id="detail-info" class="row text-light lh-1 mt-4">
+          <div class="col-sm-4">
+            <form id="form-admin">
+              <input type="text" class="form-control mt-2" id="admin-nama" placeholder="Nama">
+              <input type="email" class="form-control mt-2" id="admin-email" placeholder="Email">
+              <input type="text" class="form-control mt-2" id="admin-password" placeholder="Password">
+              <select id="admin-jabatan" class="mt-2 form-select">
+                <option value="">Pilih jabatan</option>
+                <option value="Manager">Manager</option>
+                <option value="Asisten Kebun">Asisten Kebun</option>
+              </select>
+
+              <div id="alert-admin"></div>
+
+              <button id="addUser" type="button" class="btn btn-primary btn-block mt-3">Simpan</button>
+            </form>
+
+          </div>
+
+          <div class="col-lg-6">
+            <div class="table-responsive mt-4">
+              <table id="admin-table" class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nama</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Jabatan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

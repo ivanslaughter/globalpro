@@ -220,19 +220,19 @@ const wmsTree = new ImageLayer({
 });
 
 const tlRaster = [];
-layerRaster.forEach(element => {
-  const sourceRaster = new TileJSON({
-    url: element,
-    tileSize: 256,
-    crossOrigin: 'anonymous'
-  });
+// layerRaster.forEach(element => {
+//   const sourceRaster = new TileJSON({
+//     url: element,
+//     tileSize: 256,
+//     crossOrigin: 'anonymous'
+//   });
 
-  tlRaster.push(new TileLayer({
-    //extent: [408380,467955,414599,475177],
-    name: 'layer-raster',
-    source: sourceRaster,
-  }));
-});
+//   tlRaster.push(new TileLayer({
+//     //extent: [408380,467955,414599,475177],
+//     name: 'layer-raster',
+//     source: sourceRaster,
+//   }));
+// });
 
 const layers = [osmLayer].concat(tlRaster);
 layers.push(wsmGroup);
@@ -284,7 +284,7 @@ map.on('singleclick', function (evt) {
         if (layerJson.features.length !== 0) {
           if (mapFullyLoaded) {
             selectMap(layerJson);
-            mapFullyLoaded = false;
+            // mapFullyLoaded = false;
             // console.log('loaded -> ' + mapFullyLoaded);
           }
         }
@@ -468,6 +468,7 @@ function selectFilterFunction(event) {
     selectedWsmSource = wmsSourceGroup
 
   reset.selectFilter(event.target.id);
+
   selectObject();
 }
 
@@ -822,7 +823,7 @@ function selectMap(layerJson) {
   let nullLayer = true;
   const selectStyle = new Style({
     fill: new Fill({
-      color: 'rgba(255,255,255,0.1)',
+      color: 'rgba(255,255,255,0)',
     }),
     stroke: new Stroke({
       color: '#FF0000',
@@ -865,9 +866,8 @@ function selectMap(layerJson) {
         setSelectMap();
         setMapInfos(layerJson);
       } else {
-        // infoDiv.classList.add('show');
         bsInfoDiv.show();
-        // $('#edit-geom').show();
+        alert('Anda mengaktifkan mode edit geometri. Silahkan tarik garis yang berwarna biru untuk mengubah posisi geometri.');
       }
     } else {
       setSelectMap();
@@ -1088,7 +1088,7 @@ window.addEventListener('DOMContentLoaded', event => {
   } else {
     document.querySelector('.logged-off').classList.remove('show');
     document.querySelector('.logged-on').classList.add('show');
-    const nameTxt = user.nama;
+    const nameTxt = user.name;
     let displayName = nameTxt;
     if (isMobile()) {
       displayName = nameFormatter(nameTxt);
@@ -1130,9 +1130,6 @@ function selectObject() {
   })
 
   const style = new Style({
-    fill: new Fill({
-      color: 'rgba(255,255,255,0.1)',
-    }),
     stroke: new Stroke({
       color: '#FF0000',
       width: 1.5,
@@ -1158,3 +1155,83 @@ function selectObject() {
 
   // setTimeout(() => { map.removeLayer(layer); }, 300);
 }
+
+const userAdmin = document.getElementById('user-admin');
+userAdmin.addEventListener('click', event => {
+  $("#admin-name").text(user.name);
+  $("#admin-company").text(company.company_name);
+  listUser();
+  document.querySelector('.logged-off').classList.remove('show');
+  document.querySelector('.logged-on').classList.add('show');
+});
+
+function listUser() {
+  firestore.listUser(user.company_id).then(function (users) {
+    $('#admin-table tbody').empty();
+    let content = "";
+    if (users) {
+      users.forEach(function (element, index) {
+        content = content + `<tr><th scope="row">${index + 1}</th>
+        <td>${element.nama}</td>
+        <td>${element.email}</td>
+        <td>${element.jabatan}</td></tr>`;
+      });
+
+    } else {
+      content += `<div class="mb-2">Belum ada data</div>`;
+    }
+
+    $('#admin-table tbody').append(content);
+
+  });
+}
+
+$("#addUser").on('click', () => {
+  startLoadingButton('addUser');
+  const name = $("#admin-nama").val();
+  const email = $("#admin-email").val();
+  const password = $("#admin-password").val();
+  const jabatan = $("#admin-jabatan").val();
+
+  if (nama == "" || email == "" || password == "" || jabatan == "") {
+    stopLoadingButton('addUser');
+    showAlert('alert-admin', 'alert-danger', 'Mohon lengkapi data');
+
+    return;
+  }
+
+  const newuser = {
+    company_id: user.company_id,
+    role: 'user',
+    name,
+    email,
+    password,
+    jabatan
+  }
+
+  auth.addUser(newuser).then((userCredential) => {
+    const docData = {
+      ...newuser,
+      accessToken: userCredential.user.accessToken,
+      uid: userCredential.user.uid
+    }
+
+    firestore.saveUser(docData).then((res)=>{
+      stopLoadingButton('addUser');
+      showAlert('alert-admin', 'alert-success', 'Berhasil menyimpan data');
+      $("#admin-nama").val('');
+      $("#admin-email").val('');
+      $("#admin-password").val('');
+      $("#admin-jabatan").val('');
+
+      listUser();
+    })
+  }).catch((error) => {
+      stopLoadingButton('addUser');
+      const errorCode = error.code;
+      if (errorCode === 'auth/email-already-in-use')
+        showAlert('alert-admin', 'alert-danger', 'Email sudah terdaftar');
+      else
+        showAlert('alert-admin', 'alert-danger', 'Gagal menyimpan, silahkan coba lagi');
+    });
+})

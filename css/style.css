@@ -639,6 +639,31 @@ tbody, td, tfoot, th, thead, tr {
   align-items: center;
 }
 
+#modal-admin {
+  background-image: url('/images/countour.svg'), radial-gradient(100% 50% at center, #004572, #022846);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+#modal-admin .modal-content{
+  display: flex;
+  padding: 2.54rem;
+  background-color: transparent;
+  background-image: radial-gradient(circle at center, #004572, transparent);
+}
+#modal-admin .brand{
+  display: flex;
+  align-items: center;
+}
+#modal-admin .brand-text {
+    font-size: 1.5rem;
+    line-height: 1;
+    color: white;
+}
+
+#admin-table {
+  background-color: whitesmoke;
+  border-radius: 0.5rem;
+}
 
 /* Mobile Style */
 
@@ -806,6 +831,9 @@ body.mobile #info-button{
   padding-inline-start: 0.18rem !important;
 }
 .jt-info {
+  color: white;
+}
+.jt-arrow-left {
   color: white;
 }
 

@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, addDoc, getDoc, getDocs, setDoc, query, where, arrayUnion, updateDoc, orderBy, Timestamp } from 'firebase/firestore';
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth";
 import { firebaseConfig } from './config';
 import { Modal, Offcanvas } from 'bootstrap';
 import { showAlert, stopLoadingButton } from './animated';
@@ -12,7 +12,18 @@ const db = getFirestore();
 export const firestore = {
     saveUser: async function (user) {
         const ref = collection(db, "users");
-        await setDoc(doc(ref, user.email), user);
+        await setDoc(doc(ref), user);
+
+        return true;
+    },
+    listUser: async function (company_id) {
+        const q = query(collection(db, `users`), where("company_id", "==", company_id));
+        const querySnapshot = await getDocs(q);
+        let data = [];
+        querySnapshot.forEach((doc) => {
+            data.push(doc.data());
+        });
+        return data;
     },
     getUser: async function (email) {
         const q = query(collection(db, `users`), where("email", "==", email));
@@ -82,10 +93,10 @@ export const firestore = {
         });
         data.push(docData.data[0]);
 
-        if (docId){
+        if (docId) {
             ref = doc(db, `companies/${collectionId}/kebuns/${kebunId}/${field}`, docId);
-            await updateDoc(ref, {data : data});
-        }else{
+            await updateDoc(ref, { data: data });
+        } else {
             await addDoc(ref, docData);
         }
 
@@ -94,6 +105,12 @@ export const firestore = {
 }
 
 export const auth = {
+    addUser: async function (user) {
+        const auth = getAuth();
+        const createUser = await createUserWithEmailAndPassword(auth, user.email, user.password);
+
+        return createUser;
+    },
     userSignIn: function (email, password) {
         const getauth = getAuth();
         signInWithEmailAndPassword(getauth, email, password)
@@ -104,7 +121,6 @@ export const auth = {
             .catch((error) => {
                 stopLoadingButton('onLogin');
                 const errorCode = error.code;
-                const errorMessage = error.message;
                 if (errorCode === 'auth/wrong-password') {
                     showAlert('alert-login', 'alert-danger', 'Password Anda salah');
                 } else {
