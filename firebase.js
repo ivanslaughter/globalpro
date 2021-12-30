@@ -123,6 +123,7 @@ export const auth = {
             localStorage.removeItem('gp|company');
             localStorage.removeItem('gp|kebuns');
             localStorage.removeItem('gp|selected_kebun');
+            localStorage.removeItem('gp|selected_tahun');
             location.reload();
         }).catch((error) => {
             console.log(error);

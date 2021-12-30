@@ -72,6 +72,15 @@ const kebuns = JSON.parse(localStorage.getItem('gp|kebuns'));
 const selected_kebun = localStorage.getItem('gp|selected_kebun');
 const selected_tahun = localStorage.getItem('gp|selected_tahun');
 
+if (!selected_tahun) {
+  localStorage.setItem('gp|logged-on', 'false');
+  localStorage.removeItem('gp|user');
+  localStorage.removeItem('gp|company');
+  localStorage.removeItem('gp|kebuns');
+  localStorage.removeItem('gp|selected_kebun');
+  localStorage.removeItem('gp|selected_tahun');
+}
+
 let workSpace = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.workspace : '';
 let layerAfdeling = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_afdeling : '';
 let layerBlock = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_block : '';
@@ -211,19 +220,19 @@ const wmsTree = new ImageLayer({
 });
 
 const tlRaster = [];
-// layerRaster.forEach(element => {
-//   const sourceRaster = new TileJSON({
-//     url: element,
-//     tileSize: 256,
-//     crossOrigin: 'anonymous'
-//   });
+layerRaster.forEach(element => {
+  const sourceRaster = new TileJSON({
+    url: element,
+    tileSize: 256,
+    crossOrigin: 'anonymous'
+  });
 
-//   tlRaster.push(new TileLayer({
-//     //extent: [408380,467955,414599,475177],
-//     name: 'layer-raster',
-//     source: sourceRaster,
-//   }));
-// });
+  tlRaster.push(new TileLayer({
+    //extent: [408380,467955,414599,475177],
+    name: 'layer-raster',
+    source: sourceRaster,
+  }));
+});
 
 const layers = [osmLayer].concat(tlRaster);
 layers.push(wsmGroup);
@@ -451,9 +460,9 @@ $('#selectBridge').on('change', (event) => {
 function selectFilterFunction(event) {
   console.log('Checked radio with ID = ' + event.target.value);
   selectedFilter = event.target.value;
-  if(selectedFilter === 'afdeling')
+  if (selectedFilter === 'afdeling')
     selectedWsmSource = wmsSourceAfdeling
-  else if(selectedFilter === 'blok')
+  else if (selectedFilter === 'blok')
     selectedWsmSource = wmsSourceBlock
   else
     selectedWsmSource = wmsSourceGroup
@@ -470,7 +479,7 @@ const reset = {
   selectFilter: function (id) {
     // if (selectedLayer) {
     //   if (id === 'selectAfdeling')
-        this.mapView();
+    this.mapView();
     //   else
     //     this.selectView();
     // }
@@ -558,7 +567,7 @@ function setMapInfos(layerJson) {
           }
           if (!isMobile())
             content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
-            
+
           content += `<div id="sub-stats-boxes" class="stats-boxes collapse show">`;
           arrCol.forEach(element_ => {
             if (element_ !== 'Block') {
@@ -855,7 +864,7 @@ function selectMap(layerJson) {
         map.removeLayer(prevSelected);
         setSelectMap();
         setMapInfos(layerJson);
-      }else {
+      } else {
         // infoDiv.classList.add('show');
         bsInfoDiv.show();
         // $('#edit-geom').show();
@@ -1062,6 +1071,7 @@ map.on('rendercomplete', function (evt) {
 })
 
 window.addEventListener('DOMContentLoaded', event => {
+
   if (isMobile()) {
     document.querySelector("body").classList.add('mobile');
     // document.getElementById('filters').classList.toggle('show');
@@ -1115,7 +1125,7 @@ function selectObject() {
         if (selectedFilter.includes(element.toLowerCase())) {
           layerName = kebuns[selected_kebun].geoserver[selected_tahun].data[key];
         }
-      }); 
+      });
     }
   })
 
