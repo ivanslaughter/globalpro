@@ -487,7 +487,6 @@ const reset = {
   mapView: function () {
     if (selectedSource)
       ModifyLayer.setActive(false);
-    $("#user-box").css('display', 'flex');
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
     map.removeLayer(selectedLayer);
@@ -559,6 +558,7 @@ function setMapInfos(layerJson) {
           }
           if (!isMobile())
             content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
+            
           content += `<div id="sub-stats-boxes" class="stats-boxes collapse show">`;
           arrCol.forEach(element_ => {
             if (element_ !== 'Block') {
@@ -679,6 +679,7 @@ function getBlokData(layerId, layerName) {
         $('#detail-info').append(content);
 
         //infoDiv.classList.add('show');
+        infoDiv.classList.remove('full-width');
         let sidebarInfoGap = window.innerHeight - document.getElementById('sidebar').clientHeight - 17.28 - infoDiv.clientHeight;
         if (sidebarInfoGap > 17.28) {
           infoDiv.classList.add('full-width');
@@ -868,7 +869,6 @@ function selectMap(layerJson) {
 
 function setSelectMap() {
   $("#sidebar").addClass("select-active");
-  $("#user-box").css('display', 'none');
   map.addLayer(selectedLayer);
   prevSelected = selectedLayer;
 
@@ -1039,8 +1039,8 @@ const onLogin = document.getElementById('onLogin');
 
 userLogin.addEventListener('click', event => {
   localStorage.setItem('gp|logged-on', 'true');
-  document.querySelector('.logged-off').classList.toggle('show');
-  document.querySelector('.logged-on').classList.toggle('show');
+  document.querySelector('.logged-off').classList.remove('show');
+  document.querySelector('.logged-on').classList.add('show');
 });
 
 if (localStorage.getItem('gp|logged-on') === 'true') {
@@ -1076,10 +1076,13 @@ window.addEventListener('DOMContentLoaded', event => {
   if (!localStorage.getItem('gp|user')) {
     modalLogin.show();
   } else {
-    document.querySelector('.logged-off').classList.toggle('show');
-    document.querySelector('.logged-on').classList.toggle('show');
+    document.querySelector('.logged-off').classList.remove('show');
+    document.querySelector('.logged-on').classList.add('show');
     const nameTxt = user.nama;
     let displayName = nameTxt;
+    if (isMobile()) {
+      displayName = nameFormatter(nameTxt);
+    }
     $("#user-name").text(displayName);
     $("#company-name-1").text(company.company_name);
     $("#company-name-2").text(company.company_name);
@@ -1088,9 +1091,6 @@ window.addEventListener('DOMContentLoaded', event => {
     farmSelectOptions();
     yearSelectOptions();
     getKebunData();
-    if (isMobile()) {
-      displayName = nameFormatter(nameTxt);
-    }
   }
   // document.querySelector('#map-filter-title').classList.toggle('show');
   document.querySelector('#select-filter').classList.toggle('show');
