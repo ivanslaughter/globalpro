@@ -72,6 +72,8 @@ const kebuns = JSON.parse(localStorage.getItem('gp|kebuns'));
 const selected_kebun = localStorage.getItem('gp|selected_kebun');
 const selected_tahun = localStorage.getItem('gp|selected_tahun');
 
+const isAdmin = user && user.role === 'admin' ? true : false;
+
 if (!selected_tahun) {
   localStorage.setItem('gp|logged-on', 'false');
   localStorage.removeItem('gp|user');
@@ -495,7 +497,7 @@ const reset = {
     }); */
   },
   mapView: function () {
-    if (selectedSource)
+    if (selectedSource && isAdmin)
       ModifyLayer.setActive(false);
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
@@ -544,6 +546,7 @@ const ModifyLayer = {
 };
 
 const modalFeature = new Modal(document.getElementById('modalFeature'));
+const modalConfirm = new Modal(document.getElementById('modalConfirm'));
 
 function setMapInfos(layerJson) {
   const selectedLayers = layerJson.features;
@@ -587,7 +590,8 @@ function setMapInfos(layerJson) {
             });
           });
 
-          content += `<button id="edit-feature" type="button" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-2' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
+          if (isAdmin)
+            content += `<button id="edit-feature" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-2' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
           if (isMobile())
             content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
           content += '</div>';
@@ -644,43 +648,56 @@ function getBlokData(layerId, layerName) {
   firestore.getBlokColls().then(function (collections) {
     collections.forEach(element => {
       firestore.getBlokData(company.collection, kebuns[selected_kebun].collection, element.collection, layerId).then(function (data) {
+        const tahun = kebuns[selected_kebun].geoserver[selected_tahun].tahun;
         let content = `<div class="col-sm">`;
         content += `<div class="d-flex align-items-center">
-      <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>
-      <button id="add-data-blok-${element.collection}" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="add-data-blok btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>
-      </div>`;
+      <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>`;
+
+        if (tahun === new Date().getFullYear().toString() && isAdmin)
+          content += `<button id="add-data-blok-${element.collection}" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="add-data-blok btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>`
+
+        content += `</div>`;
 
         if (data) {
           let titleTable = "";
           let tableBody = "";
           let th = false;
-
+          let nullValue = true;
           const titleArr = Object.keys(data.data[0]);
-          data.data.forEach(element_ => {
-            titleArr.forEach(subelement => {
-              const title = subelement.replace('_', ' ');
-              if (!th && subelement !== 'satuan')
-                titleTable = titleTable + `<th>${title[0].toUpperCase() + title.slice(1)}</th>`;
 
-              if (subelement !== 'satuan')
-                tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : isNaN(element_[subelement]) ? element_[subelement] : element_[subelement] + element_['satuan']}</td>`;
-            });
-            th = true;
-            tableBody = tableBody + "<tr>";
+          data.data.forEach(element_ => {
+            if (element_.tanggal.toDate().getFullYear().toString() === tahun) {
+              titleArr.forEach(subelement => {
+                const title = subelement.replace('_', ' ');
+                if (!th && subelement !== 'satuan')
+                  titleTable = titleTable + `<th>${title[0].toUpperCase() + title.slice(1)}</th>`;
+
+                if (subelement !== 'satuan') {
+                  tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : isNaN(element_[subelement]) ? element_[subelement] : element_[subelement] + element_['satuan']}</td>`;
+                }
+              });
+              th = true;
+              tableBody = tableBody + "<tr>";
+              nullValue = false;
+            }
           });
 
-          content += `
-          <div class="table-responsive-sm">
-          <table class="table table-sm text-light mb-2">
-              <thead>
-                  <tr>${titleTable}</tr>
-              </thead>
-              <tbody>
-                  <tr>${tableBody}</tr>
-              </tbody>
-          </table>
-          </div>
-        `;
+          if (!nullValue) {
+            content += `
+            <div class="table-responsive-sm">
+            <table class="table table-sm text-light mb-2">
+                <thead>
+                    <tr>${titleTable}</tr>
+                </thead>
+                <tbody>
+                    <tr>${tableBody}</tr>
+                </tbody>
+            </table>
+            </div>
+          `;
+          } else {
+            content += `<div class="mb-2">Belum ada data</div>`;
+          }
         } else {
           content += `<div class="mb-2">Belum ada data</div>`;
         }
@@ -867,7 +884,10 @@ function selectMap(layerJson) {
         setMapInfos(layerJson);
       } else {
         bsInfoDiv.show();
-        alert('Anda mengaktifkan mode edit geometri. Silahkan tarik garis yang berwarna biru untuk mengubah posisi geometri.');
+        if (isAdmin) {
+          $('#bodyConfirm').text('Anda mengaktifkan mode edit geometri. Silahkan tarik garis yang berwarna biru untuk mengubah posisi geometri. Pilih "Edit" - "Save" untuk menyimpan.');
+          modalConfirm.show();
+        }
       }
     } else {
       setSelectMap();
@@ -886,7 +906,8 @@ function setSelectMap() {
     const blockPolygon = feature.getGeometry();
     // , { padding: [0, 0, 0, 0] }
     view.fit(blockPolygon);
-    ModifyLayer.init();
+    if (isAdmin)
+      ModifyLayer.init();
   });
 }
 
@@ -1157,6 +1178,9 @@ function selectObject() {
 }
 
 const userAdmin = document.getElementById('user-admin');
+if (!isAdmin)
+  userAdmin.style.display = "none";
+
 userAdmin.addEventListener('click', event => {
   $("#admin-name").text(user.name);
   $("#admin-company").text(company.company_name);
@@ -1172,7 +1196,7 @@ function listUser() {
     if (users) {
       users.forEach(function (element, index) {
         content = content + `<tr><th scope="row">${index + 1}</th>
-        <td>${element.nama}</td>
+        <td>${element.name}</td>
         <td>${element.email}</td>
         <td>${element.jabatan}</td></tr>`;
       });
@@ -1216,7 +1240,7 @@ $("#addUser").on('click', () => {
       uid: userCredential.user.uid
     }
 
-    firestore.saveUser(docData).then((res)=>{
+    firestore.saveUser(docData).then((res) => {
       stopLoadingButton('addUser');
       showAlert('alert-admin', 'alert-success', 'Berhasil menyimpan data');
       $("#admin-nama").val('');
@@ -1227,11 +1251,11 @@ $("#addUser").on('click', () => {
       listUser();
     })
   }).catch((error) => {
-      stopLoadingButton('addUser');
-      const errorCode = error.code;
-      if (errorCode === 'auth/email-already-in-use')
-        showAlert('alert-admin', 'alert-danger', 'Email sudah terdaftar');
-      else
-        showAlert('alert-admin', 'alert-danger', 'Gagal menyimpan, silahkan coba lagi');
-    });
+    stopLoadingButton('addUser');
+    const errorCode = error.code;
+    if (errorCode === 'auth/email-already-in-use')
+      showAlert('alert-admin', 'alert-danger', 'Email sudah terdaftar');
+    else
+      showAlert('alert-admin', 'alert-danger', 'Gagal menyimpan, silahkan coba lagi');
+  });
 })

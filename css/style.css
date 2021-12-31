@@ -152,7 +152,7 @@ html, body {
     top: 0.54em;
     left: unset;
     right: 2.88rem;
-    display: flex;
+    display: none;
 }
 .ol-zoom .ol-zoom-in {
   border-radius: 0.36rem 0 0 0.36rem;
