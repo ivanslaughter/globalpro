@@ -488,6 +488,10 @@ html, body {
 tbody, td, tfoot, th, thead, tr {
   border-color: #ffffff63;
 }
+div.dataTables_wrapper div.dataTables_info {
+  padding-top: 0.54rem;
+  font-size: 0.81rem;
+}
 
 /* Farm select */
 
@@ -876,6 +880,11 @@ body.mobile #info-button{
   left: 4.5rem;
   bottom: 0.54rem;
   padding-inline-start: 0.18rem !important;
+}
+body.mobile div.dataTables_wrapper div.dataTables_info {
+  padding-top: 0.27rem;
+  font-size: 0.63rem;
+  text-align: end;
 }
 .jt-info {
   color: white;

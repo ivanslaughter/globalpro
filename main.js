@@ -60,6 +60,10 @@ let selectedLayer = null;
 let selectedFilter = "blok";
 let prevSelected = null;
 let mapFullyLoaded = false;
+let pupukRec = 0;
+let panenRec = 0;
+let tablePanen;
+let tablePupuk;
 
 //let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
 //let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
@@ -109,6 +113,8 @@ let bsFilterDiv = new Collapse(filterDiv, {
   toggle: false
 });
 
+let scrollRec = isMobile() ? 61.56 : 75;
+
 infoDiv.addEventListener('shown.bs.collapse', function () {
   console.log('info collapse show');
   if (subStats.classList.contains('show') == true) {
@@ -116,6 +122,27 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
     Stats.classList.remove('info-active');
     bsInfoBtn.hide();
     // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+    if (!$.fn.DataTable.isDataTable('#table-pupuk')) {
+      if (pupukRec > 0) {
+        if (pupukRec > 3) {
+          tablePupuk = $('#table-pupuk').DataTable({ scrollY: scrollRec, paging: false, filter: false });
+        } else {
+          tablePupuk = $('#table-pupuk').DataTable({ paging: false, filter: false });
+        }
+      }
+    }
+
+    if (!$.fn.DataTable.isDataTable('#table-panen')) {
+      if (panenRec > 0) {
+        if (panenRec > 3) {
+          tablePanen = $('#table-panen').DataTable({ scrollY: scrollRec, paging: false, filter: false });
+        } else {
+          tablePanen = $('#table-panen').DataTable({ paging: false, filter: false });
+        }
+      }
+    }
+
+
   }
 });
 infoDiv.addEventListener('hidden.bs.collapse', function () {
@@ -640,6 +667,7 @@ function setMapInfos(layerJson) {
 function getBlokData(layerId, layerName) {
   $('#detail-info').html('');
   document.body.classList.toggle('info-show');
+  pupukRec = 0; panenRec = 0;
 
   firestore.getBlokColls().then(function (collections) {
     collections.forEach(element => {
@@ -657,6 +685,8 @@ function getBlokData(layerId, layerName) {
 
           const titleArr = Object.keys(data.data[0]);
           data.data.forEach(element_ => {
+            titleTable += !th ? "<tr>" : "";
+            tableBody += "<tr>";
             titleArr.forEach(subelement => {
               const title = subelement.replace('_', ' ');
               if (!th && subelement !== 'satuan')
@@ -665,27 +695,39 @@ function getBlokData(layerId, layerName) {
               if (subelement !== 'satuan')
                 tableBody = tableBody + `<td>${subelement === 'tanggal' ? element_[subelement].toDate().toLocaleString('id-ID').split(' ')[0] : isNaN(element_[subelement]) ? element_[subelement] : element_[subelement] + element_['satuan']}</td>`;
             });
+            titleTable += !th ? "</tr>":"";
             th = true;
-            tableBody = tableBody + "<tr>";
+            tableBody += "</tr>";
+
+            if(element.collection == 'pupuk'){
+              pupukRec++;
+            }
+            if(element.collection == 'panen'){
+              panenRec++;
+            }
           });
 
           content += `
-          <div class="table-responsive-sm">
-          <table class="table table-sm text-light mb-2">
+          <div>
+          <table id="table-${element.collection}" class="table table-sm text-light mb-2">
               <thead>
-                  <tr>${titleTable}</tr>
+                  ${titleTable}
               </thead>
               <tbody>
-                  <tr>${tableBody}</tr>
+                  ${tableBody}
               </tbody>
           </table>
           </div>
         `;
+        
         } else {
           content += `<div class="mb-2">Belum ada data</div>`;
         }
-
         content += `</div>`;
+
+
+
+        // class="table-responsive-sm"
         $('#detail-info').append(content);
 
         //infoDiv.classList.add('show');
@@ -696,9 +738,16 @@ function getBlokData(layerId, layerName) {
         }
         bsInfoDiv.show();
 
+        console.log(pupukRec);
+        console.log(panenRec);
+
 
       });
+
     });
+
+
+
 
     showModalBlok(layerId, layerName);
   })
