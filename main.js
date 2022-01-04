@@ -761,9 +761,6 @@ function getBlokData(layerId, layerName) {
 
     });
 
-
-
-
     showModalBlok(layerId, layerName);
   })
 }
@@ -1096,7 +1093,7 @@ function yearSelectOptions() {
 yearSelect1.addEventListener('change', (event) => {
   // console.log(farmSelect1.selectedIndex);
   if (yearSelect1.selectedIndex != selected_tahun) {
-    localStorage.setItem('gp|selected_tahun', farmSelect1.selectedIndex);
+    localStorage.setItem('gp|selected_tahun', yearSelect1.selectedIndex);
     location.reload();
   }
 });
