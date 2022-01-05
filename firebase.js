@@ -189,7 +189,6 @@ function getUserData(email) {
 
 export function userDataAsync(email) {
     firestore.getUser(email).then((user) => {
-        localStorage.setItem('gp|logged-on', 'true');
         localStorage.setItem('gp|user', JSON.stringify(user));
 
         firestore.getCompany(user.company_id).then((company) => {
@@ -197,8 +196,6 @@ export function userDataAsync(email) {
 
             firestore.getKebuns(company.collection).then((kebuns) => {
                 localStorage.setItem('gp|kebuns', JSON.stringify(kebuns));
-                localStorage.setItem('gp|selected_kebun', 0);
-                localStorage.setItem('gp|selected_tahun', 0);
             })
         });
     })

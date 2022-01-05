@@ -353,7 +353,7 @@ html, body {
   min-width: max-content;
   margin-right: 1rem;
 }
-#info-button {
+/* #info-button {
   background: #002d4b;
   position: absolute;
   left: 14.4rem;
@@ -361,7 +361,7 @@ html, body {
   border-start-start-radius: 0px !important;
   border-end-start-radius: 0px !important;
   padding-inline-start: 0.36rem !important;
-}
+} */
 
 #title {
   line-height: 1;
@@ -475,6 +475,80 @@ html, body {
 
 .sidebar-title {
    display: none;
+}
+
+/* fab */
+.fab-container {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  z-index: 999;
+  cursor: pointer;
+  display: none;
+}
+
+.fab-icon-holder {
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  background: #fb8601;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.fab-icon-holder:hover {
+  opacity: 0.8;
+}
+
+.fab-icon-holder i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.fab {
+  width: 45px;
+  height: 45px;
+  background: #fb0101;
+}
+
+.fab-options {
+  list-style-type: none;
+  margin: 0;
+  position: absolute;
+  bottom: 50px;
+  right: 0;
+  opacity: 0;
+  transition: all 0.3s ease;
+  transform: scale(0);
+  transform-origin: 85% bottom;
+}
+
+.fab:hover+.fab-options,
+.fab-options:hover {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.fab-options li {
+  display: flex;
+  justify-content: flex-end;
+  padding: 2px;
+}
+
+.fab-label {
+  padding: 2px 5px;
+  align-self: center;
+  user-select: none;
+  white-space: nowrap;
+  border-radius: 3px;
+  font-size: 12px;
+  background: #666666;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  margin-right: 10px;
 }
 
 /* info table style */
@@ -876,11 +950,11 @@ body.mobile #user-box .logged-off.show {
   max-width: 3.33rem;
 }
 
-body.mobile #info-button{
+/* body.mobile #info-button{
   left: 4.5rem;
   bottom: 0.54rem;
   padding-inline-start: 0.18rem !important;
-}
+} */
 body.mobile div.dataTables_wrapper div.dataTables_info {
   padding-top: 0.27rem;
   font-size: 0.63rem;
@@ -902,11 +976,11 @@ body.mobile div.dataTables_wrapper div.dataTables_info {
 .collapsing{
   transition: height .36s ease-out;
 }
-#info-button.collapsing{
+/* #info-button.collapsing{
   height:unset;
   opacity: 0;
   transition: opacity .18s ease-out;
-}
+} */
 
 @media (min-width:320px)  {
 
