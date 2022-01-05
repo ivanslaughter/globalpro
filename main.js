@@ -1094,15 +1094,15 @@ function yearSelectOptions() {
 }
 
 yearSelect1.addEventListener('change', (event) => {
-  // console.log(farmSelect1.selectedIndex);
+  // console.log('year1', yearSelect1.selectedIndex);
   if (yearSelect1.selectedIndex != selected_tahun) {
-    localStorage.setItem('gp|selected_tahun', farmSelect1.selectedIndex);
+    localStorage.setItem('gp|selected_tahun', yearSelect1.selectedIndex);
     location.reload();
   }
 });
 
 yearSelect2.addEventListener('change', (event) => {
-  // console.log(farmSelect2.selectedIndex);
+  // console.log('year2', yearSelect2.selectedIndex);
   if (yearSelect2.selectedIndex != selected_tahun) {
     localStorage.setItem('gp|selected_tahun', yearSelect2.selectedIndex);
     location.reload();
