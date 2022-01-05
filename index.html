@@ -17,7 +17,7 @@
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css" />
   <link rel="stylesheet" type="text/css"
     href="https://cdn.datatables.net/fixedheader/3.2.1/css/fixedHeader.bootstrap5.min.css" />
-  
+
   <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
   <script type="text/javascript"
@@ -288,6 +288,11 @@
           </div>
         </div>
 
+        <div class="text-light mt-4">
+          <h1 id="account-type"></h1>
+          <h5 id="account-limit"></h5>
+        </div>
+
         <div id="detail-info" class="row text-light lh-1 mt-4">
           <div class="col-sm-5">
             <h4>Tambah User</h4>
@@ -301,14 +306,14 @@
                 <option value="Asisten Kebun">Asisten Kebun</option>
               </select>
 
-              <div id="alert-admin my-2"></div>
+              <div id="alert-admin" class="my-2"></div>
 
               <button id="addUser" type="button" class="btn btn-sm btn-primary mb-3">Simpan</button>
             </form>
 
           </div>
 
-          <div class="col-lg-7">
+          <div class="col-lg-7 mb-4">
             <h4>Daftar User</h4>
             <div class="table-responsive">
               <table id="admin-table" class="table table-sm text-light">

@@ -19,7 +19,7 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
 import { Modal, Collapse, Tooltip, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
-import { firestore, auth } from './firebase';
+import { firestore, auth, userDataAsync } from './firebase';
 import { Timestamp } from 'firebase/firestore';
 import { showAlert, startLoadingButton, stopLoadingButton } from './animated';
 import nameFormatter from './name-formatter';
@@ -312,6 +312,10 @@ map.on('singleclick', function (evt) {
         const layerJson = JSON.parse(json);
         if (layerJson.features.length !== 0) {
           if (mapFullyLoaded) {
+            bsInfoDiv.hide();
+            // bsInfoBtn.hide();
+            // Stats.classList.remove('info-active');
+
             selectMap(layerJson);
             // mapFullyLoaded = false;
             // console.log('loaded -> ' + mapFullyLoaded);
@@ -692,7 +696,7 @@ function getBlokData(layerId, layerName) {
           let th = false;
           let nullValue = true;
           const titleArr = Object.keys(data.data[0]);
-          
+
           data.data.forEach(element_ => {
             if (element_.tanggal.toDate().getFullYear().toString() === tahun) {
               titleTable += !th ? "<tr>" : "";
@@ -755,8 +759,6 @@ function getBlokData(layerId, layerName) {
 
         console.log(pupukRec);
         console.log(panenRec);
-
-
       });
 
     });
@@ -1163,6 +1165,7 @@ window.addEventListener('DOMContentLoaded', event => {
     $("#company-name-2").text(company.company_name);
     $("#nama-kebun-1").text(kebuns[selected_kebun].nama_kebun);
     $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
+    userDataAsync(user.email);
     farmSelectOptions();
     yearSelectOptions();
     getKebunData();
@@ -1228,13 +1231,27 @@ if (!isAdmin)
 userAdmin.addEventListener('click', event => {
   $("#admin-name").text(user.name);
   $("#admin-company").text(company.company_name);
-  listUser();
+  companyPackage();
+
   document.querySelector('.logged-off').classList.remove('show');
   document.querySelector('.logged-on').classList.add('show');
 });
 
-function listUser() {
+function companyPackage() {
+  firestore.companyPackage(user.company_id).then(function (data) {
+    console.log(data);
+    $("#account-type").text(data.package[0].toUpperCase() + data.package.slice(1));
+    $("#account-limit").text('Anda dapat menambahkan ' + data.data.account_limit + ' akun');
+
+    listUser(data.data.account_limit)
+  });
+}
+
+function listUser(account_limit) {
   firestore.listUser(user.company_id).then(function (users) {
+    if (users.length >= account_limit)
+      $("#addUser").addClass('disabled');
+
     $('#admin-table tbody').empty();
     let content = "";
     if (users) {
@@ -1261,7 +1278,7 @@ $("#addUser").on('click', () => {
   const password = $("#admin-password").val();
   const jabatan = $("#admin-jabatan").val();
 
-  if (nama == "" || email == "" || password == "" || jabatan == "") {
+  if (name == "" || email == "" || password == "" || jabatan == "") {
     stopLoadingButton('addUser');
     showAlert('alert-admin', 'alert-danger', 'Mohon lengkapi data');
 
