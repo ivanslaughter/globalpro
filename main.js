@@ -100,7 +100,7 @@ const subStats = document.getElementById('sub-stats');
 const infoDiv = document.body.querySelector('#info');
 // const infoBtn = document.getElementById('info-button');
 // const filterDiv = document.body.querySelector('#filter-div');
-const statsBoxesBtn = document.getElementById('stats-boxes-button');
+// const statsBoxesBtn = document.getElementById('stats-boxes-button');
 
 // let bsStats = new Collapse(Stats, {
 //   toggle: false
@@ -124,6 +124,7 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
     // Stats.classList.remove('info-active');
     // bsInfoBtn.hide();
     // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+
     if (!$.fn.DataTable.isDataTable('#table-pupuk')) {
       if (pupukRec > 0) {
         if (pupukRec > 3) {
@@ -147,14 +148,15 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
 
   }
 });
-infoDiv.addEventListener('hidden.bs.collapse', function () {
-  console.log('info collapse hide');
-  if (subStats.classList.contains('show') == true) {
-    console.log('sub-stats on');
-    // Stats.classList.add('info-active');
-    // bsInfoBtn.show();
-  }
-});
+
+// infoDiv.addEventListener('hidden.bs.collapse', function () {
+//   console.log('info collapse hide');
+//   if (subStats.classList.contains('show') == true) {
+//     console.log('sub-stats on');
+//     // Stats.classList.add('info-active');
+//     // bsInfoBtn.show();
+//   }
+// });
 
 /* infoBtn.addEventListener('show.bs.collapse', function () {
   console.log('btn info collapse hide');
@@ -354,7 +356,7 @@ map.on('singleclick', function (evt) {
 //   map.getTargetElement().style.cursor = hit ? 'pointer' : '';
 // });
 
-const gpDashboardClose = document.getElementById('gp-dashboard-close');
+// const gpDashboardClose = document.getElementById('gp-dashboard-close');
 const checkMap = document.getElementById('checkMap');
 const checkRaster = document.getElementById('checkRaster');
 const checkAfdeling = document.getElementById('checkAfdeling');
@@ -544,7 +546,7 @@ const reset = {
     // infoBtn.classList.remove('show');
     bsInfoDiv.hide();
     // bsInfoBtn.hide();
-    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+    // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
     // Stats.classList.remove('info-active');
     // map.getView().setZoom(14);
   }
@@ -647,7 +649,7 @@ function setMapInfos(layerJson) {
     subStats.innerHTML = content;
     subStats.classList.add('show');
 
-    statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
+    // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
 
     if (document.getElementById('map-filter-toggle').classList.contains('collapsed') == false) {
       console.log('filter-div on');
@@ -761,8 +763,8 @@ function getBlokData(layerId, layerName) {
         // }
         bsInfoDiv.show();
 
-        console.log(pupukRec);
-        console.log(panenRec);
+        // console.log(pupukRec);
+        // console.log(panenRec);
       });
 
     });
