@@ -48,6 +48,27 @@ export const firestore = {
             delete data.id;
         return data;
     },
+    companyPackage: async function (companyId) {
+        let q = query(collection(db, "companies"), where("id", "==", companyId));
+        let querySnapshot = await getDocs(q);
+        let data;
+        querySnapshot.forEach((doc) => {
+            data = {
+                package : doc.data().package
+            };
+        });
+
+        q = query(collection(db, `statics`), where("id", "==", 'package'));
+        querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            data = {
+                ...data,
+                data : doc.data()[data.package]
+            }
+        });
+
+        return data;
+    },
     getKebuns: async function (collectionId) {
         const q = query(collection(db, `companies/${collectionId}/kebuns`));
         const querySnapshot = await getDocs(q);
@@ -62,8 +83,7 @@ export const firestore = {
         return data;
     },
     getBlokColls: async function () {
-        const ref = collection(db, `statics`);
-        const q = query(ref, where("layer", "==", 'blok'));
+        const q = query(collection(db, `statics`), where("id", "==", 'blok'));
         const querySnapshot = await getDocs(q);
         let data;
         querySnapshot.forEach((doc) => {
@@ -162,6 +182,20 @@ function getUserData(email) {
                 localStorage.setItem('gp|selected_kebun', 0);
                 localStorage.setItem('gp|selected_tahun', 0);
                 location.reload();
+            })
+        });
+    })
+}
+
+export function userDataAsync(email) {
+    firestore.getUser(email).then((user) => {
+        localStorage.setItem('gp|user', JSON.stringify(user));
+
+        firestore.getCompany(user.company_id).then((company) => {
+            localStorage.setItem('gp|company', JSON.stringify(company));
+
+            firestore.getKebuns(company.collection).then((kebuns) => {
+                localStorage.setItem('gp|kebuns', JSON.stringify(kebuns));
             })
         });
     })

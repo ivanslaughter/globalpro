@@ -19,7 +19,7 @@ import { ScaleLine, OverviewMap, ZoomToExtent, defaults as defaultControls } fro
 import { fromLonLat, useGeographic, Projection, transformExtent } from 'ol/proj';
 import { Modal, Collapse, Tooltip, Offcanvas } from 'bootstrap';
 import numeral from 'numeral';
-import { firestore, auth } from './firebase';
+import { firestore, auth, userDataAsync } from './firebase';
 import { Timestamp } from 'firebase/firestore';
 import { showAlert, startLoadingButton, stopLoadingButton } from './animated';
 import nameFormatter from './name-formatter';
@@ -94,26 +94,26 @@ let layerGroup = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.
 let layerTree = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_tree : '';
 let layerRaster = kebuns ? kebuns[selected_kebun].geoserver[selected_tahun].data.layer_raster : [];
 
-const Stats = document.getElementById('stats');
+// const Stats = document.getElementById('stats');
 const mainStats = document.getElementById('main-stats');
 const subStats = document.getElementById('sub-stats');
 const infoDiv = document.body.querySelector('#info');
-const infoBtn = document.getElementById('info-button');
-const filterDiv = document.body.querySelector('#filter-div');
+// const infoBtn = document.getElementById('info-button');
+// const filterDiv = document.body.querySelector('#filter-div');
 const statsBoxesBtn = document.getElementById('stats-boxes-button');
 
-let bsStats = new Collapse(Stats, {
-  toggle: false
-});
+// let bsStats = new Collapse(Stats, {
+//   toggle: false
+// });
 let bsInfoDiv = new Collapse(infoDiv, {
   toggle: false
 });
-let bsInfoBtn = new Collapse(infoBtn, {
-  toggle: false
-});
-let bsFilterDiv = new Collapse(filterDiv, {
-  toggle: false
-});
+// let bsInfoBtn = new Collapse(infoBtn, {
+//   toggle: false
+// });
+// let bsFilterDiv = new Collapse(filterDiv, {
+//   toggle: false
+// });
 
 let scrollRec = isMobile() ? 61.56 : 75;
 
@@ -121,8 +121,8 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
   console.log('info collapse show');
   if (subStats.classList.contains('show') == true) {
     console.log('sub-stats on');
-    Stats.classList.remove('info-active');
-    bsInfoBtn.hide();
+    // Stats.classList.remove('info-active');
+    // bsInfoBtn.hide();
     // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
     if (!$.fn.DataTable.isDataTable('#table-pupuk')) {
       if (pupukRec > 0) {
@@ -151,8 +151,8 @@ infoDiv.addEventListener('hidden.bs.collapse', function () {
   console.log('info collapse hide');
   if (subStats.classList.contains('show') == true) {
     console.log('sub-stats on');
-    Stats.classList.add('info-active');
-    bsInfoBtn.show();
+    // Stats.classList.add('info-active');
+    // bsInfoBtn.show();
   }
 });
 
@@ -312,6 +312,10 @@ map.on('singleclick', function (evt) {
         const layerJson = JSON.parse(json);
         if (layerJson.features.length !== 0) {
           if (mapFullyLoaded) {
+            bsInfoDiv.hide();
+            // bsInfoBtn.hide();
+            // Stats.classList.remove('info-active');
+
             selectMap(layerJson);
             // mapFullyLoaded = false;
             // console.log('loaded -> ' + mapFullyLoaded);
@@ -528,6 +532,7 @@ const reset = {
       ModifyLayer.setActive(false);
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
+    $('#fab').hide();
     map.removeLayer(selectedLayer);
     selectedSource = null;
     selectedLayer = null;
@@ -538,9 +543,9 @@ const reset = {
     /* infoDiv.classList.remove('show'); */
     // infoBtn.classList.remove('show');
     bsInfoDiv.hide();
-    bsInfoBtn.hide();
+    // bsInfoBtn.hide();
     statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
-    Stats.classList.remove('info-active');
+    // Stats.classList.remove('info-active');
     // map.getView().setZoom(14);
   }
 }
@@ -596,8 +601,8 @@ function setMapInfos(layerJson) {
           } else {
             content += `<div class="stats-title">Info <div class="stats-title-text">${title}</div></div>`;
           }
-          if (!isMobile())
-            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
+          // if (!isMobile())
+          //   content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
 
           content += `<div id="sub-stats-boxes" class="stats-boxes collapse show">`;
           arrCol.forEach(element_ => {
@@ -617,10 +622,10 @@ function setMapInfos(layerJson) {
             });
           });
 
-          if (isAdmin)
-            content += `<button id="edit-feature" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-2' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
-          if (isMobile())
-            content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
+          // if (isAdmin)
+          //   content += `<button id="edit-feature" class="btn btn-warning btn-sm mt-1 ${!isMobile() ? 'mb-2' : ''}" data-toggle="modal" data-target="#modalFeature">Edit</button>`;
+          // if (isMobile())
+          //   content += `<button id="back-stats" class="btn btn-outline-warning btn-sm mt-2"><i class="jt-chevron-left"></i> Back</button></div>`;
           content += '</div>';
           prevLayer = element.id.split('.')[0];
           layerId = element.id;
@@ -663,7 +668,10 @@ function setMapInfos(layerJson) {
     });
 
     if (selectedFilter === 'blok') {
+      $('#info-button').show();
       getBlokData(layerId, layerName);
+    } else {
+      $('#info-button').hide();
     }
   }
 }
@@ -682,7 +690,7 @@ function getBlokData(layerId, layerName) {
       <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>`;
 
         if (tahun === new Date().getFullYear().toString() && isAdmin)
-          content += `<button id="add-data-blok-${element.collection}" data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="add-data-blok btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>`
+          content += `<button data-coll="${element.collection}" data-fields='${JSON.stringify(element.fields)}' class="add-data-blok btn btn-outline-warning btn-sm btn-block lh-1 m-2"><i class="jt-plus"></i></button>`
 
         content += `</div>`;
 
@@ -692,7 +700,7 @@ function getBlokData(layerId, layerName) {
           let th = false;
           let nullValue = true;
           const titleArr = Object.keys(data.data[0]);
-          
+
           data.data.forEach(element_ => {
             if (element_.tanggal.toDate().getFullYear().toString() === tahun) {
               titleTable += !th ? "<tr>" : "";
@@ -747,22 +755,17 @@ function getBlokData(layerId, layerName) {
 
         //infoDiv.classList.add('show');
         infoDiv.classList.remove('full-width');
-        let sidebarInfoGap = window.innerHeight - document.getElementById('sidebar').clientHeight - 17.28 - infoDiv.clientHeight;
-        if (sidebarInfoGap > 17.28) {
-          infoDiv.classList.add('full-width');
-        }
+        // let sidebarInfoGap = window.innerHeight - document.getElementById('sidebar').clientHeight - 17.28 - infoDiv.clientHeight;
+        // if (sidebarInfoGap > 17.28) {
+        //   infoDiv.classList.add('full-width');
+        // }
         bsInfoDiv.show();
 
         console.log(pupukRec);
         console.log(panenRec);
-
-
       });
 
     });
-
-
-
 
     showModalBlok(layerId, layerName);
   })
@@ -802,13 +805,20 @@ function showModalBlok(layerId, layerName) {
   }
 
   $('#info').on('click', '.add-data-blok', function () {
-    const coll = $(this).attr("data-coll");
-    const fields = $(this).data("fields");
+    firestore.companyPackage(user.company_id).then(function (data) {
+      if (data.data.editable) {
+        const coll = $(this).attr("data-coll");
+        const fields = $(this).data("fields");
 
-    $('#modalBlokTitle').text(`Tambah data ${coll}`)
-    $('#bodyBlok').html(formBlok(coll, fields).content);
-    $('#footerBlok').html(formBlok(coll, fields).footer);
-    modalBlok.show();
+        $('#modalBlokTitle').text(`Tambah data ${coll}`)
+        $('#bodyBlok').html(formBlok(coll, fields).content);
+        $('#footerBlok').html(formBlok(coll, fields).footer);
+        modalBlok.show();
+      } else {
+        $('#bodyConfirm').text('Anda berada di akun ' + data.package[0].toUpperCase() + data.package.slice(1) + '. Upgrade akun Anda agar dapat menggunakan fitur ini');
+        modalConfirm.show();
+      }
+    });
   });
 }
 
@@ -871,11 +881,28 @@ function showModalFeature(layerId, layerProperties) {
   };
 }
 
-$('#sub-stats').on('click', '#edit-feature', function () {
-  $('#bodyFeature').html(formFeature.content);
-  $('#footerFeature').html(formFeature.footer);
-  modalFeature.show();
-});
+$("#edit-feature").on('click', () => {
+  firestore.companyPackage(user.company_id).then(function (data) {
+    if (data.data.editable) {
+      $('#bodyFeature').html(formFeature.content);
+      $('#footerFeature').html(formFeature.footer);
+      modalFeature.show();
+    } else {
+      $('#bodyConfirm').text('Anda berada di akun ' + data.package[0].toUpperCase() + data.package.slice(1) + '. Upgrade akun Anda agar dapat menggunakan fitur ini');
+      modalConfirm.show();
+    }
+  });
+})
+
+$("#info-button").on('click', () => {
+  bsInfoDiv.show();
+})
+
+// $('#sub-stats').on('click', '#edit-feature', function () {
+//   $('#bodyFeature').html(formFeature.content);
+//   $('#footerFeature').html(formFeature.footer);
+//   modalFeature.show();
+// });
 
 $('#footerFeature').on('click', '#save-feature', function () {
   startLoadingButton('save-feature');
@@ -930,9 +957,11 @@ function selectMap(layerJson) {
         setSelectMap();
         setMapInfos(layerJson);
       } else {
-        bsInfoDiv.show();
+        if (selectedFilter === 'blok')
+          bsInfoDiv.show();
+
         if (isAdmin) {
-          $('#bodyConfirm').text('Anda mengaktifkan mode edit geometri. Silahkan tarik garis yang berwarna biru untuk mengubah posisi geometri. Pilih "Edit" - "Save" untuk menyimpan.');
+          $('#bodyConfirm').text('Anda mengaktifkan mode edit geometri. Silahkan tarik garis yang berwarna biru untuk mengubah posisi geometri. Pilih tombol "+" - "edit" - "Save" untuk menyimpan.');
           modalConfirm.show();
         }
       }
@@ -944,6 +973,7 @@ function selectMap(layerJson) {
 }
 
 function setSelectMap() {
+  $('#fab').show();
   $("#sidebar").addClass("select-active");
   map.addLayer(selectedLayer);
   prevSelected = selectedLayer;
@@ -1166,6 +1196,7 @@ window.addEventListener('DOMContentLoaded', event => {
     $("#company-name-2").text(company.company_name);
     $("#nama-kebun-1").text(kebuns[selected_kebun].nama_kebun);
     $("#nama-kebun-2").text(kebuns[selected_kebun].nama_kebun);
+    userDataAsync(user.email);
     farmSelectOptions();
     yearSelectOptions();
     getKebunData();
@@ -1231,13 +1262,22 @@ if (!isAdmin)
 userAdmin.addEventListener('click', event => {
   $("#admin-name").text(user.name);
   $("#admin-company").text(company.company_name);
-  listUser();
+  firestore.companyPackage(user.company_id).then(function (data) {
+    $("#account-type").text(data.package[0].toUpperCase() + data.package.slice(1));
+    $("#account-limit").text('Anda dapat menambahkan ' + data.data.account_limit + ' akun');
+
+    listUser(data.data.account_limit);
+  });
+
   document.querySelector('.logged-off').classList.remove('show');
   document.querySelector('.logged-on').classList.add('show');
 });
 
-function listUser() {
+function listUser(account_limit) {
   firestore.listUser(user.company_id).then(function (users) {
+    if (users.length >= account_limit)
+      $("#addUser").addClass('disabled');
+
     $('#admin-table tbody').empty();
     let content = "";
     if (users) {
@@ -1264,7 +1304,7 @@ $("#addUser").on('click', () => {
   const password = $("#admin-password").val();
   const jabatan = $("#admin-jabatan").val();
 
-  if (nama == "" || email == "" || password == "" || jabatan == "") {
+  if (name == "" || email == "" || password == "" || jabatan == "") {
     stopLoadingButton('addUser');
     showAlert('alert-admin', 'alert-danger', 'Mohon lengkapi data');
 
