@@ -116,6 +116,9 @@ let bsInfoDiv = new Collapse(infoDiv, {
 // });
 
 let scrollRec = isMobile() ? 61.56 : 75;
+let infoText = {
+  info: "Total _TOTAL_ records",
+}
 
 infoDiv.addEventListener('shown.bs.collapse', function () {
   console.log('info collapse show');
@@ -128,9 +131,10 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
     if (!$.fn.DataTable.isDataTable('#table-pupuk')) {
       if (pupukRec > 0) {
         if (pupukRec > 3) {
-          tablePupuk = $('#table-pupuk').DataTable({ scrollY: scrollRec, paging: false, filter: false });
+          tablePupuk = $('#table-pupuk').DataTable({
+            scrollY: scrollRec, paging: false, filter: false, language: infoText });
         } else {
-          tablePupuk = $('#table-pupuk').DataTable({ paging: false, filter: false });
+          tablePupuk = $('#table-pupuk').DataTable({ paging: false, filter: false, language: infoText });
         }
       }
     }
@@ -138,9 +142,9 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
     if (!$.fn.DataTable.isDataTable('#table-panen')) {
       if (panenRec > 0) {
         if (panenRec > 3) {
-          tablePanen = $('#table-panen').DataTable({ scrollY: scrollRec, paging: false, filter: false });
+          tablePanen = $('#table-panen').DataTable({ scrollY: scrollRec, paging: false, filter: false, language: infoText });
         } else {
-          tablePanen = $('#table-panen').DataTable({ paging: false, filter: false });
+          tablePanen = $('#table-panen').DataTable({ paging: false, filter: false, language: infoText });
         }
       }
     }
@@ -742,11 +746,11 @@ function getBlokData(layerId, layerName) {
             </table>
             </div>`;
           } else {
-            content += `<div class="mb-2">Belum ada data</div>`;
+            content += `<div class="mt-1 mb-2">Belum ada data</div>`;
           }
 
         } else {
-          content += `<div class="mb-2">Belum ada data</div>`;
+          content += `<div class="mt-1 mb-2">Belum ada data</div>`;
         }
         content += `</div>`;
 
