@@ -251,19 +251,19 @@ const wmsTree = new ImageLayer({
 });
 
 const tlRaster = [];
-// layerRaster.forEach(element => {
-//   const sourceRaster = new TileJSON({
-//     url: element,
-//     tileSize: 256,
-//     crossOrigin: 'anonymous'
-//   });
+layerRaster.forEach(element => {
+  const sourceRaster = new TileJSON({
+    url: element,
+    tileSize: 256,
+    crossOrigin: 'anonymous'
+  });
 
-//   tlRaster.push(new TileLayer({
-//     //extent: [408380,467955,414599,475177],
-//     name: 'layer-raster',
-//     source: sourceRaster,
-//   }));
-// });
+  tlRaster.push(new TileLayer({
+    //extent: [408380,467955,414599,475177],
+    name: 'layer-raster',
+    source: sourceRaster,
+  }));
+});
 
 const layers = [osmLayer].concat(tlRaster);
 layers.push(wsmGroup);
@@ -417,7 +417,7 @@ checkGroup.addEventListener('change', (event) => {
 checkTree.addEventListener('change', (event) => {
   if (event.currentTarget.checked) {
     const layers = map.getLayers();
-    layers.insertAt(2, wmsTree);
+    layers.insertAt(3, wmsTree);
   } else {
     map.removeLayer(wmsTree);
   }
@@ -1319,7 +1319,8 @@ $("#addUser").on('click', () => {
     name,
     email,
     password,
-    jabatan
+    jabatan,
+    createdAt: Timestamp.fromDate(new Date())
   }
 
   auth.addUser(newuser).then((userCredential) => {
