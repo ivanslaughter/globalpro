@@ -11,6 +11,7 @@ const { defineConfig } = require('vite')
 
 module.exports = defineConfig({
   build: {
+    chunkSizeWarningLimit: 1600,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),

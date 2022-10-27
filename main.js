@@ -65,8 +65,6 @@ let panenRec = 0;
 let tablePanen;
 let tablePupuk;
 
-//let gsHost = 'http://ec2-18-136-119-137.ap-southeast-1.compute.amazonaws.com:8080';
-//let gsHost = 'http://ec2-18-142-49-57.ap-southeast-1.compute.amazonaws.com:8080';
 let gsHost = 'http://128.199.253.151:8080';
 // let gsHost = 'http://localhost:8080';
 
@@ -121,9 +119,9 @@ let infoText = {
 }
 
 infoDiv.addEventListener('shown.bs.collapse', function () {
-  console.log('info collapse show');
+  // console.log('info collapse show');
   if (subStats.classList.contains('show') == true) {
-    console.log('sub-stats on');
+    // console.log('sub-stats on');
     // Stats.classList.remove('info-active');
     // bsInfoBtn.hide();
     // statsBoxesBtn.innerHTML = '<i class="jt-chevron-thin-up"></i>';
@@ -132,7 +130,8 @@ infoDiv.addEventListener('shown.bs.collapse', function () {
       if (pupukRec > 0) {
         if (pupukRec > 3) {
           tablePupuk = $('#table-pupuk').DataTable({
-            scrollY: scrollRec, paging: false, filter: false, language: infoText });
+            scrollY: scrollRec, paging: false, filter: false, language: infoText
+          });
         } else {
           tablePupuk = $('#table-pupuk').DataTable({ paging: false, filter: false, language: infoText });
         }
@@ -179,9 +178,9 @@ function transform(extent) {
 
 const mapExtent = transform([98.17655462693399, 4.233276920014973, 98.2303961838639, 4.298548400759917]);
 
-let mapPadding = [50, 198, 216, 247.68];
+let mapPadding = [50, 198, 0, 247];
 if (isMobile()) {
-  mapPadding = [90, 30, 90, 90];
+  mapPadding = [90, 30, 0, 90];
 }
 
 const source = new OSM();
@@ -282,7 +281,9 @@ const view = new View({
   center: mapCenter,
   pixelRatio: 1,
   padding: mapPadding,
-  zoom: 14,
+  zoom: isMobile() ? 13 : 14,
+  maxZoom: 20,
+  minZoom: isMobile() ? 13 : 14
 });
 
 const map = new Map({
@@ -292,7 +293,7 @@ const map = new Map({
   view: view,
 });
 
-map.getView().fit(mapExtent);
+map.getView().fit(mapExtent, { duration: 1500 });
 
 map.on('singleclick', function (evt) {
   const viewResolution = /** @type {number} */ (view.getResolution());
@@ -536,6 +537,7 @@ const reset = {
   mapView: function () {
     if (selectedSource && isAdmin)
       ModifyLayer.setActive(false);
+
     $("#sidebar").removeClass("select-active");
     $("#user-box").show();
     $('#fab').hide();
@@ -612,13 +614,16 @@ function setMapInfos(layerJson) {
 
           content += `<div id="sub-stats-boxes" class="stats-boxes collapse show">`;
           arrCol.forEach(element_ => {
+
             if (element_ !== 'Block') {
               const el_label = element_.replace('_', ' ');
-              content += `
-              <div id="${element_}" class="stats-box">
-              <div class="stats-label">${el_label[0].toUpperCase() + el_label.slice(1)}</div>
-              <div class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
-            </div>`;
+              if (el_label.toLowerCase() !== "id") {
+                content += `
+                <div id="${element_}" class="stats-box">
+                <div class="stats-label">${el_label[0].toUpperCase() + el_label.slice(1)}</div>
+                <div class="stats-value">${isNaN(element.properties[element_]) ? element.properties[element_] : numeral(element.properties[element_]).format(',0')}</div>
+              </div>`;
+              }
             }
 
             let fieldNames = element_.split('_');
@@ -670,7 +675,7 @@ function setMapInfos(layerJson) {
 
     document.getElementById('back-stats').addEventListener('click', event => {
       reset.mapView();
-      map.getView().fit(mapExtent);
+      map.getView().fit(mapExtent, { duration: 1500 });
     });
 
     if (selectedFilter === 'blok') {
@@ -691,6 +696,7 @@ function getBlokData(layerId, layerName) {
     collections.forEach(element => {
       firestore.getBlokData(company.collection, kebuns[selected_kebun].collection, element.collection, layerId).then(function (data) {
         const tahun = kebuns[selected_kebun].geoserver[selected_tahun].tahun;
+
         let content = `<div class="col-sm">`;
         content += `<div class="d-flex align-items-center">
       <div class="stats-title align-middle">${element.collection[0].toUpperCase() + element.collection.slice(1)}</div>`;
@@ -811,10 +817,11 @@ function showModalBlok(layerId, layerName) {
   }
 
   $('#info').on('click', '.add-data-blok', function () {
+    const coll = $(this).attr("data-coll");
+    const fields = $(this).data("fields");
+
     firestore.companyPackage(user.company_id).then(function (data) {
       if (data.data.editable) {
-        const coll = $(this).attr("data-coll");
-        const fields = $(this).data("fields");
 
         $('#modalBlokTitle').text(`Tambah data ${coll}`)
         $('#bodyBlok').html(formBlok(coll, fields).content);
@@ -874,7 +881,10 @@ function showModalFeature(layerId, layerProperties) {
   const arrCol = Object.keys(layerProperties);
   arrCol.forEach(element => {
     const el_label = element.replace('_', ' ');
-    content += `<label class="mt-1" for="${layerId.replace('.', '_') + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="text" id="${layerId.replace('.', '_') + "-" + element}" value='${layerProperties[element]}'>`;
+    if (el_label.toLowerCase() !== 'id')
+      content += `<label class="mt-1" for="${layerId.replace('.', '_') + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input class="form-control" type="text" id="${layerId.replace('.', '_') + "-" + element}" value='${layerProperties[element]}'>`;
+    else
+      content += `<label hidden class="mt-1" for="${layerId.replace('.', '_') + "-" + element}">${el_label[0].toUpperCase() + el_label.slice(1)}</label><input hidden class="form-control" type="text" id="${layerId.replace('.', '_') + "-" + element}" value='${layerProperties[element]}'>`;
   });
 
   content += '<div id="alert-feature"></div></div>';
